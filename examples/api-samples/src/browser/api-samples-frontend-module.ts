@@ -30,6 +30,7 @@ import { rebindOVSXClientFactory } from '../common/vsx/sample-ovsx-client-factor
 import { bindSampleAppInfo } from './vsx/sample-frontend-app-info';
 import { bindTestSample } from './test/sample-test-contribution';
 import { bindSampleFileSystemCapabilitiesCommands } from './file-system/sample-file-system-capabilities';
+import { bindOpenStartWidget } from './open-start/open-start-contribution';
 
 export default new ContainerModule((
     bind: interfaces.Bind,
@@ -37,6 +38,7 @@ export default new ContainerModule((
     isBound: interfaces.IsBound,
     rebind: interfaces.Rebind,
 ) => {
+    bindOpenStartWidget(bind);
     bindDynamicLabelProvider(bind);
     bindSampleUnclosableView(bind);
     bindSampleOutputChannelWithSeverity(bind);

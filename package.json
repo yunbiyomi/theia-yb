@@ -117,5 +117,8 @@
     "vscode.github-authentication",
     "vscode.microsoft-authentication",
     "ms-vscode.references-view"
-  ]
+  ],
+  "dependencies": {
+    "@theia/editor": "^1.48.0"
+  }
 }

@@ -17,7 +17,7 @@
 import { GettingStartedContribution } from './getting-started-contribution';
 import { ContainerModule, interfaces } from '@theia/core/shared/inversify';
 import { GettingStartedWidget } from './getting-started-widget';
-import { WidgetFactory, FrontendApplicationContribution, bindViewContribution } from '@theia/core/lib/browser';
+import { FrontendApplicationContribution, WidgetFactory, bindViewContribution } from '@theia/core/lib/browser';
 import { bindGettingStartedPreferences } from './getting-started-preferences';
 import '../../src/browser/style/index.css';
 
