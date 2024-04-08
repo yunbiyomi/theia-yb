@@ -16,7 +16,15 @@
 
 import { inject, injectable, interfaces } from '@theia/core/shared/inversify';
 import { OpenStartWidget } from './open-start-widget';
-import { AbstractViewContribution, CommonMenus, FrontendApplication, FrontendApplicationContribution, WidgetFactory, bindViewContribution } from '@theia/core/lib/browser';
+import {
+    AbstractViewContribution,
+    CommonMenus,
+    DefaultFrontendApplicationContribution,
+    FrontendApplication,
+    FrontendApplicationContribution,
+    WidgetFactory,
+    bindViewContribution
+} from '@theia/core/lib/browser';
 import { FrontendApplicationStateService } from '@theia/core/lib/browser/frontend-application-state';
 import { CommandRegistry, MenuModelRegistry } from '@theia/core';
 import { bindOpenStartPreferences } from './oepn-start-preferences';
@@ -66,6 +74,7 @@ export class OpenStartContribution extends AbstractViewContribution<OpenStartWid
 }
 
 export const bindOpenStartWidget = (bind: interfaces.Bind, unbind: interfaces.Unbind) => {
+    bind(DefaultFrontendApplicationContribution).toSelf().inSingletonScope();
     bindViewContribution(bind, OpenStartContribution);
     bind(FrontendApplicationContribution).toService(OpenStartContribution);
     bind(OpenStartWidget).toSelf();
@@ -74,4 +83,5 @@ export const bindOpenStartWidget = (bind: interfaces.Bind, unbind: interfaces.Un
         createWidget: () => context.container.get<OpenStartWidget>(OpenStartWidget)
     })).inSingletonScope();
     bindOpenStartPreferences(bind);
+    bind(FrontendApplicationContribution).toDynamicValue(context => context.container.get(OpenStartWidget)).inSingletonScope();
 };

@@ -25,6 +25,7 @@ export class OpenStartWidget extends ReactWidget {
     static readonly ID = 'open.start.widget';
     static readonly LABEL = nls.localizeByDefault('Open');
 
+    // 클래스 초기화
     @postConstruct()
     protected init(): void {
         this.doInit();
@@ -38,6 +39,7 @@ export class OpenStartWidget extends ReactWidget {
         this.update();
     }
 
+    // 위젯 렌더링
     protected render(): React.ReactNode {
         return <div>
             <h1>Open Start!</h1>
@@ -45,6 +47,7 @@ export class OpenStartWidget extends ReactWidget {
         </div>;
     }
 
+    // 버튼 클릭시 설정한 메세지 서비스
     @inject(MessageService)
     protected readonly messageService!: MessageService;
 
