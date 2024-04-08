@@ -38,7 +38,6 @@ export default new ContainerModule((
     isBound: interfaces.IsBound,
     rebind: interfaces.Rebind,
 ) => {
-    bindOpenStartWidget(bind);
     bindDynamicLabelProvider(bind);
     bindSampleUnclosableView(bind);
     bindSampleOutputChannelWithSeverity(bind);
@@ -52,4 +51,5 @@ export default new ContainerModule((
     bindTestSample(bind);
     bindSampleFileSystemCapabilitiesCommands(bind);
     rebindOVSXClientFactory(rebind);
+    bindOpenStartWidget(bind, unbind);
 });

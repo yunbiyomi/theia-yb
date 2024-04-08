@@ -45,9 +45,9 @@ export class OpenStartContribution extends AbstractViewContribution<OpenStartWid
     }
 
     async onStart(app: FrontendApplication): Promise<void> {
-        this.stateService.reachedState('ready').then(
-            () => this.openView({ reveal: true })
-        );
+        this.stateService.reachedState('ready').then(async () => {
+            this.openView({ reveal: true, activate: true });
+        });
     }
 
     override registerCommands(registry: CommandRegistry): void {
@@ -65,7 +65,7 @@ export class OpenStartContribution extends AbstractViewContribution<OpenStartWid
     }
 }
 
-export const bindOpenStartWidget = (bind: interfaces.Bind) => {
+export const bindOpenStartWidget = (bind: interfaces.Bind, unbind: interfaces.Unbind) => {
     bindViewContribution(bind, OpenStartContribution);
     bind(FrontendApplicationContribution).toService(OpenStartContribution);
     bind(OpenStartWidget).toSelf();

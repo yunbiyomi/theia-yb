@@ -15,9 +15,18 @@
 // *****************************************************************************
 
 import * as React from '@theia/core/shared/react';
+<<<<<<< HEAD
 import { injectable, postConstruct } from '@theia/core/shared/inversify';
 import { ReactWidget } from '@theia/core/lib/browser';
 import { ApplicationInfo } from '@theia/core/lib/common/application-protocol';
+=======
+import URI from '@theia/core/lib/common/uri';
+import { injectable, inject, postConstruct } from '@theia/core/shared/inversify';
+import { CommandRegistry } from '@theia/core/lib/common';
+import { WorkspaceService } from '@theia/workspace/lib/browser';
+import { Message, ReactWidget, LabelProvider, PreferenceService } from '@theia/core/lib/browser';
+import { ApplicationInfo, ApplicationServer } from '@theia/core/lib/common/application-protocol';
+>>>>>>> 5cad73eb8f1a2ed339759c45e45f5fe0b6b356b3
 import { FrontendApplicationConfigProvider } from '@theia/core/lib/browser/frontend-application-config-provider';
 import { nls } from '@theia/core/lib/common/nls';
 
@@ -82,8 +91,12 @@ export class GettingStartedWidget extends ReactWidget {
      * Render the content of the widget.
      */
     protected render(): React.ReactNode {
+<<<<<<< HEAD
         return <div>
             <h1>Hello World!</h1>
+=======
+        return <div className='gs-container'>
+>>>>>>> 5cad73eb8f1a2ed339759c45e45f5fe0b6b356b3
         </div>;
     }
 }
