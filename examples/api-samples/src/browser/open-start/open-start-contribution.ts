@@ -19,7 +19,6 @@ import { OpenStartWidget } from './open-start-widget';
 import {
     AbstractViewContribution,
     CommonMenus,
-    DefaultFrontendApplicationContribution,
     FrontendApplication,
     FrontendApplicationContribution,
     WidgetFactory,
@@ -27,7 +26,7 @@ import {
 } from '@theia/core/lib/browser';
 import { FrontendApplicationStateService } from '@theia/core/lib/browser/frontend-application-state';
 import { CommandRegistry, MenuModelRegistry } from '@theia/core';
-import { bindOpenStartPreferences } from './oepn-start-preferences';
+import { GettingStartedWidget } from './../../../../../packages/getting-started/lib/browser/getting-started-widget';
 
 export const OpenStartCommand = {
     id: OpenStartWidget.ID,
@@ -58,12 +57,6 @@ export class OpenStartContribution extends AbstractViewContribution<OpenStartWid
         });
     }
 
-    override registerCommands(registry: CommandRegistry): void {
-        registry.registerCommand(OpenStartCommand, {
-            execute: () => this.openView({ reveal: true, activate: true }),
-        });
-    }
-
     override registerMenus(menus: MenuModelRegistry): void {
         menus.registerMenuAction(CommonMenus.HELP, {
             commandId: OpenStartCommand.id,
@@ -71,10 +64,15 @@ export class OpenStartContribution extends AbstractViewContribution<OpenStartWid
             order: 'a10'
         });
     }
+
+    override registerCommands(registry: CommandRegistry): void {
+        registry.registerCommand(OpenStartCommand, {
+            execute: () => this.openView({ reveal: true, activate: true }),
+        });
+    }
 }
 
-export const bindOpenStartWidget = (bind: interfaces.Bind, unbind: interfaces.Unbind) => {
-    bind(DefaultFrontendApplicationContribution).toSelf().inSingletonScope();
+export const bindOpenStartWidget = (bind: interfaces.Bind, unbind: interfaces.Unbind, rebind: interfaces.Rebind) => {
     bindViewContribution(bind, OpenStartContribution);
     bind(FrontendApplicationContribution).toService(OpenStartContribution);
     bind(OpenStartWidget).toSelf();
@@ -82,6 +80,5 @@ export const bindOpenStartWidget = (bind: interfaces.Bind, unbind: interfaces.Un
         id: OpenStartWidget.ID,
         createWidget: () => context.container.get<OpenStartWidget>(OpenStartWidget)
     })).inSingletonScope();
-    bindOpenStartPreferences(bind);
-    bind(FrontendApplicationContribution).toDynamicValue(context => context.container.get(OpenStartWidget)).inSingletonScope();
+    unbind(GettingStartedWidget);
 };
