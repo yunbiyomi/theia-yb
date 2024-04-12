@@ -14,6 +14,24 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
  ********************************************************************************/
 
+.chat-button {
+    position: sticky;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    bottom: 1rem;
+    right: 1rem;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    font-size: 1.8rem;
+    color: white;
+    background-color: #68217a;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
 .widget-container {
     display: flex;
     justify-content: center;
@@ -30,7 +48,7 @@
     flex-direction: column;
     width: 100%;
     border-radius: 10px;
-    background-color: #68217a;
+    background: linear-gradient(#1e1e1e, #68217a);
 }
 
 .header-content {
@@ -54,6 +72,10 @@
     padding: 7px;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.title-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .input-wrap {
@@ -115,7 +137,7 @@
     cursor: pointer;
 }
 
-.menu-button:hover {
+.button-content:hover .menu-button {
     scale: 1.2;
 }
 
@@ -148,7 +170,7 @@
     font-weight: bold;
 }
 
-.items-list {
+.items {
     display: flex;
     list-style: none;
     padding: 0;
@@ -156,14 +178,14 @@
     gap: 30px;
 }
 
-.item {
+.additional-item {
+    position: relative;
     list-style: none;
     padding: 0;
     cursor: pointer;
 }
 
-.item-image {
-    position: relative;
+.additional-item-image {
     width: 12rem;
     height: 9rem;
     border-radius: 10px;
@@ -171,10 +193,60 @@
     filter: brightness(1);
 }
 
-.item-image:hover {
-    filter: blur(4px);
-    filter: brightness(0.5);
-    transition: all ease 0.3s;
+
+.additional-hover-button {
+    position: absolute;
+    width: 2rem;
+    height: 2rem;
+    top: 10px;
+    right: 10px;
+    outline: none;
+    border: none;
+    background-color: #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 999999;
+    transition: all ease-in .1s;
+    opacity: 0;
+}
+
+.search-tip-box {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    z-index: 10px;
+    font-size: 1rem;
+}
+
+.size-content {
+    font-size: 0.8rem;
+    margin-bottom: 30px;
+    opacity: 0;
+}
+
+.additional-item:hover .additional-hover-button {
+    opacity: 1;
+}
+
+.additional-item:hover .size-content {
+    opacity: 1;
+}
+
+.additional-item:hover .additional-item-image {
+    filter: blur(1px) brightness(50%);
+}
+
+.additional-item:hover::after {
+    content: '빈 디자인 만들기';
+    position: absolute;
+    top: 4rem;
+    left: 2.5rem;
+    color: white;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: all ease-in .1s;
 }
 
 .docs {
@@ -225,10 +297,10 @@
     background-image: url('./assets/스토리.JPG');
 }
 
-.item-name {
+.additional-item-name {
     font-size: 1rem;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .current-design {
@@ -249,6 +321,7 @@
 
 .design-type {
     font-size: 0.7rem;
+    margin-bottom: 30px;
 }
 
 .no-image {
@@ -256,10 +329,240 @@
 }
 
 .change-view-type-button {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 2rem;
     height: 2rem;
     border: none;
     outline: none;
     background-color: transparent;
     cursor: pointer;
+}
+
+.change-view-type-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.type-tip-box {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    z-index: 10px;
+    font-size: 1rem;
+}
+
+.design-item {
+    position: relative;
+    list-style: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.hover-button-wrap {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 999999;
+    transition: all ease-in .1s;
+    opacity: 0;
+}
+
+.design-hover-button {
+    width: 2rem;
+    height: 2rem;
+    margin-left: 5px;
+    outline: none;
+    border: none;
+    background-color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0;
+}
+
+.design-item:hover .hover-button-wrap {
+    opacity: 1;
+}
+
+.design-item:hover .design-hover-button {
+    opacity: 1;
+}
+
+.design-hover-button:hover {
+    background-color: #f9e0ff;
+}
+
+.design-item-image {
+    width: 12rem;
+    height: 9rem;
+    border-radius: 10px;
+    object-fit: cover;
+    filter: brightness(1);
+}
+
+.design-item:hover .design-item-image {
+    filter: brightness(70%);
+    transition: all ease-in .1s;
+}
+
+.design-item-name {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.items-list {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.design-item-list {
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    grid-template-columns: 1fr 5fr 3fr 3fr 3fr 0.5fr;
+    box-sizing: border-box;
+    width: 100%;
+    border-bottom: 1px solid #CCC;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.design-item-list:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    transition: all ease-in .1s;
+}
+
+.design-item-list:last-child {
+    justify-content: end;
+}
+
+.design-item-image-list {
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-right: 10px;
+    border-radius: 3px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+}
+
+.design-item-name-list {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.design-type-list {
+    font-size: 0.9rem;
+}
+
+.more-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    outline: none;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.more-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.advertisement-container {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    padding: 30px 50px;
+    width: 100%;
+    background: hsla(288, 57%, 30%, 0.8);
+    border-radius: 30px;
+}
+
+.left-box {
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: column;
+    margin-right: 20px;
+}
+
+.advertisement-title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+}
+
+.advertisement-content {
+    font-size: 1rem;
+    color: white;
+}
+
+.advertisement-button-wrap {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.advertisement-button {
+    width: 9rem;
+    height: 3rem;
+    color: white;
+    outline: none;
+    border: 1px solid white;
+    border-radius: 50px;
+    background-color: transparent;
+    margin-right: 30px;
+    cursor: pointer;
+    font-size: 1.05rem;
+}
+
+.advertisement-button:hover {
+    background-color: white;
+    color: #68217a;
+    transition: all ease-in .2s;
+}
+
+.right-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theia-image {
+    width: 20rem;
+    height: 15rem;
+    background-image: url('./assets/테이아\ 화면.JPG');
+}
+
+@media (max-width: 1024px) {
+    .menu-button {
+        margin: 0 15px;
+    }
+
+    .design-item-image {
+        width: 16rem;
+        height: 12rem;
+        background-image: url('./assets/큰\ 기본이미지.JPG');
+    }
+
+    .theia-image {
+        width: 16rem;
+        height: 12rem;
+    }
 }
