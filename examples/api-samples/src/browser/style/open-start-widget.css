@@ -155,6 +155,22 @@
     font-weight: bold;
 }
 
+.slider-container {
+    display: flex;
+    overflow: scroll;
+    width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+.slider-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.slider-container::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+
 .slider-button {
     display: flex;
     top: 27rem;
@@ -171,6 +187,10 @@
     outline: none;
     z-index: 99999999;
     position: absolute;
+}
+
+.slider-button:disabled {
+    opacity: 0;
 }
 
 .slider-button:hover {
@@ -231,7 +251,6 @@
 
 .size-content {
     font-size: 0.8rem;
-    margin-bottom: 30px;
     opacity: 0;
     transition: all ease-in .2s;
 }
