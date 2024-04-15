@@ -41,7 +41,7 @@ export default function HeaderComponent(): React.JSX.Element {
             </div>
             <div className="button-wrap">
                 <div className="button-content">
-                    <button className='menu-button customized-button'>
+                    <button className='menu-button'>
                         <HiSparkles size='1.7rem' color='#2d3cae' />
                     </button>
                     <p className='menu-name'>맞춤형</p>
