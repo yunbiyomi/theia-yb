@@ -30,6 +30,7 @@ export default function OpenStartWidgetComponent(): React.JSX.Element {
     const [isMouseHover, setIsMouseHover] = React.useState(false);
     const [slidePosition, setSlidePosition] = React.useState(0);
     const sliderRef = React.useRef<HTMLDivElement | null>(null);
+    const inputRef = React.useRef<HTMLInputElement | null>(null);
 
     // 최근 디자인 보기 type 저장
     const handleViewType = () => {
@@ -117,10 +118,10 @@ export default function OpenStartWidgetComponent(): React.JSX.Element {
                     <button className='title-button'>업로드</button>
                 </div>
                 <div className="input-wrap">
-                    <div className='search-icon'>
+                    <div className='search-icon' onClick={() => inputRef.current?.focus()}>
                         <BiSearch size='1.5rem' color='black' />
                     </div>
-                    <input className='search-input' type="text" placeholder='내 콘텐츠 또는 Theia 콘텐츠 검색' />
+                    <input ref={inputRef} className='search-input' type="text" placeholder='내 콘텐츠 또는 Theia 콘텐츠 검색' />
                 </div>
                 <div className="button-wrap">
                     <div className="button-content">
