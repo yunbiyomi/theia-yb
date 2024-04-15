@@ -27,11 +27,22 @@ import { AiOutlineUnorderedList } from "react-icons/ai";
 
 export default function OpenStartWidgetComponent(): React.JSX.Element {
     const [isViewList, setIsViewList] = React.useState(false);
+    const [isMouseHover, setIsMouseHover] = React.useState(false);
     const [currentIndex, setCurrentIndex] = React.useState(0);
+    const itemsRef = React.useRef<HTMLUListElement>(null);
 
     // 최근 디자인 보기 type 저장
     const handleViewType = () => {
         setIsViewList(!isViewList);
+    }
+
+    // change-view-type-button hover 여부
+    const handleMouseOver = () => {
+        setIsMouseHover(true);
+    }
+
+    const handleMouseOut = () => {
+        setIsMouseHover(false);
     }
 
     // 추천 항목 hover시 돋보기 버튼 생성
@@ -67,10 +78,16 @@ export default function OpenStartWidgetComponent(): React.JSX.Element {
     };
 
     const nextSlide = () => {
-        setCurrentIndex(currentIndex + 1);
+        if (itemsRef.current) {
+            const numItems = itemsRef.current.childNodes.length;
+            const maxIndex = Math.max(0, numItems - 5);
+            if (currentIndex < maxIndex) {
+                setCurrentIndex(currentIndex + 1);
+            }
+        }
     };
 
-
+    // Header
     const HeaderContainer = () => {
         return (
             <section className='header-box'>
@@ -139,14 +156,14 @@ export default function OpenStartWidgetComponent(): React.JSX.Element {
         )
     }
 
-
+    // 추천 항목
     const AdditionalContainer = () => {
         return (
             <section className='additional-items'>
                 <h3 className='sub-title'>추천 항목</h3>
                 <div className='slider-container'>
                     <button className='slider-button prev-button' onClick={prevSlide}>◀</button>
-                    <ul className='items' style={{ transform: `translateX(-${currentIndex * 12}rem)` }}>
+                    <ul ref={itemsRef} className='items' style={{ transform: `translateX(-${currentIndex * 12}rem)` }}>
                         <li className='additional-item'>
                             {hoverAdditionalItem()}
                             <div className='additional-item-image docs' />
@@ -254,7 +271,11 @@ export default function OpenStartWidgetComponent(): React.JSX.Element {
                 <div className='title-wrap'>
                     <h3 className='sub-title'>최근 디자인</h3>
                     <div className='type-container'>
-                        <button className='change-view-type-button' onClick={handleViewType}>
+                        <button
+                            className='change-view-type-button'
+                            onMouseOver={handleMouseOver}
+                            onMouseOut={handleMouseOut}
+                            onClick={handleViewType}>
                             {
                                 isViewList === false
                                     ? <AiOutlineUnorderedList size='1.5rem' color='#CCC' />
@@ -263,8 +284,8 @@ export default function OpenStartWidgetComponent(): React.JSX.Element {
                         </button>
                         {
                             isViewList === false
-                                ? <div className='type-tip-box'>목록으로 보기</div>
-                                : <div className='type-tip-box'>그리드로 보기</div>
+                                ? <div className='type-tip-box' style={{ opacity: `${isMouseHover ? 1 : 0}` }}>목록으로 보기</div>
+                                : <div className='type-tip-box' style={{ opacity: `${isMouseHover ? 1 : 0}` }}>그리드로 보기</div>
                         }
                     </div>
                 </div>
