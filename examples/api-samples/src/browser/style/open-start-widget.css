@@ -280,51 +280,51 @@
 }
 
 .docs {
-    background-image: url('./assets/Docs.JPG');
+    background-image: url('./assets/docs.JPG');
 }
 
 .whiteboard {
-    background-image: url('./assets/화이트보드.JPG');
+    background-image: url('./assets/whiteboard.JPG');
 }
 
 .presentation {
-    background-image: url('./assets/프레젠테이션.JPG');
+    background-image: url('./assets/presentation.JPG');
 }
 
 .video {
-    background-image: url('./assets/동영상.JPG');
+    background-image: url('./assets/video.JPG');
 }
 
 .instagram {
-    background-image: url('./assets/인스타그램\ 게시물\(정사각형\).JPG');
+    background-image: url('./assets/instagram.JPG');
 }
 
 .poster {
-    background-image: url('./assets/포스터\(세로\).JPG');
+    background-image: url('./assets/poster.JPG');
 }
 
 .leaflet {
-    background-image: url('./assets/전단지.JPG');
+    background-image: url('./assets/leaflet.JPG');
 }
 
 .worksheet {
-    background-image: url('./assets/워크시트\(세로형\).JPG');
+    background-image: url('./assets/worksheet.JPG');
 }
 
 .logo {
-    background-image: url('./assets/로고.JPG');
+    background-image: url('./assets/logo.JPG');
 }
 
 .document {
-    background-image: url('./assets/문서.JPG');
+    background-image: url('./assets/document.JPG');
 }
 
 .youtube {
-    background-image: url('./assets/Youtube\ 섬네일.JPG');
+    background-image: url('./assets/youtube.JPG');
 }
 
 .story {
-    background-image: url('./assets/스토리.JPG');
+    background-image: url('./assets/story.JPG');
 }
 
 .additional-item-name {
@@ -355,7 +355,7 @@
 }
 
 .no-image {
-    background-image: url('./assets/기본\ 이미지.JPG');
+    background-image: url('./assets/basic.JPG');
 }
 
 .type-container {
@@ -586,7 +586,7 @@
 .theia-image {
     width: 20rem;
     height: 15rem;
-    background-image: url('./assets/테이아\ 화면.JPG');
+    background-image: url('./assets/theia_screen.JPG');
 }
 
 @media (max-width: 1100px) {
@@ -604,6 +604,6 @@
     .design-item-image {
         width: 16rem;
         height: 12rem;
-        background-image: url('./assets/큰\ 기본이미지.JPG');
+        background-image: url('./assets/basic_big.JPG');
     }
 }
