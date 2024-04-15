@@ -27,6 +27,7 @@ import { AiOutlineUnorderedList } from "react-icons/ai";
 
 export default function OpenStartWidgetComponent(): React.JSX.Element {
     const [isViewList, setIsViewList] = React.useState(false);
+    const [currentIndex, setCurrentIndex] = React.useState(0);
 
     // 최근 디자인 보기 type 저장
     const handleViewType = () => {
@@ -40,9 +41,6 @@ export default function OpenStartWidgetComponent(): React.JSX.Element {
                 <button className='additional-hover-button'>
                     <BsSearch size='1rem' color='black' />
                 </button>
-                <div className='search-tip-box'>
-                    템플릿 둘러보기
-                </div>
             </>
         )
     }
@@ -61,7 +59,18 @@ export default function OpenStartWidgetComponent(): React.JSX.Element {
         )
     }
 
-    // Header
+    // 추천 항목 슬라이더
+    const prevSlide = () => {
+        if (currentIndex > 0) {
+            setCurrentIndex(currentIndex - 1);
+        }
+    };
+
+    const nextSlide = () => {
+        setCurrentIndex(currentIndex + 1);
+    };
+
+
     const HeaderContainer = () => {
         return (
             <section className='header-box'>
@@ -130,85 +139,89 @@ export default function OpenStartWidgetComponent(): React.JSX.Element {
         )
     }
 
-    // 추천 항목
+
     const AdditionalContainer = () => {
         return (
             <section className='additional-items'>
                 <h3 className='sub-title'>추천 항목</h3>
-                <ul className='items'>
-                    <li className='additional-item'>
-                        {hoverAdditionalItem()}
-                        <div className='additional-item-image docs' />
-                        <p className='additional-item-name'>Docs</p>
-                        <p className='size-content'>자동크기</p>
-                    </li>
-                    <li className='additional-item'>
-                        {hoverAdditionalItem()}
-                        <div className='additional-item-image whiteboard' />
-                        <p className='additional-item-name'>화이트보드</p>
-                        <p className='size-content'>무제한</p>
-                    </li>
-                    <li className='additional-item'>
-                        {hoverAdditionalItem()}
-                        <div className='additional-item-image presentation' />
-                        <p className='additional-item-name'>프레젠테이션(16:9)</p>
-                        <p className='size-content'>1920 x 1080px</p>
-                    </li>
-                    <li className='additional-item'>
-                        {hoverAdditionalItem()}
-                        <div className='additional-item-image video' />
-                        <p className='additional-item-name'>동영상</p>
-                        <p className='size-content'>1920 x 1080px</p>
-                    </li>
-                    <li className='additional-item'>
-                        {hoverAdditionalItem()}
-                        <div className='additional-item-image instagram' />
-                        <p className='additional-item-name'>인스타그램 게시물</p>
-                        <p className='size-content'>1080 x 1080px</p>
-                    </li>
-                    <li className='additional-item'>
-                        {hoverAdditionalItem()}
-                        <div className='additional-item-image poster' />
-                        <p className='additional-item-name'>포스터(세로)</p>
-                        <p className='size-content'>42 x 59.4px</p>
-                    </li>
-                    <li className='additional-item'>
-                        {hoverAdditionalItem()}
-                        <div className='additional-item-image leaflet' />
-                        <p className='additional-item-name'>전단지(A4)</p>
-                        <p className='size-content'>210 x 297px</p>
-                    </li>
-                    <li className='additional-item'>
-                        {hoverAdditionalItem()}
-                        <div className='additional-item-image worksheet' />
-                        <p className='additional-item-name'>워크시트(A4 세로형)</p>
-                        <p className='size-content'>21 x 29.7px</p>
-                    </li>
-                    <li className='additional-item'>
-                        {hoverAdditionalItem()}
-                        <div className='additional-item-image logo' />
-                        <p className='additional-item-name'>로고</p>
-                        <p className='size-content'>500 x 500px</p>
-                    </li>
-                    <li className='additional-item'>
-                        {hoverAdditionalItem()}
-                        <div className='additional-item-image document' />
-                        <p className='additional-item-name'>문서</p>
-                        <p className='size-content'>자동크기</p>
-                    </li>
-                    <li className='additional-item'>
-                        {hoverAdditionalItem()}
-                        <div className='additional-item-image youtube' />
-                        <p className='additional-item-name'>YouTube 썸네일</p>
-                        <p className='size-content'>1280 x 720px</p>
-                    </li>
-                    <li className='additional-item'>
-                        {hoverAdditionalItem()}
-                        <div className='additional-item-image story' />
-                        <p className='additional-item-name'>스토리</p>
-                        <p className='size-content'>1080 x 1920px</p>
-                    </li>
-                </ul>
+                <div className='slider-container'>
+                    <button className='slider-button prev-button' onClick={prevSlide}>◀</button>
+                    <ul className='items' style={{ transform: `translateX(-${currentIndex * 12}rem)` }}>
+                        <li className='additional-item'>
+                            {hoverAdditionalItem()}
+                            <div className='additional-item-image docs' />
+                            <p className='additional-item-name'>Docs</p>
+                            <p className='size-content'>자동크기</p>
+                        </li>
+                        <li className='additional-item'>
+                            {hoverAdditionalItem()}
+                            <div className='additional-item-image whiteboard' />
+                            <p className='additional-item-name'>화이트보드</p>
+                            <p className='size-content'>무제한</p>
+                        </li>
+                        <li className='additional-item'>
+                            {hoverAdditionalItem()}
+                            <div className='additional-item-image presentation' />
+                            <p className='additional-item-name'>프레젠테이션(16:9)</p>
+                            <p className='size-content'>1920 x 1080px</p>
+                        </li>
+                        <li className='additional-item'>
+                            {hoverAdditionalItem()}
+                            <div className='additional-item-image video' />
+                            <p className='additional-item-name'>동영상</p>
+                            <p className='size-content'>1920 x 1080px</p>
+                        </li>
+                        <li className='additional-item'>
+                            {hoverAdditionalItem()}
+                            <div className='additional-item-image instagram' />
+                            <p className='additional-item-name'>인스타그램 게시물</p>
+                            <p className='size-content'>1080 x 1080px</p>
+                        </li>
+                        <li className='additional-item'>
+                            {hoverAdditionalItem()}
+                            <div className='additional-item-image poster' />
+                            <p className='additional-item-name'>포스터(세로)</p>
+                            <p className='size-content'>42 x 59.4px</p>
+                        </li>
+                        <li className='additional-item'>
+                            {hoverAdditionalItem()}
+                            <div className='additional-item-image leaflet' />
+                            <p className='additional-item-name'>전단지(A4)</p>
+                            <p className='size-content'>210 x 297px</p>
+                        </li>
+                        <li className='additional-item'>
+                            {hoverAdditionalItem()}
+                            <div className='additional-item-image worksheet' />
+                            <p className='additional-item-name'>워크시트(A4 세로형)</p>
+                            <p className='size-content'>21 x 29.7px</p>
+                        </li>
+                        <li className='additional-item'>
+                            {hoverAdditionalItem()}
+                            <div className='additional-item-image logo' />
+                            <p className='additional-item-name'>로고</p>
+                            <p className='size-content'>500 x 500px</p>
+                        </li>
+                        <li className='additional-item'>
+                            {hoverAdditionalItem()}
+                            <div className='additional-item-image document' />
+                            <p className='additional-item-name'>문서</p>
+                            <p className='size-content'>자동크기</p>
+                        </li>
+                        <li className='additional-item'>
+                            {hoverAdditionalItem()}
+                            <div className='additional-item-image youtube' />
+                            <p className='additional-item-name'>YouTube 썸네일</p>
+                            <p className='size-content'>1280 x 720px</p>
+                        </li>
+                        <li className='additional-item'>
+                            {hoverAdditionalItem()}
+                            <div className='additional-item-image story' />
+                            <p className='additional-item-name'>스토리</p>
+                            <p className='size-content'>1080 x 1920px</p>
+                        </li>
+                    </ul>
+                    <button className='slider-button next-button' onClick={nextSlide}>▶</button>
+                </div>
             </section>
         );
     }
@@ -240,18 +253,20 @@ export default function OpenStartWidgetComponent(): React.JSX.Element {
             <section className='current-design'>
                 <div className='title-wrap'>
                     <h3 className='sub-title'>최근 디자인</h3>
-                    <button className='change-view-type-button' onClick={handleViewType}>
+                    <div className='type-container'>
+                        <button className='change-view-type-button' onClick={handleViewType}>
+                            {
+                                isViewList === false
+                                    ? <AiOutlineUnorderedList size='1.5rem' color='#CCC' />
+                                    : <BsGrid size='1rem' color='#CCC' />
+                            }
+                        </button>
                         {
                             isViewList === false
-                                ? <AiOutlineUnorderedList size='1.5rem' color='#CCC' />
-                                : <BsGrid size='1rem' color='#CCC' />
+                                ? <div className='type-tip-box'>목록으로 보기</div>
+                                : <div className='type-tip-box'>그리드로 보기</div>
                         }
-                    </button>
-                    {/* {
-                        isViewList === false
-                            ? <div className='type-tip-box'>목록으로 보기</div>
-                            : <div className='type-tip-box'>그리드로 보기</div>
-                    } */}
+                    </div>
                 </div>
                 {
                     isViewList === false ?
