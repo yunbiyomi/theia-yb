@@ -18,10 +18,18 @@ import React = require('@theia/core/shared/react');
 import { BsGrid, BsPeople } from "react-icons/bs";
 import { IoIosMore } from "react-icons/io";
 import { AiOutlineUnorderedList } from "react-icons/ai";
+import CurrentDesingData from '../data/currentDesignData.json';
 
 export default function CurrentDesignContainer(): React.JSX.Element {
+    interface Item {
+        name: string;
+        description: string;
+        designType: string;
+        createTime: string;
+    }
     const [isViewList, setIsViewList] = React.useState(false);
     const [isMouseHover, setIsMouseHover] = React.useState(false);
+    const items: Item[] = JSON.parse(JSON.stringify(CurrentDesingData));
 
     // 최근 디자인 보기 type 저장
     const handleViewType = () => {
@@ -78,269 +86,29 @@ export default function CurrentDesignContainer(): React.JSX.Element {
                 isViewList === false ?
                     // Grid
                     <ul className='design-items'>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>Docs</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>프레젠테이션</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>로고</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>Docs</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>프레젠테이션</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>로고</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>Docs</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>프레젠테이션</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>로고</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>Docs</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>프레젠테이션</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>로고</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>Docs</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>프레젠테이션</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>로고</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>Docs</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>프레젠테이션</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>로고</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>Docs</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>스토리</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>프레젠테이션</p>
-                        </li>
-                        <li className='design-item'>
-                            {hoverCurrentDesign()}
-                            <div className='design-item-image no-image' />
-                            <p className='design-item-name'>제목 없는 디자인</p>
-                            <p className='design-type'>로고</p>
-                        </li>
+                        {items.map((item, index) => (
+                            <li key={index} className='design-item'>
+                                {hoverCurrentDesign()}
+                                <div className='design-item-image no-image' />
+                                <p className='design-item-name'>{item.name}</p>
+                                <p className='design-type'>{item.designType}</p>
+                            </li>
+                        ))}
                     </ul> :
                     // List
                     <ul className='items-list'>
-                        <li className='design-item-list'>
-                            <div className='design-item-image-list no-image' />
-                            <p className='design-item-name-list'>제목 없는 디자인</p>
-                            <p className='design-type-list'>--</p>
-                            <p className='design-type-list'>스토리</p>
-                            <p className='design-type-list'>3시간 전</p>
-                            <button className='more-button'>
-                                <IoIosMore size='1rem' color='#CCC' />
-                            </button>
-                        </li>
-                        <li className='design-item-list'>
-                            <div className='design-item-image-list no-image' />
-                            <p className='design-item-name-list'>제목 없는 디자인</p>
-                            <p className='design-type-list'>--</p>
-                            <p className='design-type-list'>Docs</p>
-                            <p className='design-type-list'>5시간 전</p>
-                            <button className='more-button'>
-                                <IoIosMore size='1rem' color='#CCC' />
-                            </button>
-                        </li>
-                        <li className='design-item-list'>
-                            <div className='design-item-image-list no-image' />
-                            <p className='design-item-name-list'>제목 없는 디자인</p>
-                            <p className='design-type-list'>--</p>
-                            <p className='design-type-list'>스토리</p>
-                            <p className='design-type-list'>13시간 전</p>
-                            <button className='more-button'>
-                                <IoIosMore size='1rem' color='#CCC' />
-                            </button>
-                        </li>
-                        <li className='design-item-list'>
-                            <div className='design-item-image-list no-image' />
-                            <p className='design-item-name-list'>제목 없는 디자인</p>
-                            <p className='design-type-list'>--</p>
-                            <p className='design-type-list'>프레젠테이션</p>
-                            <p className='design-type-list'>17시간 전</p>
-                            <button className='more-button'>
-                                <IoIosMore size='1rem' color='#CCC' />
-                            </button>
-                        </li>
-                        <li className='design-item-list'>
-                            <div className='design-item-image-list no-image' />
-                            <p className='design-item-name-list'>제목 없는 디자인</p>
-                            <p className='design-type-list'>--</p>
-                            <p className='design-type-list'>로고</p>
-                            <p className='design-type-list'>22시간 전</p>
-                            <button className='more-button'>
-                                <IoIosMore size='1rem' color='#CCC' />
-                            </button>
-                        </li>
+                        {items.map((item, index) => (
+                            <li key={index} className='design-item-list'>
+                                <div className='design-item-image-list no-image' />
+                                <p className='design-item-name-list'>{item.name}</p>
+                                <p className='design-type-list'>{item.description}</p>
+                                <p className='design-type-list'>{item.designType}</p>
+                                <p className='design-type-list'>{item.createTime}</p>
+                                <button className='more-button'>
+                                    <IoIosMore size='1rem' color='#CCC' />
+                                </button>
+                            </li>
+                        ))}
                     </ul>
             }
         </section>

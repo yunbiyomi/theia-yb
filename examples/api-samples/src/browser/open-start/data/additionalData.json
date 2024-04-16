@@ -1,0 +1,74 @@
+[
+  {
+    "imageUrl": "./assets/open-start/docs.JPG",
+    "className": "docs",
+    "name": "Docs",
+    "size": "자동크기"
+  },
+  {
+    "imageUrl": "./assets/open-start/whiteboard.JPG",
+    "className": "whiteboard",
+    "name": "화이트보드",
+    "size": "무제한"
+  },
+  {
+    "imageUrl": "./assets/open-start/presentation.JPG",
+    "className": "presentation",
+    "name": "프레젠테이션(16:9)",
+    "size": "1920 x 1080px"
+  },
+  {
+    "imageUrl": "./assets/open-start/video.JPG",
+    "className": "video",
+    "name": "동영상",
+    "size": "1920 x 1080px"
+  },
+  {
+    "imageUrl": "./assets/open-start/instagram.JPG",
+    "className": "instagram",
+    "name": "인스타그램 게시물",
+    "size": "1080 x 1080px"
+  },
+  {
+    "imageUrl": "./assets/open-start/poster.JPG",
+    "className": "poster",
+    "name": "포스터(세로)",
+    "size": "42 x 59.4px"
+  },
+  {
+    "imageUrl": "./assets/open-start/leaflet.JPG",
+    "className": "leaflet",
+    "name": "전단지(A4)",
+    "size": "210 x 297px"
+  },
+  {
+    "imageUrl": "./assets/open-start/worksheet.JPG",
+    "className": "worksheet",
+    "name": "워크시트(A4 세로형)",
+    "size": "21 x 29.7px"
+  },
+  {
+    "imageUrl": "./assets/open-start/logo.JPG",
+    "className": "logo",
+    "name": "로고",
+    "size": "500 x 500px"
+  },
+  {
+    "imageUrl": "./assets/open-start/document.JPG",
+    "className": "document",
+    "name": "문서",
+    "size": "자동크기"
+  },
+  {
+    "imageUrl": "./assets/open-start/youtube.JPG",
+    "className": "youtube",
+    "name": "YouTube 썸네일",
+    "size": "1280 x 720px"
+  },
+  {
+    "imageUrl": "./assets/open-start/story.JPG",
+    "className": "story",
+    "name": "스토리",
+    "size": "1080 x 1920px"
+  }
+]
