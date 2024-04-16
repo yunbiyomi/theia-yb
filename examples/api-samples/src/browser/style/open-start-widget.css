@@ -196,6 +196,7 @@
 
 .slider-button:hover {
     color: #f8dcff;
+    scale: 1.5;
 }
 
 .prev-button {
@@ -207,6 +208,7 @@
 }
 
 .items {
+    width: 100%;
     display: flex;
     list-style: none;
     padding: 0;
@@ -280,51 +282,51 @@
 }
 
 .docs {
-    background-image: url('./assets/docs.JPG');
+    background-image: url('./assets/open-start/docs.JPG');
 }
 
 .whiteboard {
-    background-image: url('./assets/whiteboard.JPG');
+    background-image: url('./assets/open-start/whiteboard.JPG');
 }
 
 .presentation {
-    background-image: url('./assets/presentation.JPG');
+    background-image: url('./assets/open-start/presentation.JPG');
 }
 
 .video {
-    background-image: url('./assets/video.JPG');
+    background-image: url('./assets/open-start/video.JPG');
 }
 
 .instagram {
-    background-image: url('./assets/instagram.JPG');
+    background-image: url('./assets/open-start/instagram.JPG');
 }
 
 .poster {
-    background-image: url('./assets/poster.JPG');
+    background-image: url('./assets/open-start/poster.JPG');
 }
 
 .leaflet {
-    background-image: url('./assets/leaflet.JPG');
+    background-image: url('./assets/open-start/leaflet.JPG');
 }
 
 .worksheet {
-    background-image: url('./assets/worksheet.JPG');
+    background-image: url('./assets/open-start/worksheet.JPG');
 }
 
 .logo {
-    background-image: url('./assets/logo.JPG');
+    background-image: url('./assets/open-start/logo.JPG');
 }
 
 .document {
-    background-image: url('./assets/document.JPG');
+    background-image: url('./assets/open-start/document.JPG');
 }
 
 .youtube {
-    background-image: url('./assets/youtube.JPG');
+    background-image: url('./assets/open-start/youtube.JPG');
 }
 
 .story {
-    background-image: url('./assets/story.JPG');
+    background-image: url('./assets/open-start/story.JPG');
 }
 
 .additional-item-name {
@@ -339,7 +341,6 @@
     flex-direction: column;
     width: 100%;
     margin-bottom: 30px;
-    overflow: scroll;
 }
 
 .title-wrap {
@@ -355,7 +356,7 @@
 }
 
 .no-image {
-    background-image: url('./assets/basic.JPG');
+    background-image: url('./assets/open-start/basic.JPG');
 }
 
 .type-container {
@@ -393,6 +394,17 @@
     padding: 0.5rem;
     border-radius: 5px;
     transition: all ease-in .2s;
+}
+
+.design-items {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    flex-wrap: wrap;
+    list-style: none;
+    gap: 30px;
+    padding: 0;
+    margin: 0;
 }
 
 .design-item {
@@ -586,7 +598,7 @@
 .theia-image {
     width: 20rem;
     height: 15rem;
-    background-image: url('./assets/theia_screen.JPG');
+    background-image: url('./assets/open-start/theia_screen.JPG');
 }
 
 @media (max-width: 1100px) {
@@ -604,6 +616,6 @@
     .design-item-image {
         width: 16rem;
         height: 12rem;
-        background-image: url('./assets/basic_big.JPG');
+        background-image: url('./assets/open-start/basic_big.JPG');
     }
 }
