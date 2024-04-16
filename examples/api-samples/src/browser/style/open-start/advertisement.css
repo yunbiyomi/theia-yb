@@ -1,0 +1,87 @@
+/* *****************************************************************************
+Copyright (C) 2018 Ericsson and others.
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License v. 2.0 which is available at
+http:ww.eclipse.org/legal/epl-2.0.
+This Source Code may also be made available under the following Secondary
+Licenses when the conditions for such availability set forth in the Eclipse
+Public License v. 2.0 are satisfied: GNU General Public License, version 2
+with the GNU Classpath Exception which is available at
+https:ww.gnu.org/software/classpath/license.html.
+SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
+***************************************************************************** */
+
+.advertisement-container {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    padding: 30px 50px;
+    width: 100%;
+    background: hsla(288, 57%, 30%, 0.8);
+    border-radius: 30px;
+}
+
+.left-box {
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: column;
+    margin-right: 20px;
+}
+
+.advertisement-title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+}
+
+.advertisement-content {
+    font-size: 1rem;
+    color: white;
+}
+
+.advertisement-button-wrap {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.advertisement-button {
+    width: 9rem;
+    height: 3rem;
+    color: white;
+    outline: none;
+    border: 1px solid white;
+    border-radius: 50px;
+    background-color: transparent;
+    margin-right: 30px;
+    cursor: pointer;
+    font-size: 1.05rem;
+}
+
+.advertisement-button:hover {
+    background-color: white;
+    color: #68217a;
+    transition: all ease-in .2s;
+}
+
+.right-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.theia-image {
+    width: 20rem;
+    height: 15rem;
+    background-image: url('../assets/open-start/theia_screen.JPG');
+}
+
+/* media query */
+@media (max-width: 1100px) {
+    .advertisement-container {
+        display: flex;
+        flex-direction: column;
+    }
+}

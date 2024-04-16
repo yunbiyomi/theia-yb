@@ -1,0 +1,227 @@
+/* *****************************************************************************
+Copyright (C) 2018 Ericsson and others.
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License v. 2.0 which is available at
+http:ww.eclipse.org/legal/epl-2.0.
+This Source Code may also be made available under the following Secondary
+Licenses when the conditions for such availability set forth in the Eclipse
+Public License v. 2.0 are satisfied: GNU General Public License, version 2
+with the GNU Classpath Exception which is available at
+https:ww.gnu.org/software/classpath/license.html.
+SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
+***************************************************************************** */
+
+.current-design {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.title-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sub-title {
+    margin: 30px 0 20px 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.type-container {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    flex-direction: column;
+}
+
+.change-view-type-button {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.change-view-type-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.type-tip-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 5.5rem;
+    height: 1rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 0.5rem;
+    border-radius: 5px;
+    transition: all ease-in .2s;
+}
+
+.design-items {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    flex-wrap: wrap;
+    list-style: none;
+    gap: 30px;
+    padding: 0;
+    margin: 0;
+}
+
+.design-item {
+    position: relative;
+    list-style: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.hover-button-wrap {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 999999;
+    transition: all ease-in .2s;
+    opacity: 0;
+}
+
+.design-hover-button {
+    width: 2rem;
+    height: 2rem;
+    margin-left: 5px;
+    outline: none;
+    border: none;
+    background-color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0;
+}
+
+.design-item:hover .hover-button-wrap {
+    opacity: 1;
+}
+
+.design-item:hover .design-hover-button {
+    opacity: 1;
+}
+
+.design-hover-button:hover {
+    background-color: #f9e0ff;
+}
+
+.design-item-image {
+    width: 12rem;
+    height: 9rem;
+    border-radius: 10px;
+    object-fit: cover;
+    filter: brightness(1);
+}
+
+.design-item:hover .design-item-image {
+    filter: brightness(70%);
+    transition: all ease-in .2s;
+}
+
+.design-item-name {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.design-type {
+    font-size: 0.7rem;
+    margin-bottom: 30px;
+}
+
+.items-list {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.design-item-list {
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    grid-template-columns: 1fr 5fr 3fr 3fr 3fr 0.2fr;
+    box-sizing: border-box;
+    width: 100%;
+    border-bottom: 1px solid #CCC;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.design-item-list:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    transition: all ease-in .2s;
+}
+
+.design-item-list:last-child {
+    justify-content: end;
+}
+
+.design-item-image-list {
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-right: 10px;
+    border-radius: 3px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+}
+
+.design-item-name-list {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.design-type-list {
+    font-size: 0.9rem;
+}
+
+.more-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    outline: none;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.more-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+/* backgroundImage path */
+.no-image {
+    background-image: url('../assets/open-start/basic.JPG');
+}
+
+/* media query */
+@media (max-width: 1024px) {
+    .design-item-image {
+        width: 16rem;
+        height: 12rem;
+        background-image: url('../assets/open-start/basic_big.JPG');
+    }
+}

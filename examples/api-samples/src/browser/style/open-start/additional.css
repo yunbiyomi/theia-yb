@@ -1,0 +1,206 @@
+/* *****************************************************************************
+Copyright (C) 2018 Ericsson and others.
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License v. 2.0 which is available at
+http:ww.eclipse.org/legal/epl-2.0.
+This Source Code may also be made available under the following Secondary
+Licenses when the conditions for such availability set forth in the Eclipse
+Public License v. 2.0 are satisfied: GNU General Public License, version 2
+with the GNU Classpath Exception which is available at
+https:ww.gnu.org/software/classpath/license.html.
+SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
+***************************************************************************** */
+
+.additional-items {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.sub-title {
+    margin: 30px 0 20px 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.slider-container {
+    display: flex;
+    overflow: scroll;
+    width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+.slider-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.slider-container::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+
+.slider-button {
+    display: flex;
+    top: 27rem;
+    justify-content: center;
+    align-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    color: #68217a;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    outline: none;
+    z-index: 99999999;
+    position: absolute;
+}
+
+.slider-button:disabled {
+    opacity: 0;
+}
+
+.slider-button:hover {
+    color: #f8dcff;
+    scale: 1.5;
+}
+
+.prev-button {
+    left: -2rem;
+}
+
+.next-button {
+    right: -2rem;
+}
+
+.items {
+    width: 100%;
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 30px;
+}
+
+.additional-item {
+    position: relative;
+    list-style: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.additional-item-image {
+    width: 12rem;
+    height: 9rem;
+    border-radius: 10px;
+    object-fit: cover;
+    filter: brightness(1);
+}
+
+.additional-item-name {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.size-content {
+    font-size: 0.8rem;
+    opacity: 0;
+    transition: all ease-in .2s;
+}
+
+.additional-hover-button {
+    position: absolute;
+    width: 2rem;
+    height: 2rem;
+    top: 10px;
+    right: 10px;
+    outline: none;
+    border: none;
+    background-color: #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 999999;
+    transition: all ease-in .2s;
+    opacity: 0;
+}
+
+.additional-hover-button:hover {
+    background-color: white;
+}
+
+.additional-item:hover .additional-hover-button {
+    opacity: 1;
+}
+
+.additional-item:hover .size-content {
+    opacity: 1;
+}
+
+.additional-item:hover .additional-item-image {
+    filter: blur(1px) brightness(50%);
+}
+
+.additional-item:hover::after {
+    content: '빈 디자인 만들기';
+    position: absolute;
+    top: 4rem;
+    left: 2.5rem;
+    color: white;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: all ease-in .2s;
+}
+
+/* backgroundImage path */
+.docs {
+    background-image: url('../assets/open-start/docs.JPG');
+}
+
+.whiteboard {
+    background-image: url('../assets/open-start/whiteboard.JPG');
+}
+
+.presentation {
+    background-image: url('../assets/open-start/presentation.JPG');
+}
+
+.video {
+    background-image: url('../assets/open-start/video.JPG');
+}
+
+.instagram {
+    background-image: url('../assets/open-start/instagram.JPG');
+}
+
+.poster {
+    background-image: url('../assets/open-start/poster.JPG');
+}
+
+.leaflet {
+    background-image: url('../assets/open-start/leaflet.JPG');
+}
+
+.worksheet {
+    background-image: url('../assets/open-start/worksheet.JPG');
+}
+
+.logo {
+    background-image: url('../assets/open-start/logo.JPG');
+}
+
+.document {
+    background-image: url('../assets/open-start/document.JPG');
+}
+
+.youtube {
+    background-image: url('../assets/open-start/youtube.JPG');
+}
+
+.story {
+    background-image: url('../assets/open-start/story.JPG');
+}
