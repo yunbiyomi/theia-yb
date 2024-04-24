@@ -82,34 +82,33 @@ export default function CurrentDesignContainer(): React.JSX.Element {
                     }
                 </div>
             </div>
-            {
-                isViewList === false ?
-                    // Grid
-                    <ul className='design-items'>
-                        {items.map((item, index) => (
-                            <li key={index} className='design-item'>
-                                {hoverCurrentDesign()}
-                                <div className='design-item-image no-image' />
-                                <p className='design-item-name'>{item.name}</p>
-                                <p className='design-type'>{item.designType}</p>
-                            </li>
-                        ))}
-                    </ul> :
-                    // List
-                    <ul className='items-list'>
-                        {items.map((item, index) => (
-                            <li key={index} className='design-item-list'>
-                                <div className='design-item-image-list no-image' />
-                                <p className='design-item-name-list'>{item.name}</p>
-                                <p className='design-type-list'>{item.description}</p>
-                                <p className='design-type-list'>{item.designType}</p>
-                                <p className='design-type-list'>{item.createTime}</p>
-                                <button className='more-button'>
-                                    <IoIosMore size='1rem' color='#CCC' />
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
+            {isViewList === false ?
+                // Grid
+                <ul className='design-items'>
+                    {items.map((item, index) => (
+                        <li key={index} className='design-item'>
+                            {hoverCurrentDesign()}
+                            <div className='design-item-image no-image' />
+                            <p className='design-item-name'>{item.name}</p>
+                            <p className='design-type'>{item.designType}</p>
+                        </li>
+                    ))}
+                </ul> :
+                // List
+                <ul className='items-list'>
+                    {items.map((item, index) => (
+                        <li key={index} className='design-item-list'>
+                            <div className='design-item-image-list no-image' />
+                            <p className='design-item-name-list'>{item.name}</p>
+                            <p className='design-type-list'>{item.description}</p>
+                            <p className='design-type-list'>{item.designType}</p>
+                            <p className='design-type-list'>{item.createTime}</p>
+                            <button className='more-button'>
+                                <IoIosMore size='1rem' color='#CCC' />
+                            </button>
+                        </li>
+                    ))}
+                </ul>
             }
         </section>
     );
