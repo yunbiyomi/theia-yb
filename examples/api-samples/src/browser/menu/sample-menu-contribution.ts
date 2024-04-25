@@ -24,6 +24,7 @@ import {
 import { inject, injectable, interfaces } from '@theia/core/shared/inversify';
 import * as React from '@theia/core/shared/react';
 import { ReactNode } from '@theia/core/shared/react';
+import { CallBackend } from '../../common/call-backend';
 
 const SampleCommand: Command = {
     id: 'sample-command',
@@ -58,6 +59,11 @@ const SampleSelectDialog: Command = {
     id: 'sample-command-select-dialog',
     label: 'Sample Select Component Dialog'
 };
+// CallBackend Command 생성
+const CallBackendCommand: Command = {
+    id: 'call-backend-command',
+    label: 'Call Backend Command'
+}
 
 @injectable()
 export class SampleCommandContribution implements CommandContribution {
@@ -67,6 +73,10 @@ export class SampleCommandContribution implements CommandContribution {
 
     @inject(MessageService)
     protected readonly messageService: MessageService;
+
+    constructor(
+        @inject(CallBackend) private readonly callBackService: CallBackend
+    ) { }
 
     registerCommands(commands: CommandRegistry): void {
         commands.registerCommand({ id: 'create-quick-pick-sample', label: 'Internal QuickPick' }, {
@@ -218,6 +228,13 @@ export class SampleCommandContribution implements CommandContribution {
                     });
             }
         });
+
+        // CallBackend Command 이벤트 추가
+        commands.registerCommand(CallBackendCommand, {
+            execute: async () => {
+                this.callBackService.getCallBackend().then(callString => alert(callString))
+            }
+        });
     }
 
 }
@@ -237,6 +254,13 @@ export class SampleMenuContribution implements MenuContribution {
             commandId: SampleCommand2.id,
             order: '2'
         });
+
+        // CallBackend Command Sample Menu에 추가
+        menus.registerMenuAction(subMenuPath, {
+            commandId: CallBackendCommand.id,
+            label: CallBackendCommand.label
+        })
+
         const subSubMenuPath = [...subMenuPath, 'sample-sub-menu'];
         menus.registerSubmenu(subSubMenuPath, 'Sample sub menu', { order: '2' });
         menus.registerMenuAction(subSubMenuPath, {

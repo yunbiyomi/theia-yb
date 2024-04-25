@@ -32,8 +32,6 @@ import { bindSampleAppInfo } from './vsx/sample-frontend-app-info';
 import { bindTestSample } from './test/sample-test-contribution';
 import { bindSampleFileSystemCapabilitiesCommands } from './file-system/sample-file-system-capabilities';
 import { bindOpenStartWidget } from './open-start/open-start-contribution';
-import { CommandContribution, MenuContribution } from '@theia/core';
-import { CallBackendCommandContribution, CallBackendMenuContribution } from './call-backend-contributions';
 import { CallBackend, CallBackendConstants } from '../common/call-backend';
 import { WebSocketConnectionProvider } from '@theia/core/lib/browser';
 
@@ -57,8 +55,6 @@ export default new ContainerModule((
     bindSampleFileSystemCapabilitiesCommands(bind);
     rebindOVSXClientFactory(rebind);
     bindOpenStartWidget(bind, unbind, rebind);
-    bind(CommandContribution).to(CallBackendCommandContribution);
-    bind(MenuContribution).to(CallBackendMenuContribution);
     bind(CallBackend).toDynamicValue(ctx => {
         const connection = ctx.container.get(WebSocketConnectionProvider);
         return connection.createProxy<CallBackend>(CallBackendConstants.SERVICE_PATH);
