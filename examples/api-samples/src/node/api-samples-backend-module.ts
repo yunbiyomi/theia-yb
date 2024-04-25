@@ -21,9 +21,16 @@ import { SampleMockOpenVsxServer } from './sample-mock-open-vsx-server';
 import { SampleAppInfo } from '../common/vsx/sample-app-info';
 import { SampleBackendAppInfo } from './sample-backend-app-info';
 import { rebindOVSXClientFactory } from '../common/vsx/sample-ovsx-client-factory';
+import { CallBackend, CallBackendConstants } from '../common/call-backend';
+import { CallBackendImpl } from './call-backend-impl';
+import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     rebindOVSXClientFactory(rebind);
+    bind(CallBackend).to(CallBackendImpl).inSingletonScope();
+    bind(ConnectionHandler).toDynamicValue(ctx =>
+        new JsonRpcConnectionHandler<CallBackend>(CallBackendConstants.SERVICE_PATH, (_client: any) => ctx.container.get<CallBackend>(CallBackend))
+    ).inSingletonScope()
     bind(SampleBackendAppInfo).toSelf().inSingletonScope();
     bind(SampleAppInfo).toService(SampleBackendAppInfo);
     bind(BackendApplicationContribution).toService(SampleBackendAppInfo);

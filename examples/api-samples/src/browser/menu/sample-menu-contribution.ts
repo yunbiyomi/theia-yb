@@ -58,10 +58,6 @@ const SampleSelectDialog: Command = {
     id: 'sample-command-select-dialog',
     label: 'Sample Select Component Dialog'
 };
-const CallBackend: Command = {
-    id: 'call-backend',
-    label: 'Call Backend'
-}
 
 @injectable()
 export class SampleCommandContribution implements CommandContribution {
@@ -222,11 +218,6 @@ export class SampleCommandContribution implements CommandContribution {
                     });
             }
         });
-        commands.registerCommand(CallBackend, {
-            execute: () => {
-                alert('call Backend!!!!!!');
-            }
-        });
     }
 
 }
@@ -244,10 +235,6 @@ export class SampleMenuContribution implements MenuContribution {
         });
         menus.registerMenuAction(subMenuPath, {
             commandId: SampleCommand2.id,
-            order: '2'
-        });
-        menus.registerMenuAction(subMenuPath, {
-            commandId: CallBackend.id,
             order: '2'
         });
         const subSubMenuPath = [...subMenuPath, 'sample-sub-menu'];
