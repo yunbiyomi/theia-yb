@@ -74,9 +74,8 @@ export class SampleCommandContribution implements CommandContribution {
     @inject(MessageService)
     protected readonly messageService: MessageService;
 
-    constructor(
-        @inject(CallBackend) private readonly callBackService: CallBackend
-    ) { }
+    @inject(CallBackend)
+    private readonly callBackService: CallBackend;
 
     registerCommands(commands: CommandRegistry): void {
         commands.registerCommand({ id: 'create-quick-pick-sample', label: 'Internal QuickPick' }, {
