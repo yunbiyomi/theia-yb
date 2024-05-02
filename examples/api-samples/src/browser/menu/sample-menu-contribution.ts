@@ -232,7 +232,8 @@ export class SampleCommandContribution implements CommandContribution {
         // CallBackend Command 이벤트 추가
         commands.registerCommand(CallBackendCommand, {
             execute: async () => {
-                this.callBackService.getCallBackend().then(callString => alert(callString))
+                this.callBackService.getCallBackend().then(callString => console.log(callString)
+                )
             }
         });
     }
