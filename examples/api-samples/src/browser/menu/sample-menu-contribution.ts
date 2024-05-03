@@ -232,6 +232,7 @@ export class SampleCommandContribution implements CommandContribution {
         commands.registerCommand(CallBackendCommand, {
             execute: async () => {
                 const channel = this.outputChannelManager.getChannel('Frontend Show');
+                channel.clear();
                 channel.appendLine('Hello world!');
                 channel.show();
 
