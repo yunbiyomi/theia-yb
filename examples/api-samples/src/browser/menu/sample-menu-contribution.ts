@@ -24,7 +24,7 @@ import {
 import { inject, injectable, interfaces } from '@theia/core/shared/inversify';
 import * as React from '@theia/core/shared/react';
 import { ReactNode } from '@theia/core/shared/react';
-import { CallBackend } from '../../common/call-backend';
+import { OutputChannelManager } from '@theia/output/lib/browser/output-channel';
 
 const SampleCommand: Command = {
     id: 'sample-command',
@@ -74,8 +74,8 @@ export class SampleCommandContribution implements CommandContribution {
     @inject(MessageService)
     protected readonly messageService: MessageService;
 
-    @inject(CallBackend)
-    private readonly callBackService: CallBackend;
+    @inject(OutputChannelManager)
+    protected readonly outputChannelManager: OutputChannelManager;
 
     registerCommands(commands: CommandRegistry): void {
         commands.registerCommand({ id: 'create-quick-pick-sample', label: 'Internal QuickPick' }, {
@@ -231,8 +231,10 @@ export class SampleCommandContribution implements CommandContribution {
         // CallBackend Command 이벤트 추가
         commands.registerCommand(CallBackendCommand, {
             execute: async () => {
-                this.callBackService.getCallBackend().then(callString => console.log(callString)
-                )
+                const channel = this.outputChannelManager.getChannel('Frontend Show');
+                channel.appendLine('Hello world!');
+                channel.show();
+
             }
         });
     }
