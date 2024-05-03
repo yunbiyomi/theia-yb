@@ -13,12 +13,19 @@
 //
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 
-export namespace CallBackendConstants {
-    export const SERVICE_PATH = '/services/call-backend';
+import { RpcServer } from '@theia/core';
+
+export const PrintOutputPath = '/services/call-backend';
+export const PrintOutputServer = Symbol("CPrintOutputServer");
+
+export interface PrintOutputServer extends RpcServer<PrintOutputClient> {
+    setClient(client: PrintOutputClient | undefined): void;
+    getClient?(): PrintOutputClient | undefined;
+    getCallBackend(): Promise<string>;
 }
 
-export const CallBackend = Symbol("CallBackend")
+export const PrintOutputClient = Symbol("PrintOutputClient");
 
-export interface CallBackend {
-    getCallBackend(): Promise<string>;
+export interface PrintOutputClient {
+    printOutputChannelManager(message: string): void
 }

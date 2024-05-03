@@ -15,10 +15,25 @@
 // *****************************************************************************
 
 import { injectable } from '@theia/core/shared/inversify';
-import { CallBackend } from '../common/call-backend';
+import { PrintOutputClient, PrintOutputServer } from '../../common/print-output-server';
 
 @injectable()
-export class CallBackendImpl implements CallBackend {
+export class PrintOutputImpl implements PrintOutputServer {
+    dispose(): void {
+        throw new Error('Method not implemented.');
+    }
+
+    protected client: PrintOutputClient | undefined;
+
+    setClient(client: PrintOutputClient | undefined): void {
+        this.client = client;
+    }
+
+    getClient?(): PrintOutputClient | undefined {
+        if (this.client !== undefined)
+            return this.client;
+    }
+
     getCallBackend(): Promise<string> {
         return Promise.resolve("call Backend!!");
     }

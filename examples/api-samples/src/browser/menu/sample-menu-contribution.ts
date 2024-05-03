@@ -233,7 +233,7 @@ export class SampleCommandContribution implements CommandContribution {
             execute: async () => {
                 const channel = this.outputChannelManager.getChannel('Frontend Show');
                 channel.clear();
-                channel.appendLine('Hello world!');
+                channel.append('Hello world!');
                 channel.show();
 
             }

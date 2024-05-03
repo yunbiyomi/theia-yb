@@ -21,9 +21,9 @@ import { SampleMockOpenVsxServer } from './sample-mock-open-vsx-server';
 import { SampleAppInfo } from '../common/vsx/sample-app-info';
 import { SampleBackendAppInfo } from './sample-backend-app-info';
 import { rebindOVSXClientFactory } from '../common/vsx/sample-ovsx-client-factory';
-import { CallBackend, CallBackendConstants } from '../common/call-backend';
 import { CallBackendImpl } from './call-backend-impl';
 import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
+import { CallBackendClient, CallBackendPath, CallBackendServer } from '../common/print-output-server';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     rebindOVSXClientFactory(rebind);
@@ -35,8 +35,12 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     if (process.env.SAMPLE_BACKEND_APPLICATION_SERVER) {
         bind(BackendApplicationServer).to(SampleBackendApplicationServer).inSingletonScope();
     }
-    bind(CallBackend).to(CallBackendImpl).inSingletonScope();
+    bind(CallBackendServer).to(CallBackendImpl).inSingletonScope();
     bind(ConnectionHandler).toDynamicValue(ctx =>
-        new RpcConnectionHandler<CallBackend>(CallBackendConstants.SERVICE_PATH, () => ctx.container.get<CallBackend>(CallBackend))
+        new RpcConnectionHandler<CallBackendClient>(CallBackendPath, client => {
+            const server = ctx.container.get<CallBackendServer>(CallBackendServer);
+            server.setClient(client);
+            return server;
+        })
     ).inSingletonScope()
 });
