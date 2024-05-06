@@ -16,41 +16,41 @@
 
 import { Command, CommandContribution, CommandRegistry, MenuContribution, MenuModelRegistry, MAIN_MENU_BAR } from '@theia/core';
 import { injectable, inject } from '@theia/core/shared/inversify';
-import { BackendLogger, BackendLoggerClient } from '../../common/backend-connect/backend-connect-service';
+import { PrintOutput, PrintOutputClient } from '../../common/print-output/print-output-service';
 import { OutputChannelManager } from '@theia/output/lib/browser/output-channel';
 
-const BackendConnect: Command = {
-    id: 'backend-test',
-    label: 'Backend Test'
+const PrintOutputCommand: Command = {
+    id: 'print-output',
+    label: 'Print Output'
 };
 
 @injectable()
-export class BackendLoggerClientContribution implements BackendLoggerClient {
+export class PrintOutputContribution implements PrintOutputClient {
 
     @inject(OutputChannelManager)
     protected readonly outputChannelManager: OutputChannelManager;
 
-    public callOutputChannelManager(str: string): void {
-        const channel = this.outputChannelManager.getChannel('Backend-Test');
-        channel.appendLine('Connected with Backend!');
-        channel.appendLine(str);
+    public printOutputChannelManager(message: string): void {
+        const channel = this.outputChannelManager.getChannel('Print Output');
+        channel.appendLine('Hello world!');
+        channel.appendLine(message);
         channel.show();
     }
 }
 
 @injectable()
-export class BackendConnectCommandContribution implements CommandContribution {
+export class PrintOutputCommandContribution implements CommandContribution {
 
     constructor(
-        @inject(BackendLogger)
-        protected readonly backendLogger: BackendLogger,
+        @inject(PrintOutput)
+        protected readonly printOutput: PrintOutput,
     ) { }
 
     registerCommands(registry: CommandRegistry): void {
-        registry.registerCommand(BackendConnect, {
+        registry.registerCommand(PrintOutputCommand, {
             execute: async () => {
-                this.backendLogger.connectBackend().then((str: string) => {
-                    this.backendLogger.getClient()?.callOutputChannelManager(str);
+                this.printOutput.getCallBack().then((message: string) => {
+                    this.printOutput.getClient()?.printOutputChannelManager(message);
                 });
             }
         });
@@ -58,14 +58,14 @@ export class BackendConnectCommandContribution implements CommandContribution {
 }
 
 @injectable()
-export class BackendConnectMenuContribution implements MenuContribution {
+export class PrintOutputMenuContribution implements MenuContribution {
     registerMenus(menus: MenuModelRegistry): void {
-        const subMenuPath = [...MAIN_MENU_BAR, 'Backend Connect Test'];
-        menus.registerSubmenu(subMenuPath, 'Backend Connect Test', {
+        const subMenuPath = [...MAIN_MENU_BAR, 'Print Output'];
+        menus.registerSubmenu(subMenuPath, 'Print Output', {
             order: '99999'
         });
         menus.registerMenuAction(subMenuPath, {
-            commandId: BackendConnect.id,
+            commandId: PrintOutputCommand.id,
             order: '0'
         });
     };

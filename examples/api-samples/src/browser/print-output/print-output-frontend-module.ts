@@ -16,17 +16,17 @@
 
 import { CommandContribution, MenuContribution } from '@theia/core';
 import { ContainerModule } from '@theia/core/shared/inversify';
+import { PrintOutput, PrintOutputClient, PrintOutputPath } from '../../common/print-output/print-output-service';
+import { PrintOutputCommandContribution, PrintOutputContribution, PrintOutputMenuContribution } from './print-output-contribution';
 import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
-import { PrintOutputClient, PrintOutputPath, PrintOutputServer } from '../../common/print-output-server';
-import { PrintOutputCommandContribution, PrintOutputContribution, PrintOutputMenuContribution } from './print-output-frontend-contributions';
 
 export default new ContainerModule(bind => {
     bind(CommandContribution).to(PrintOutputCommandContribution).inSingletonScope();
     bind(MenuContribution).to(PrintOutputMenuContribution).inSingletonScope();
     bind(PrintOutputClient).to(PrintOutputContribution).inSingletonScope();
-    bind(PrintOutputServer).toDynamicValue(ctx => {
+    bind(PrintOutput).toDynamicValue(ctx => {
         const connection = ctx.container.get(ServiceConnectionProvider);
         const client = ctx.container.get<PrintOutputClient>(PrintOutputClient);
-        return connection.createProxy<PrintOutputServer>(PrintOutputPath, client);
+        return connection.createProxy<PrintOutput>(PrintOutputPath, client);
     }).inSingletonScope();
 });

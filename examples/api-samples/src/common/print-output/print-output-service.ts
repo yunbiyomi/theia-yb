@@ -1,5 +1,5 @@
 // *****************************************************************************
-// Copyright (C) 2019 Arm and others.
+// Copyright (C) 2024 TOBESOFT and others.
 //
 // This program and the accompanying materials are made available under the
 // terms of the Eclipse Public License v. 2.0 which is available at
@@ -14,18 +14,17 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
-import { ContainerModule } from '@theia/core/shared/inversify';
-import { PrintOutputClient, PrintOutputPath, PrintOutputServer } from '../../common/print-output-server';
-import { PrintOutputImpl } from './print-output-impl';
+import { RpcServer } from '@theia/core/lib/common/messaging/proxy-factory';
 
-export default new ContainerModule(bind => {
-    bind(PrintOutputServer).to(PrintOutputImpl).inSingletonScope();
-    bind(ConnectionHandler).toDynamicValue(ctx => {
-        new RpcConnectionHandler<PrintOutputClient>(PrintOutputPath, client => {
-            const server = ctx.container.get<PrintOutputServer>(PrintOutputServer);
-            server.setClient(client);
-            return server;
-        });
-    }).inSingletonScope();
-});
+export const PrintOutputPath = '/services/printOutput';
+export const PrintOutput = Symbol('PrintOutput');
+export interface PrintOutput extends RpcServer<PrintOutputClient> {
+    setClient(client: PrintOutputClient | undefined): void;
+    getClient(): PrintOutputClient | undefined;
+    getCallBack(): Promise<string>
+}
+
+export const PrintOutputClient = Symbol('PrintOutputClient');
+export interface PrintOutputClient {
+    printOutputChannelManager(str: string): void;
+}

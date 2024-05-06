@@ -1,5 +1,5 @@
 // *****************************************************************************
-// Copyright (C) 2023 Ericsson and others.
+// Copyright (C) 2024 TOBESOFT and others.
 //
 // This program and the accompanying materials are made available under the
 // terms of the Eclipse Public License v. 2.0 which is available at
@@ -15,25 +15,25 @@
 // *****************************************************************************
 
 import { injectable } from '@theia/core/shared/inversify';
-import { PrintOutputClient, PrintOutputServer } from '../../common/print-output-server';
+import { PrintOutput, PrintOutputClient } from '../../common/print-output/print-output-service';
 
 @injectable()
-export class PrintOutputImpl implements PrintOutputServer {
+export class PrintOutputImpl implements PrintOutput {
     protected client: PrintOutputClient | undefined;
 
-    setClient(client: PrintOutputClient | undefined): void {
-        this.client = client;
-    }
-
-    getClient?(): PrintOutputClient | undefined {
+    getClient(): PrintOutputClient | undefined {
         if (this.client !== undefined) { return this.client; }
     }
 
-    getCallBackend(): Promise<string> {
-        return Promise.resolve('call backend!');
+    setClient(client: PrintOutputClient): void {
+        this.client = client;
     }
 
     dispose(): void {
         throw new Error('Method not implemented.');
+    }
+
+    getCallBack(): Promise<string> {
+        return Promise.resolve('callback Backend!!');
     }
 }

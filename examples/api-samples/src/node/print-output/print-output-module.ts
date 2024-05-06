@@ -14,28 +14,18 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { injectable } from '@theia/core/shared/inversify';
-import { BackendLogger, BackendLoggerClient } from '../../common/backend-connect/backend-connect-service';
+import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
+import { ContainerModule } from '@theia/core/shared/inversify';
+import { PrintOutput, PrintOutputClient, PrintOutputPath } from '../../common/print-output/print-output-service';
+import { PrintOutputImpl } from './print-output-impl';
 
-@injectable()
-export class BackendConnectLogger implements BackendLogger {
-    protected client: BackendLoggerClient | undefined;
-
-    getClient(): BackendLoggerClient | undefined {
-        if (this.client !== undefined) { return this.client; }
-    }
-
-    setClient(client: BackendLoggerClient): void {
-        this.client = client;
-    }
-
-    dispose(): void {
-        throw new Error('Method not implemented.');
-    }
-
-    connectBackend(): Promise<string> {
-        const timestamp = new Date().toUTCString();
-        console.log(`[${timestamp}] Connect with Backend!`);
-        return Promise.resolve(`[${timestamp}] Hello from backend!`);
-    }
-}
+export default new ContainerModule(bind => {
+    bind(PrintOutput).to(PrintOutputImpl).inSingletonScope();
+    bind(ConnectionHandler).toDynamicValue(ctx =>
+        new RpcConnectionHandler<PrintOutputClient>(PrintOutputPath, client => {
+            const server = ctx.container.get<PrintOutput>(PrintOutput);
+            server.setClient(client);
+            return server;
+        })
+    ).inSingletonScope();
+});
