@@ -27,6 +27,10 @@
       "frontendElectron": "lib/electron-browser/menu/sample-electron-menu-module"
     },
     {
+      "frontend": "lib/browser/print-output/print-output-frontend-modules",
+      "backend": "lib/node/print-output/print-output-backend-modules"
+    },
+    {
       "electronMain": "lib/electron-main/update/sample-updater-main-module",
       "frontendElectron": "lib/electron-browser/updater/sample-updater-frontend-module"
     },

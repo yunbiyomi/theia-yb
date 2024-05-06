@@ -26,6 +26,6 @@ export default new ContainerModule(bind => {
             const server = ctx.container.get<PrintOutputServer>(PrintOutputServer);
             server.setClient(client);
             return server;
-        })
+        });
     }).inSingletonScope();
-})
+});

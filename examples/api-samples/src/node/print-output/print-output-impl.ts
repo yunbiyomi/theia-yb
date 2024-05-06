@@ -19,10 +19,6 @@ import { PrintOutputClient, PrintOutputServer } from '../../common/print-output-
 
 @injectable()
 export class PrintOutputImpl implements PrintOutputServer {
-    dispose(): void {
-        throw new Error('Method not implemented.');
-    }
-
     protected client: PrintOutputClient | undefined;
 
     setClient(client: PrintOutputClient | undefined): void {
@@ -30,11 +26,14 @@ export class PrintOutputImpl implements PrintOutputServer {
     }
 
     getClient?(): PrintOutputClient | undefined {
-        if (this.client !== undefined)
-            return this.client;
+        if (this.client !== undefined) { return this.client; }
     }
 
     getCallBackend(): Promise<string> {
-        return Promise.resolve("call Backend!!");
+        return Promise.resolve('call backend!');
+    }
+
+    dispose(): void {
+        throw new Error('Method not implemented.');
     }
 }

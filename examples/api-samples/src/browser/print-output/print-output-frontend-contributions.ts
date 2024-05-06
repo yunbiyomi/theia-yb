@@ -16,7 +16,7 @@
 
 import { Command, CommandContribution, CommandRegistry, MAIN_MENU_BAR, MenuContribution, MenuModelRegistry } from '@theia/core';
 import { inject, injectable } from '@theia/core/shared/inversify';
-import { OutputChannelManager } from '@theia/output/src/browser/output-channel';
+import { OutputChannelManager } from '@theia/output/lib/browser/output-channel';
 import { PrintOutputClient, PrintOutputServer } from '../../common/print-output-server';
 
 const PrintOutputCommand: Command = {
@@ -29,9 +29,10 @@ export class PrintOutputContribution implements PrintOutputClient {
     @inject(OutputChannelManager)
     protected readonly outputChannelManager: OutputChannelManager;
 
-    public printOutputChannelManager(str: string): void {
+    public printOutputChannelManager(message: string): void {
         const channel = this.outputChannelManager.getChannel('Frontend Show');
-        channel.append('Hello world!');
+        channel.appendLine('Hello world!');
+        channel.appendLine(message);
         channel.show();
     }
 }
@@ -48,7 +49,7 @@ export class PrintOutputCommandContribution implements CommandContribution {
         registry.registerCommand(PrintOutputCommand, {
             execute: async () => {
                 this.printOutputServer.getCallBackend().then((message: string) => {
-                    this.printOutputServer.getClient()?.printOutputChannelManager(message);
+                    console.log(1);
                 });
             }
         });

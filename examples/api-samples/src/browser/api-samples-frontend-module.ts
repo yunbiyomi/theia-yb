@@ -32,8 +32,6 @@ import { bindSampleAppInfo } from './vsx/sample-frontend-app-info';
 import { bindTestSample } from './test/sample-test-contribution';
 import { bindSampleFileSystemCapabilitiesCommands } from './file-system/sample-file-system-capabilities';
 import { bindOpenStartWidget } from './open-start/open-start-contribution';
-import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
-import { PrintOutputClient, PrintOutputPath, PrintOutputServer } from '../common/print-output-server';
 
 export default new ContainerModule((
     bind: interfaces.Bind,
@@ -55,9 +53,4 @@ export default new ContainerModule((
     bindSampleFileSystemCapabilitiesCommands(bind);
     rebindOVSXClientFactory(rebind);
     bindOpenStartWidget(bind, unbind, rebind);
-    bind(PrintOutputServer).toDynamicValue(ctx => {
-        const connection = ctx.container.get(ServiceConnectionProvider);
-        const client = ctx.container.get<PrintOutputClient>(PrintOutputClient);
-        return connection.createProxy<PrintOutputServer>(PrintOutputPath, client);
-    }).inSingletonScope();
 });

@@ -15,17 +15,15 @@
 
 import { RpcServer } from '@theia/core';
 
-export const PrintOutputPath = '/services/call-backend';
-export const PrintOutputServer = Symbol("CPrintOutputServer");
-
+export const PrintOutputPath = '/services/printOutputServer';
+export const PrintOutputServer = Symbol('PrintOutputServer');
 export interface PrintOutputServer extends RpcServer<PrintOutputClient> {
     setClient(client: PrintOutputClient | undefined): void;
     getClient?(): PrintOutputClient | undefined;
     getCallBackend(): Promise<string>;
 }
 
-export const PrintOutputClient = Symbol("PrintOutputClient");
-
+export const PrintOutputClient = Symbol('PrintOutputClient');
 export interface PrintOutputClient {
     printOutputChannelManager(message: string): void
 }
