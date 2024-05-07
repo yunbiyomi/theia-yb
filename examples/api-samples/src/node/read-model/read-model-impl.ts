@@ -35,17 +35,17 @@ export class ReadModelImpl implements ReadModel {
         throw new Error('Method not implemented.');
     }
 
-    readModel(): Promise<FileNode[]> {
+    async readModel(): Promise<FileNode[]> {
         const directoryPath = '../../../../Mars_Sample/_model_';
         const modelPath = path.join(__dirname, directoryPath);
 
         const readDirectory = async (defaultPath: string): Promise<FileNode[]> => {
-            const items = await fs.promises.readdir(defaultPath, 'utf-8');
+            const items = fs.readdirSync(defaultPath, 'utf-8');
 
             const files: FileNode[] = [];
             for (const item of items) {
                 const itemPath = path.join(defaultPath, item);
-                const stats = await fs.promises.stat(itemPath);
+                const stats = fs.statSync(itemPath);
                 if (stats.isDirectory()) {
                     const folderNode: FileNode = {
                         name: item,

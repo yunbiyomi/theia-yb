@@ -30,9 +30,10 @@ export class ReadModelContribution implements ReadModelClient {
     @inject(OutputChannelManager)
     protected readonly outputChannelManager: OutputChannelManager;
 
-    public printOutputChannelManager(fileStructure: FileNode[]): void { // 인자를 FileNode[]으로 변경
-        // 파일 구조를 트리로 표시하는 코드로 수정
-        console.log(fileStructure); // 예시로 콘솔에 출력
+    public printOutputChannelManager(fileStructure: FileNode[]): void {
+        fileStructure.forEach((node: FileNode) => {
+            console.log(`${JSON.stringify(node)}`);
+        });
     }
 }
 
@@ -48,9 +49,7 @@ export class ReadModelCommandContribution implements CommandContribution {
         registry.registerCommand(RaedModelCommand, {
             execute: async () => {
                 this.readModel.readModel().then((fileStructure: FileNode[]) => {
-                    fileStructure.forEach((node: FileNode) => {
-                        console.log(`${JSON.stringify(node)}`); // 각 파일 노드의 내용을 콘솔에 출력
-                    });
+                    this.readModel.getClient()?.printOutputChannelManager(fileStructure);
                 });
             }
         });
