@@ -36,8 +36,8 @@ export class ReadModelImpl implements ReadModel {
     }
 
     readModel(): Promise<string[]> {
-        const directoryPath = '../../../../../Mars_Sample/_model_';
-        const modelPath = path.join(__dirname, '/theia', directoryPath);
+        const directoryPath = '../../../../Mars_Sample/_model_';
+        const modelPath = path.join(__dirname, directoryPath);
         let files: string[] = [];
 
         const readDirectory = (defaultPath: string) => {
