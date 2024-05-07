@@ -32,7 +32,6 @@ export class ReadModelContribution implements ReadModelClient {
 
     public printOutputChannelManager(message: string): void {
         const channel = this.outputChannelManager.getChannel('Print Output');
-        channel.appendLine('Hello world!');
         channel.appendLine(message);
         channel.show();
     }
@@ -49,8 +48,10 @@ export class ReadModelCommandContribution implements CommandContribution {
     registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(RaedModelCommand, {
             execute: async () => {
-                this.readModel.getCallBack().then((message: string) => {
-                    this.readModel.getClient()?.printOutputChannelManager(message);
+                this.readModel.readModel().then((folders: string[]) => {
+                    folders.forEach((folder: string) => {
+                        this.readModel.getClient()?.printOutputChannelManager(folder);
+                    })
                 });
             }
         });

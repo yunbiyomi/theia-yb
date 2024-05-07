@@ -16,24 +16,47 @@
 
 import { injectable } from '@theia/core/shared/inversify';
 import { ReadModel, ReadModelClient } from '../../common/read-model/read-model-service';
+import path = require('path');
+import fs = require('fs');
 
 @injectable()
 export class ReadModelImpl implements ReadModel {
     protected client: ReadModelClient | undefined;
 
-    getClient(): ReadModelClient | undefined {
-        if (this.client !== undefined) { return this.client; }
-    }
-
     setClient(client: ReadModelClient): void {
         this.client = client;
+    }
+
+    getClient(): ReadModelClient | undefined {
+        if (this.client !== undefined) { return this.client; }
     }
 
     dispose(): void {
         throw new Error('Method not implemented.');
     }
 
-    getCallBack(): Promise<string> {
-        return Promise.resolve('read Model');
+    readModel(): Promise<string[]> {
+        const directoryPath = '../../../../../Mars_Sample/_model_';
+        const modelPath = path.join(__dirname, '/theia', directoryPath);
+        let files: string[] = [];
+
+        const readDirectory = (defaultPath: string) => {
+            const items = fs.readdirSync(defaultPath, 'utf-8');
+
+            items.forEach(item => {
+                const itemPath = path.join(defaultPath, item);
+                const stats = fs.statSync(itemPath);
+                if (stats.isDirectory()) {
+                    files.push(item);
+                    readDirectory(itemPath);
+                } else if (stats.isFile()) {
+                    files.push(item);
+                }
+            });
+        };
+
+        readDirectory(modelPath);
+
+        return Promise.resolve(files);
     }
 }

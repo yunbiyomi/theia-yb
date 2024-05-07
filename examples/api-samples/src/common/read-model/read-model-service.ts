@@ -21,7 +21,7 @@ export const ReadModel = Symbol('ReadModel');
 export interface ReadModel extends RpcServer<ReadModelClient> {
     setClient(client: ReadModelClient | undefined): void;
     getClient(): ReadModelClient | undefined;
-    getCallBack(): Promise<string>
+    readModel(): Promise<string[]>
 }
 
 export const ReadModelClient = Symbol('ReadModelClient');
