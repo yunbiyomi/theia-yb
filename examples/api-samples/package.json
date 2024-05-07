@@ -28,7 +28,11 @@
     },
     {
       "frontend": "lib/browser/print-output/print-output-frontend-module",
-      "backend": "lib/node/print-output/print-output-module"
+      "backend": "lib/node/print-output/print-output-backend-module"
+    },
+    {
+      "frontend": "lib/browser/read-model/read-model-frontend-module",
+      "backend": "lib/node/read-model/read-model-backend-module"
     },
     {
       "electronMain": "lib/electron-main/update/sample-updater-main-module",
