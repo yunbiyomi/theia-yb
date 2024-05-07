@@ -17,7 +17,7 @@
 import { Command, CommandContribution, CommandRegistry, MenuContribution, MenuModelRegistry, MAIN_MENU_BAR } from '@theia/core';
 import { injectable, inject } from '@theia/core/shared/inversify';
 import { OutputChannelManager } from '@theia/output/lib/browser/output-channel';
-import { ReadModel, ReadModelClient } from '../../common/read-model/read-model-service';
+import { ReadModel, ReadModelClient, FileNode } from '../../common/read-model/read-model-service'; // FileNode 추가
 
 const RaedModelCommand: Command = {
     id: 'read-model',
@@ -30,10 +30,9 @@ export class ReadModelContribution implements ReadModelClient {
     @inject(OutputChannelManager)
     protected readonly outputChannelManager: OutputChannelManager;
 
-    public printOutputChannelManager(message: string): void {
-        const channel = this.outputChannelManager.getChannel('Print Output');
-        channel.appendLine(message);
-        channel.show();
+    public printOutputChannelManager(fileStructure: FileNode[]): void { // 인자를 FileNode[]으로 변경
+        // 파일 구조를 트리로 표시하는 코드로 수정
+        console.log(fileStructure); // 예시로 콘솔에 출력
     }
 }
 
@@ -48,10 +47,10 @@ export class ReadModelCommandContribution implements CommandContribution {
     registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(RaedModelCommand, {
             execute: async () => {
-                this.readModel.readModel().then((folders: string[]) => {
-                    folders.forEach((folder: string) => {
-                        this.readModel.getClient()?.printOutputChannelManager(folder);
-                    })
+                this.readModel.readModel().then((fileStructure: FileNode[]) => {
+                    fileStructure.forEach((node: FileNode) => {
+                        console.log(`${JSON.stringify(node)}`); // 각 파일 노드의 내용을 콘솔에 출력
+                    });
                 });
             }
         });

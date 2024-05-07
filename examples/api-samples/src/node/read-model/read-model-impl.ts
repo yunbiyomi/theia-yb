@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { injectable } from '@theia/core/shared/inversify';
-import { ReadModel, ReadModelClient } from '../../common/read-model/read-model-service';
+import { FileNode, ReadModel, ReadModelClient } from '../../common/read-model/read-model-service';
 import path = require('path');
 import fs = require('fs');
 
@@ -35,28 +35,35 @@ export class ReadModelImpl implements ReadModel {
         throw new Error('Method not implemented.');
     }
 
-    readModel(): Promise<string[]> {
+    readModel(): Promise<FileNode[]> {
         const directoryPath = '../../../../Mars_Sample/_model_';
         const modelPath = path.join(__dirname, directoryPath);
-        let files: string[] = [];
 
-        const readDirectory = (defaultPath: string) => {
-            const items = fs.readdirSync(defaultPath, 'utf-8');
+        const readDirectory = async (defaultPath: string): Promise<FileNode[]> => {
+            const items = await fs.promises.readdir(defaultPath, 'utf-8');
 
-            items.forEach(item => {
+            const files: FileNode[] = [];
+            for (const item of items) {
                 const itemPath = path.join(defaultPath, item);
-                const stats = fs.statSync(itemPath);
+                const stats = await fs.promises.stat(itemPath);
                 if (stats.isDirectory()) {
-                    files.push(item);
-                    readDirectory(itemPath);
+                    const folderNode: FileNode = {
+                        name: item,
+                        isFolder: true,
+                        children: await readDirectory(itemPath)
+                    };
+                    files.push(folderNode);
                 } else if (stats.isFile()) {
-                    files.push(item);
+                    const fileNode: FileNode = {
+                        name: item,
+                        isFolder: false
+                    };
+                    files.push(fileNode);
                 }
-            });
+            }
+            return files;
         };
 
-        readDirectory(modelPath);
-
-        return Promise.resolve(files);
+        return readDirectory(modelPath);
     }
 }
