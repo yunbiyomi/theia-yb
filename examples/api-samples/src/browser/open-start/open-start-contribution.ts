@@ -72,7 +72,7 @@ export class OpenStartContribution extends AbstractViewContribution<OpenStartWid
     }
 }
 
-export const bindOpenStartWidget = (bind: interfaces.Bind, unbind: interfaces.Unbind, rebind: interfaces.Rebind) => {
+export const bindOpenStartWidget = (bind: interfaces.Bind, unbind: interfaces.Unbind) => {
     bindViewContribution(bind, OpenStartContribution);
     bind(FrontendApplicationContribution).toService(OpenStartContribution);
     bind(OpenStartWidget).toSelf();

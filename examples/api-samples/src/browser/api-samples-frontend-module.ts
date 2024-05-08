@@ -52,5 +52,5 @@ export default new ContainerModule((
     bindTestSample(bind);
     bindSampleFileSystemCapabilitiesCommands(bind);
     rebindOVSXClientFactory(rebind);
-    bindOpenStartWidget(bind, unbind, rebind);
+    bindOpenStartWidget(bind, unbind);
 });
