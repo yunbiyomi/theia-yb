@@ -41,22 +41,22 @@ export class ReadModelImpl implements ReadModel {
 
         const readDirectory = async (defaultPath: string): Promise<FileNode[]> => {
             const items = fs.readdirSync(defaultPath, 'utf-8');
-
             const files: FileNode[] = [];
+
             for (const item of items) {
                 const itemPath = path.join(defaultPath, item);
                 const stats = fs.statSync(itemPath);
                 if (stats.isDirectory()) {
                     const folderNode: FileNode = {
-                        name: item,
+                        id: item,
                         isFolder: true,
                         children: await readDirectory(itemPath)
                     };
                     files.push(folderNode);
                 } else if (stats.isFile()) {
                     const fileNode: FileNode = {
-                        name: item,
-                        isFolder: false
+                        id: item,
+                        isFolder: false,
                     };
                     files.push(fileNode);
                 }

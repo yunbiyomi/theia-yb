@@ -15,14 +15,19 @@
 // *****************************************************************************
 
 import { RpcServer } from '@theia/core/lib/common/messaging/proxy-factory';
+import { CompositeTreeNode, TreeNode } from '@theia/core/lib/browser';
 
 export const ReadModelPath = '/services/readModel';
 export const ReadModel = Symbol('ReadModel');
 
 export interface FileNode {
-    name: string;
+    id: string;
     isFolder: boolean;
     children?: FileNode[];
+}
+
+export interface parentFileNode extends CompositeTreeNode {
+    children: ReadonlyArray<TreeNode>;
 }
 
 export interface ReadModel extends RpcServer<ReadModelClient> {
