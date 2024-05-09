@@ -49,14 +49,14 @@ export class ReadModelImpl implements ReadModel {
                 if (stats.isDirectory()) {
                     const folderNode: FileNode = {
                         id: item,
-                        isFolder: true,
+                        isDirectory: true,
                         children: await readDirectory(itemPath)
                     };
                     files.push(folderNode);
                 } else if (stats.isFile()) {
                     const fileNode: FileNode = {
                         id: item,
-                        isFolder: false,
+                        isDirectory: false,
                     };
                     files.push(fileNode);
                 }
