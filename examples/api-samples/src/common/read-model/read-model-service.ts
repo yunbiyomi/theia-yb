@@ -23,6 +23,7 @@ export const ReadModel = Symbol('ReadModel');
 export interface FileNode {
     id: string;
     isDirectory: boolean;
+    parent?: string;
     children?: FileNode[];
 }
 

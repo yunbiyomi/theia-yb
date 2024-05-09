@@ -21,6 +21,7 @@ import fs = require('fs');
 
 @injectable()
 export class ReadModelImpl implements ReadModel {
+
     protected client: ReadModelClient | undefined;
 
     setClient(client: ReadModelClient): void {
@@ -39,7 +40,7 @@ export class ReadModelImpl implements ReadModel {
         const directoryPath = '../../../../Mars_Sample/_model_';
         const modelPath = path.join(__dirname, directoryPath);
 
-        const readDirectory = async (defaultPath: string): Promise<FileNode[]> => {
+        const readDirectory = async (defaultPath: string, parentsFolder?: string): Promise<FileNode[]> => {
             const items = fs.readdirSync(defaultPath, 'utf-8');
             const files: FileNode[] = [];
 
@@ -50,13 +51,14 @@ export class ReadModelImpl implements ReadModel {
                     const folderNode: FileNode = {
                         id: item,
                         isDirectory: true,
-                        children: await readDirectory(itemPath)
+                        parent: parentsFolder,
+                        children: await readDirectory(itemPath, item),
                     };
                     files.push(folderNode);
                 } else if (stats.isFile()) {
                     const fileNode: FileNode = {
                         id: item,
-                        isDirectory: false,
+                        isDirectory: false
                     };
                     files.push(fileNode);
                 }

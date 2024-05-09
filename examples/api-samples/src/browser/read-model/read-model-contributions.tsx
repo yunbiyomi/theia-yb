@@ -27,8 +27,8 @@ export const ReadModelCommand: Command = {
 
 @injectable()
 export class ReadModelFrontend implements ReadModelClient {
-    public printOutputChannelManager(fileStructure: FileNode[]): void {
-        fileStructure.forEach((node: FileNode) => {
+    public printOutputChannelManager(fileNode: FileNode[]): void {
+        fileNode.forEach((node: FileNode) => {
             console.log(`${JSON.stringify(node)}`);
         });
     }
@@ -36,11 +36,10 @@ export class ReadModelFrontend implements ReadModelClient {
 
 @injectable()
 export class ReadModelContribution extends AbstractViewContribution<ReadModelWidget> {
-    @inject(CommandRegistry)
-    protected readonly commandRegistry: CommandRegistry;
 
-    @inject(ReadModel)
-    protected readonly readModel: ReadModel
+    @inject(CommandRegistry) protected readonly commandRegistry: CommandRegistry;
+    @inject(ReadModel) protected readonly readModel: ReadModel
+    @inject(ReadModelWidget) protected readonly readModelWidget: ReadModelWidget;
 
     constructor() {
         super({
@@ -65,9 +64,9 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
     override registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(ReadModelCommand, {
             execute: async () => {
-                super.openView({ activate: false, reveal: true });
-                this.readModel.readModel().then((fileStructure: FileNode[]) => {
-                    this.readModel.getClient()?.printOutputChannelManager(fileStructure);
+                this.readModel.readModel().then((fileNode: FileNode[]) => {
+                    super.openView({ activate: false, reveal: true });
+                    this.readModel.getClient()?.printOutputChannelManager(fileNode);
                 });
             }
         });
@@ -77,7 +76,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
 export const bindReadModelWidget = (bind: interfaces.Bind) => {
     bindViewContribution(bind, ReadModelContribution);
     bind(FrontendApplicationContribution).toService(ReadModelContribution);
-    bind(ReadModelWidget).toSelf();
+    bind(ReadModelWidget).toDynamicValue(ctx => ReadModelWidget.createWidget(ctx.container));
     bind(WidgetFactory).toDynamicValue(ctx => ({
         id: ReadModelWidget.ID,
         createWidget: () => ctx.container.get<ReadModelWidget>(ReadModelWidget)

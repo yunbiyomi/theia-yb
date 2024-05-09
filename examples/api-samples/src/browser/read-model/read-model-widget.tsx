@@ -14,34 +14,72 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import * as React from '@theia/core/shared/react';
-import { injectable, postConstruct } from '@theia/core/shared/inversify';
-import { ReactWidget } from '@theia/core/lib/browser';
+import { Container, inject, injectable, interfaces } from '@theia/core/shared/inversify';
+import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, TreeImpl, TreeModel, TreeModelImpl, TreeProps, TreeWidget } from '@theia/core/lib/browser';
 
 @injectable()
-export class ReadModelWidget extends ReactWidget {
+export class ReadModelWidget extends TreeWidget {
+
     static readonly ID = 'read-model-widget';
     static readonly LABEL = 'Read Model';
 
-    @postConstruct()
-    protected init(): void {
-        this.doInit();
+    static createContainer(parent: interfaces.Container): Container {
+        const child = createTreeContainer(parent, {
+            tree: TreeImpl,
+            widget: ReadModelWidget,
+            model: TreeModelImpl
+        });
+
+        return child;
     }
 
-    protected async doInit(): Promise<void> {
+    static createWidget(parent: interfaces.Container): ReadModelWidget {
+        return ReadModelWidget.createContainer(parent).get(ReadModelWidget);
+    }
+
+    constructor(
+        @inject(TreeProps) props: TreeProps,
+        @inject(TreeModel) override readonly model: TreeModel,
+        @inject(ContextMenuRenderer) contextMenuRenderer: ContextMenuRenderer,
+    ) {
+        super(props, model, contextMenuRenderer);
+
         this.id = ReadModelWidget.ID;
         this.title.label = ReadModelWidget.LABEL;
         this.title.caption = ReadModelWidget.LABEL;
         this.title.closable = true;
         this.title.iconClass = 'fa fa-tree';
-        this.update();
-    }
 
-    protected render(): React.JSX.Element {
-        return <>
-            <div id='widget-container'>
-                Hello Read Model Widget!
-            </div>
-        </>
+        const root = {
+            id: 'model-tree',
+            label: 'Model Tree',
+            name: '_model_',
+            parent: undefined,
+            visible: true,
+            expended: true,
+            children: [],
+        };
+
+        this.model.root = root;
+
+        CompositeTreeNode.addChild(root, {
+            id: '1',
+            name: 'view 1',
+            parent: root
+        });
+
+        CompositeTreeNode.addChild(root, {
+            id: '2',
+            name: 'view 2',
+            parent: root
+        });
+
+        CompositeTreeNode.addChild(root, {
+            id: '3',
+            name: 'view 3',
+            parent: root
+        });
+
+        model.refresh();
     }
 }
