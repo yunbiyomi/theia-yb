@@ -14,8 +14,9 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Container, inject, injectable, interfaces } from '@theia/core/shared/inversify';
+import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
 import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, TreeImpl, TreeModel, TreeModelImpl, TreeProps, TreeWidget } from '@theia/core/lib/browser';
+
 
 @injectable()
 export class ReadModelWidget extends TreeWidget {
@@ -43,24 +44,14 @@ export class ReadModelWidget extends TreeWidget {
         @inject(ContextMenuRenderer) contextMenuRenderer: ContextMenuRenderer,
     ) {
         super(props, model, contextMenuRenderer);
+    }
 
-        this.id = ReadModelWidget.ID;
-        this.title.label = ReadModelWidget.LABEL;
-        this.title.caption = ReadModelWidget.LABEL;
-        this.title.closable = true;
-        this.title.iconClass = 'fa fa-tree';
+    @postConstruct()
+    protected override init(): void {
+        super.init();
+        this.doInit();
 
-        const root = {
-            id: 'model-tree',
-            label: 'Model Tree',
-            name: '_model_',
-            parent: undefined,
-            visible: true,
-            expended: true,
-            children: [],
-        };
-
-        this.model.root = root;
+        const root = this.createRootNode();
 
         CompositeTreeNode.addChild(root, {
             id: '1',
@@ -80,6 +71,32 @@ export class ReadModelWidget extends TreeWidget {
             parent: root
         });
 
-        model.refresh();
+        CompositeTreeNode.addChild(root, {
+            id: '4',
+            name: 'view 4',
+            parent: root
+        });
+
+        this.model.root = root;
+        this.model.refresh(root);
+        this.update();
+    }
+
+    protected doInit(): void {
+        this.id = ReadModelWidget.ID;
+        this.title.label = ReadModelWidget.LABEL;
+        this.title.caption = ReadModelWidget.LABEL;
+        this.title.closable = true;
+        this.title.iconClass = 'fa fa-tree';
+    }
+
+    protected createRootNode(): CompositeTreeNode {
+        return {
+            id: 'model-tree',
+            name: '_model_',
+            parent: undefined,
+            visible: true,
+            children: []
+        }
     }
 }
