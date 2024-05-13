@@ -15,7 +15,8 @@
 // *****************************************************************************
 
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
-import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, TreeImpl, TreeModel, TreeModelImpl, TreeProps, TreeWidget } from '@theia/core/lib/browser';
+import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget } from '@theia/core/lib/browser';
+import { FileNode } from '../../common/read-model/read-model-service';
 
 
 @injectable()
@@ -51,35 +52,7 @@ export class ReadModelWidget extends TreeWidget {
         super.init();
         this.doInit();
 
-        const root = this.createRootNode();
-
-        CompositeTreeNode.addChild(root, {
-            id: '1',
-            name: 'view 1',
-            parent: root
-        });
-
-        CompositeTreeNode.addChild(root, {
-            id: '2',
-            name: 'view 2',
-            parent: root
-        });
-
-        CompositeTreeNode.addChild(root, {
-            id: '3',
-            name: 'view 3',
-            parent: root
-        });
-
-        CompositeTreeNode.addChild(root, {
-            id: '4',
-            name: 'view 4',
-            parent: root
-        });
-
-        this.model.root = root;
-        this.model.refresh(root);
-        this.update();
+        this.model.refresh();
     }
 
     protected doInit(): void {
@@ -91,12 +64,45 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     protected createRootNode(): CompositeTreeNode {
-        return {
+        const rootNode: CompositeTreeNode = {
             id: 'model-tree',
             name: '_model_',
             parent: undefined,
             visible: true,
             children: []
         }
+
+        return rootNode
+    }
+
+    protected createTreeNode(fileNode: FileNode, parent: CompositeTreeNode): TreeNode {
+        const newChildren: TreeNode[] = [];
+
+        const node: CompositeTreeNode = {
+            id: fileNode.id,
+            parent: parent,
+            children: newChildren
+        }
+
+        if (fileNode.children && Array.isArray(fileNode.children)) {
+            for (const child of fileNode.children) {
+                const childNode: TreeNode = this.createTreeNode(child, node);
+                newChildren.push(childNode);
+            }
+        }
+
+        return node
+    }
+
+    getReadModel(fileNode: FileNode[]): void {
+        const root = this.createRootNode();
+
+        fileNode.forEach((file: FileNode) => {
+            const node = this.createTreeNode(file, root);
+            CompositeTreeNode.addChild(root, node);
+        });
+
+        this.model.root = root;
+        this.model.refresh();
     }
 }

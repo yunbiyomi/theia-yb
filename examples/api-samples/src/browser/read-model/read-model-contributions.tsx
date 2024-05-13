@@ -56,6 +56,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         menus.registerSubmenu(subMenuPath, 'Read Model', {
             order: '99999'
         });
+
         menus.registerMenuAction(subMenuPath, {
             commandId: ReadModelCommand.id,
             order: '0'
@@ -67,7 +68,8 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
             execute: async () => {
                 this.readModel.readModel().then((fileNode: FileNode[]) => {
                     super.openView({ activate: false, reveal: true });
-                    this.readModel.getClient()?.printOutputChannelManager(fileNode);
+                    this.readModelWidget.getReadModel(fileNode);
+                    // this.readModel.getClient()?.printOutputChannelManager(fileNode);
                 });
             }
         });

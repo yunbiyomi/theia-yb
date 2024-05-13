@@ -23,7 +23,7 @@ import OpenStartWidgetComponent from './open-widget-component';
 @injectable()
 export class OpenStartWidget extends ReactWidget {
 
-    static readonly ID = 'open.start.widget';
+    static readonly ID = 'open-start-widget';
     static readonly LABEL = nls.localizeByDefault('Open');
 
     // 클래스 초기화
