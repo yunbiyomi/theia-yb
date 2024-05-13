@@ -69,7 +69,6 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                 this.readModel.readModel().then((fileNode: FileNode[]) => {
                     super.openView({ activate: false, reveal: true });
                     this.readModelWidget.getReadModel(fileNode);
-                    // this.readModel.getClient()?.printOutputChannelManager(fileNode);
                 });
             }
         });
@@ -85,7 +84,7 @@ export const bindReadModelWidget = (bind: interfaces.Bind) => {
     }).inSingletonScope();
     bindViewContribution(bind, ReadModelContribution);
     bind(FrontendApplicationContribution).toService(ReadModelContribution);
-    bind(ReadModelWidget).toDynamicValue(ctx => ReadModelWidget.createWidget(ctx.container));
+    bind(ReadModelWidget).toDynamicValue(ctx => ReadModelWidget.createWidget(ctx.container)).inSingletonScope();
     bind(WidgetFactory).toDynamicValue(ctx => ({
         id: ReadModelWidget.ID,
         createWidget: () => ctx.container.get<ReadModelWidget>(ReadModelWidget)

@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
-import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget } from '@theia/core/lib/browser';
+import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, LabelProvider, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget } from '@theia/core/lib/browser';
 import { FileNode } from '../../common/read-model/read-model-service';
 
 
@@ -24,6 +24,9 @@ export class ReadModelWidget extends TreeWidget {
 
     static readonly ID = 'read-model-widget';
     static readonly LABEL = 'Read Model';
+
+    @inject(LabelProvider)
+    protected override readonly labelProvider: LabelProvider;
 
     static createContainer(parent: interfaces.Container): Container {
         const child = createTreeContainer(parent, {
@@ -51,8 +54,6 @@ export class ReadModelWidget extends TreeWidget {
     protected override init(): void {
         super.init();
         this.doInit();
-
-        this.model.refresh();
     }
 
     protected doInit(): void {
@@ -64,15 +65,13 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     protected createRootNode(): CompositeTreeNode {
-        const rootNode: CompositeTreeNode = {
+        return {
             id: 'model-tree',
             name: '_model_',
             parent: undefined,
             visible: true,
             children: []
         }
-
-        return rootNode
     }
 
     protected createTreeNode(fileNode: FileNode, parent: CompositeTreeNode): TreeNode {
@@ -80,6 +79,8 @@ export class ReadModelWidget extends TreeWidget {
 
         const node: CompositeTreeNode = {
             id: fileNode.id,
+            name: fileNode.id,
+            icon: fileNode.isDirectory ? this.labelProvider.folderIcon : this.labelProvider.fileIcon,
             parent: parent,
             children: newChildren
         }
@@ -94,7 +95,7 @@ export class ReadModelWidget extends TreeWidget {
         return node
     }
 
-    getReadModel(fileNode: FileNode[]): void {
+    async getReadModel(fileNode: FileNode[]): Promise<void> {
         const root = this.createRootNode();
 
         fileNode.forEach((file: FileNode) => {
@@ -103,6 +104,6 @@ export class ReadModelWidget extends TreeWidget {
         });
 
         this.model.root = root;
-        this.model.refresh();
+        await this.model.refresh();
     }
 }
