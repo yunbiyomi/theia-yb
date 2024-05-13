@@ -15,9 +15,10 @@
 // *****************************************************************************
 
 import { Command, CommandContribution, CommandRegistry, MenuContribution, MenuModelRegistry, MAIN_MENU_BAR } from '@theia/core';
-import { injectable, inject } from '@theia/core/shared/inversify';
-import { PrintOutput, PrintOutputClient } from '../../common/print-output/print-output-service';
+import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
+import { PrintOutput, PrintOutputClient, PrintOutputPath } from '../../common/print-output/print-output-service';
 import { OutputChannelManager } from '@theia/output/lib/browser/output-channel';
+import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 
 const PrintOutputCommand: Command = {
     id: 'print-output',
@@ -69,4 +70,15 @@ export class PrintOutputMenuContribution implements MenuContribution {
             order: '0'
         });
     };
+}
+
+export const bindPrintOutput = (bind: interfaces.Bind) => {
+    bind(CommandContribution).to(PrintOutputCommandContribution).inSingletonScope();
+    bind(MenuContribution).to(PrintOutputMenuContribution).inSingletonScope();
+    bind(PrintOutputClient).to(PrintOutputContribution).inSingletonScope();
+    bind(PrintOutput).toDynamicValue(ctx => {
+        const connection = ctx.container.get(ServiceConnectionProvider);
+        const client = ctx.container.get<PrintOutputClient>(PrintOutputClient);
+        return connection.createProxy<PrintOutput>(PrintOutputPath, client);
+    }).inSingletonScope();
 }

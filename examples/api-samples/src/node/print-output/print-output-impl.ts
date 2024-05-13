@@ -14,8 +14,9 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { injectable } from '@theia/core/shared/inversify';
-import { PrintOutput, PrintOutputClient } from '../../common/print-output/print-output-service';
+import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
+import { injectable, interfaces } from '@theia/core/shared/inversify';
+import { PrintOutput, PrintOutputClient, PrintOutputPath } from '../../common/print-output/print-output-service';
 
 @injectable()
 export class PrintOutputImpl implements PrintOutput {
@@ -36,4 +37,15 @@ export class PrintOutputImpl implements PrintOutput {
     getCallBack(): Promise<string> {
         return Promise.resolve('callback Backend!!');
     }
+}
+
+export const bindPrintOutputBackend = (bind: interfaces.Bind) => {
+    bind(PrintOutput).to(PrintOutputImpl).inSingletonScope();
+    bind(ConnectionHandler).toDynamicValue(ctx =>
+        new RpcConnectionHandler<PrintOutputClient>(PrintOutputPath, client => {
+            const server = ctx.container.get<PrintOutput>(PrintOutput);
+            server.setClient(client);
+            return server;
+        })
+    ).inSingletonScope();
 }

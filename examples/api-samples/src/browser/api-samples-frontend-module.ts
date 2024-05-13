@@ -32,6 +32,8 @@ import { bindSampleAppInfo } from './vsx/sample-frontend-app-info';
 import { bindTestSample } from './test/sample-test-contribution';
 import { bindSampleFileSystemCapabilitiesCommands } from './file-system/sample-file-system-capabilities';
 import { bindOpenStartWidget } from './open-start/open-start-contribution';
+import { bindReadModelWidget } from './read-model/read-model-contributions';
+import { bindPrintOutput } from './print-output/print-output-contribution';
 
 export default new ContainerModule((
     bind: interfaces.Bind,
@@ -53,4 +55,6 @@ export default new ContainerModule((
     bindSampleFileSystemCapabilitiesCommands(bind);
     rebindOVSXClientFactory(rebind);
     bindOpenStartWidget(bind, unbind);
+    bindPrintOutput(bind);
+    bindReadModelWidget(bind);
 });

@@ -17,8 +17,9 @@
 import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR } from '@theia/core';
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
 import { AbstractViewContribution, bindViewContribution, FrontendApplicationContribution, WidgetFactory } from '@theia/core/lib/browser';
-import { ReadModelClient, FileNode, ReadModel } from '../../common/read-model/read-model-service';
+import { ReadModelClient, FileNode, ReadModel, ReadModelPath } from '../../common/read-model/read-model-service';
 import { ReadModelWidget } from './read-model-widget';
+import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 
 export const ReadModelCommand: Command = {
     id: ReadModelWidget.ID,
@@ -74,6 +75,12 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
 }
 
 export const bindReadModelWidget = (bind: interfaces.Bind) => {
+    bind(ReadModelClient).to(ReadModelFrontend).inSingletonScope();
+    bind(ReadModel).toDynamicValue(ctx => {
+        const connection = ctx.container.get(ServiceConnectionProvider);
+        const client = ctx.container.get<ReadModelClient>(ReadModelClient);
+        return connection.createProxy<ReadModel>(ReadModelPath, client);
+    }).inSingletonScope();
     bindViewContribution(bind, ReadModelContribution);
     bind(FrontendApplicationContribution).toService(ReadModelContribution);
     bind(ReadModelWidget).toDynamicValue(ctx => ReadModelWidget.createWidget(ctx.container));

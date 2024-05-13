@@ -21,6 +21,8 @@ import { SampleMockOpenVsxServer } from './sample-mock-open-vsx-server';
 import { SampleAppInfo } from '../common/vsx/sample-app-info';
 import { SampleBackendAppInfo } from './sample-backend-app-info';
 import { rebindOVSXClientFactory } from '../common/vsx/sample-ovsx-client-factory';
+import { bindReadModelWidgetBackend } from './read-model/read-model-impl';
+import { bindPrintOutputBackend } from './print-output/print-output-impl';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     rebindOVSXClientFactory(rebind);
@@ -32,4 +34,6 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     if (process.env.SAMPLE_BACKEND_APPLICATION_SERVER) {
         bind(BackendApplicationServer).to(SampleBackendApplicationServer).inSingletonScope();
     }
+    bindPrintOutputBackend(bind);
+    bindReadModelWidgetBackend(bind);
 });

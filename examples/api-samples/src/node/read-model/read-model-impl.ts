@@ -14,10 +14,11 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { injectable } from '@theia/core/shared/inversify';
-import { FileNode, ReadModel, ReadModelClient } from '../../common/read-model/read-model-service';
+import { injectable, interfaces } from '@theia/core/shared/inversify';
+import { FileNode, ReadModel, ReadModelClient, ReadModelPath } from '../../common/read-model/read-model-service';
 import path = require('path');
 import fs = require('fs');
+import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
 
 @injectable()
 export class ReadModelImpl implements ReadModel {
@@ -68,4 +69,15 @@ export class ReadModelImpl implements ReadModel {
 
         return readDirectory(modelPath);
     }
+}
+
+export const bindReadModelWidgetBackend = (bind: interfaces.Bind) => {
+    bind(ReadModel).to(ReadModelImpl).inSingletonScope();
+    bind(ConnectionHandler).toDynamicValue(ctx =>
+        new RpcConnectionHandler<ReadModelClient>(ReadModelPath, client => {
+            const server = ctx.container.get<ReadModel>(ReadModel);
+            server.setClient(client);
+            return server;
+        })
+    ).inSingletonScope();
 }
