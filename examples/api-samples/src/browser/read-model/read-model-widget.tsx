@@ -16,7 +16,7 @@
 
 import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
-import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, LabelProvider, NodeProps, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference } from '@theia/core/lib/browser';
+import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference } from '@theia/core/lib/browser';
 import { FileNode } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 
@@ -66,13 +66,14 @@ export class ReadModelWidget extends TreeWidget {
         this.model.refresh();
     }
 
-    protected createRootNode(): CompositeTreeNode {
+    protected createRootNode(): ExpandableTreeNode {
         return {
             id: 'model-tree',
             name: '_model_',
             parent: undefined,
             icon: 'codicon codicon-folder default-folder-icon',
             visible: true,
+            expanded: true,
             children: []
         }
     }
@@ -81,7 +82,6 @@ export class ReadModelWidget extends TreeWidget {
         const newChildren: TreeNode[] = [];
         const nodePath: URI = new URI(fileNode.filePath);
         const nodeType: URIIconReference = fileNode.isDirectory ? URIIconReference.create('folder', nodePath) : URIIconReference.create('file', nodePath);
-
 
         const node: CompositeTreeNode = {
             id: fileNode.id,
@@ -92,10 +92,21 @@ export class ReadModelWidget extends TreeWidget {
         }
 
         if (fileNode.children && Array.isArray(fileNode.children)) {
+            const node: ExpandableTreeNode = {
+                id: fileNode.id,
+                name: fileNode.id,
+                icon: this.labelProvider.getIcon(nodeType),
+                expanded: true,
+                parent: parent,
+                children: newChildren
+            }
+
             for (const child of fileNode.children) {
                 const childNode: TreeNode = this.createTreeNode(child, node);
                 newChildren.push(childNode);
             }
+
+            return node
         }
 
         return node
