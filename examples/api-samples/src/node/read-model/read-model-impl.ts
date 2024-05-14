@@ -48,18 +48,21 @@ export class ReadModelImpl implements ReadModel {
             for (const item of items) {
                 const itemPath = path.join(defaultPath, item);
                 const stats = fs.statSync(itemPath);
+
                 if (stats.isDirectory()) {
                     const folderNode: FileNode = {
                         id: item,
                         isDirectory: true,
+                        filePath: itemPath,
                         parent: parentsFolder,
-                        children: await readDirectory(itemPath, item),
+                        children: await readDirectory(itemPath, item)
                     };
                     files.push(folderNode);
                 } else if (stats.isFile()) {
                     const fileNode: FileNode = {
                         id: item,
-                        isDirectory: false
+                        isDirectory: false,
+                        filePath: itemPath
                     };
                     files.push(fileNode);
                 }

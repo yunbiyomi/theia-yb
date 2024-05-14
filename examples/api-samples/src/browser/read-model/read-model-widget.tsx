@@ -14,10 +14,11 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
+import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
-import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, LabelProvider, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget } from '@theia/core/lib/browser';
+import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, LabelProvider, NodeProps, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference } from '@theia/core/lib/browser';
 import { FileNode } from '../../common/read-model/read-model-service';
-
+import { URI } from '@theia/core';
 
 @injectable()
 export class ReadModelWidget extends TreeWidget {
@@ -25,8 +26,7 @@ export class ReadModelWidget extends TreeWidget {
     static readonly ID = 'read-model-widget';
     static readonly LABEL = 'Read Model';
 
-    @inject(LabelProvider)
-    protected override readonly labelProvider: LabelProvider;
+    @inject(LabelProvider) protected override readonly labelProvider: LabelProvider;
 
     static createContainer(parent: interfaces.Container): Container {
         const child = createTreeContainer(parent, {
@@ -62,6 +62,8 @@ export class ReadModelWidget extends TreeWidget {
         this.title.caption = ReadModelWidget.LABEL;
         this.title.closable = true;
         this.title.iconClass = 'fa fa-tree';
+
+        this.model.refresh();
     }
 
     protected createRootNode(): CompositeTreeNode {
@@ -69,6 +71,7 @@ export class ReadModelWidget extends TreeWidget {
             id: 'model-tree',
             name: '_model_',
             parent: undefined,
+            icon: 'codicon codicon-folder default-folder-icon',
             visible: true,
             children: []
         }
@@ -76,11 +79,14 @@ export class ReadModelWidget extends TreeWidget {
 
     protected createTreeNode(fileNode: FileNode, parent: CompositeTreeNode): TreeNode {
         const newChildren: TreeNode[] = [];
+        const nodePath: URI = new URI(fileNode.filePath);
+        const nodeType: URIIconReference = fileNode.isDirectory ? URIIconReference.create('folder', nodePath) : URIIconReference.create('file', nodePath);
+
 
         const node: CompositeTreeNode = {
             id: fileNode.id,
             name: fileNode.id,
-            icon: fileNode.isDirectory ? this.labelProvider.folderIcon : this.labelProvider.fileIcon,
+            icon: this.labelProvider.getIcon(nodeType),
             parent: parent,
             children: newChildren
         }
@@ -105,5 +111,13 @@ export class ReadModelWidget extends TreeWidget {
 
         this.model.root = root;
         await this.model.refresh();
+    }
+
+    protected override renderIcon(node: TreeNode, props: NodeProps): React.ReactNode {
+        const icon = this.toNodeIcon(node);
+        if (icon) {
+            return <div className={icon + ' file-icon'}></div>;
+        }
+        return null;
     }
 }
