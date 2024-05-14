@@ -32,7 +32,7 @@ export class ReadModelWidget extends TreeWidget {
         const child = createTreeContainer(parent, {
             tree: TreeImpl,
             widget: ReadModelWidget,
-            model: TreeModelImpl
+            model: ReadModelTreeModel
         });
 
         return child;
@@ -130,5 +130,19 @@ export class ReadModelWidget extends TreeWidget {
             return <div className={icon + ' file-icon'}></div>;
         }
         return null;
+    }
+
+}
+
+
+@injectable()
+export class ReadModelTreeModel extends TreeModelImpl {
+    protected override doOpenNode(node: TreeNode): void {
+        if (ExpandableTreeNode.is(node)) {
+            this.toggleNodeExpansion(node);
+        }
+        else {
+            alert('This is File!');
+        }
     }
 }
