@@ -18,6 +18,7 @@ examples/*/gen-webpack.node.config.js
 examples/*/.theia
 examples/*/.vscode
 examples/*/.test
+examples/api-samples/src/node/read-model/xml-parser
 .browser_modules
 **/docs/api
 package-backup.json
