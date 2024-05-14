@@ -30,10 +30,12 @@ export interface FileNode {
 export interface ReadModel extends RpcServer<ReadModelClient> {
     setClient(client: ReadModelClient | undefined): void;
     getClient(): ReadModelClient | undefined;
-    readModel(): Promise<FileNode[]>
+    readModel(): Promise<FileNode[]>;
+    parseModel(): Promise<string>;
 }
 
 export const ReadModelClient = Symbol('ReadModelClient');
 export interface ReadModelClient {
-    printOutputChannelManager(): void
+    printOutputChannelManager(): void;
+    printFileData(data: string): void;
 }

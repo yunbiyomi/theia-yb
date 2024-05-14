@@ -17,7 +17,7 @@
 import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
 import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference } from '@theia/core/lib/browser';
-import { FileNode } from '../../common/read-model/read-model-service';
+import { FileNode, ReadModel } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 
 export let FileName: string = 'undefined';
@@ -65,6 +65,7 @@ export class ReadModelWidget extends TreeWidget {
         this.title.closable = true;
         this.title.iconClass = 'fa fa-tree';
 
+        this.model.root = undefined;
         this.model.refresh();
     }
 
@@ -75,7 +76,7 @@ export class ReadModelWidget extends TreeWidget {
             parent: undefined,
             icon: 'codicon codicon-folder default-folder-icon',
             visible: true,
-            expanded: true,
+            expanded: false,
             children: []
         }
     }
@@ -100,7 +101,7 @@ export class ReadModelWidget extends TreeWidget {
                 name: fileNode.id,
                 icon: this.labelProvider.getIcon(nodeType),
                 description: fileNode.filePath,
-                expanded: true,
+                expanded: false,
                 parent: parent,
                 children: newChildren
             }
@@ -142,6 +143,7 @@ export class ReadModelWidget extends TreeWidget {
 export class ReadModelTreeModel extends TreeModelImpl {
 
     @inject(LabelProvider) protected readonly labelProvider: LabelProvider;
+    @inject(ReadModel) protected readonly readModel: ReadModel;
 
     protected override doOpenNode(node: TreeNode): void {
         if (ExpandableTreeNode.is(node)) {
@@ -149,6 +151,9 @@ export class ReadModelTreeModel extends TreeModelImpl {
         }
         else {
             FileName = this.labelProvider.getLongName(node);
+            this.readModel.parseModel().then((message: string) => {
+                this.readModel.getClient()?.printFileData(message);
+            });
         }
     }
 }

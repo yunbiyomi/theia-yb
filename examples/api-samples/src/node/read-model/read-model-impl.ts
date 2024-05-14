@@ -73,6 +73,17 @@ export class ReadModelImpl implements ReadModel {
         return readDirectory(modelPath);
 
     }
+
+    async parseModel(): Promise<string> {
+        // const filePath = 'C:\Users\tobesoft\theia\Mars_Sample\_model_\test1.xmodel';
+
+        const directoryPath = '../../../../Mars_Sample/_model_/test1.xmodel';
+        const modelPath = path.join(__dirname, directoryPath);
+
+        const data = fs.readFileSync(modelPath, 'utf-8');
+
+        return data
+    }
 }
 
 export const bindReadModelWidgetBackend = (bind: interfaces.Bind) => {
