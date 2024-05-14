@@ -71,6 +71,7 @@ export class ReadModelImpl implements ReadModel {
         };
 
         return readDirectory(modelPath);
+
     }
 }
 

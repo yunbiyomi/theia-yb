@@ -35,5 +35,5 @@ export interface ReadModel extends RpcServer<ReadModelClient> {
 
 export const ReadModelClient = Symbol('ReadModelClient');
 export interface ReadModelClient {
-    printOutputChannelManager(fileStructure: FileNode[]): void;
+    printOutputChannelManager(): void
 }
