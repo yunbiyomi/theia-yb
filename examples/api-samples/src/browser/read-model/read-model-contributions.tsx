@@ -18,9 +18,8 @@ import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR } from '@the
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
 import { AbstractViewContribution, bindViewContribution, FrontendApplicationContribution, WidgetFactory } from '@theia/core/lib/browser';
 import { ReadModelClient, ReadModel, ReadModelPath, FileNode } from '../../common/read-model/read-model-service';
-import { filePath, ReadModelWidget } from './read-model-widget';
+import { ReadModelWidget } from './read-model-widget';
 import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
-import { OutputChannelManager } from '@theia/output/lib/browser/output-channel';
 
 export const ReadModelCommand: Command = {
     id: ReadModelWidget.ID,
@@ -29,21 +28,6 @@ export const ReadModelCommand: Command = {
 
 @injectable()
 export class ReadModelFrontend implements ReadModelClient {
-    filePath: string;
-
-    @inject(OutputChannelManager) protected readonly outputChannelManager: OutputChannelManager;
-
-    public printOutputChannelManager(): void {
-        const channel = this.outputChannelManager.getChannel('Print Output');
-        channel.appendLine(filePath);
-        channel.show();
-    }
-
-    public printFileData(data: string): void {
-        const channel = this.outputChannelManager.getChannel('Print Data');
-        channel.appendLine(data);
-        channel.show();
-    }
 }
 
 @injectable()
@@ -80,7 +64,6 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                 this.readModel.readModel().then((fileNode: FileNode[]) => {
                     super.openView({ activate: false, reveal: true });
                     this.readModelWidget.getReadModel(fileNode);
-                    this.readModel.getClient()?.printOutputChannelManager();
                 });
             }
         });

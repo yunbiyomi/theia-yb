@@ -16,8 +16,8 @@
 
 import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
-import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference } from '@theia/core/lib/browser';
-import { FileNode, ReadModel } from '../../common/read-model/read-model-service';
+import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
+import { FileNode, ReadModel, XmlNode } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 
 export let filePath: string = '';
@@ -129,6 +129,55 @@ export class ReadModelWidget extends TreeWidget {
         await this.model.refresh();
     }
 
+    protected createXmlNode(xmlNode: XmlNode, parent: CompositeTreeNode): TreeNode {
+        const newChildren: TreeNode[] = [];
+
+        const node: CompositeTreeNode = {
+            id: xmlNode.id as string,
+            name: xmlNode.id,
+            icon: 'codicon codicon-file default-file-icon',
+            parent: parent,
+            children: newChildren
+        }
+
+        if (xmlNode.children && Array.isArray(xmlNode.children)) {
+            const node: ExpandableTreeNode = {
+                id: xmlNode.id as string,
+                name: xmlNode.id,
+                icon: 'codicon codicon-file default-file-icon',
+                expanded: false,
+                parent: parent,
+                children: newChildren
+            }
+
+            for (const child of xmlNode.children) {
+                const childNode: TreeNode = this.createXmlNode(child, node);
+                newChildren.push(childNode);
+            }
+
+            return node
+        }
+
+        return node
+    }
+
+    async getReadXml(xmlNode: XmlNode[], rootNode: CompositeTreeNode): Promise<void> {
+        const xmlRoot: ExpandableTreeNode = {
+            id: rootNode.id,
+            name: rootNode.name,
+            expanded: false,
+            parent: rootNode.parent,
+            children: rootNode.children
+        }
+
+        xmlNode.forEach((xml: XmlNode) => {
+            const node = this.createXmlNode(xml, xmlRoot);
+            CompositeTreeNode.addChild(xmlRoot, node);
+        })
+
+        await this.model.refresh();
+    }
+
     protected override renderIcon(node: TreeNode, props: NodeProps): React.ReactNode {
         const icon = this.toNodeIcon(node);
         if (icon) {
@@ -144,15 +193,19 @@ export class ReadModelTreeModel extends TreeModelImpl {
 
     @inject(LabelProvider) protected readonly labelProvider: LabelProvider;
     @inject(ReadModel) protected readonly readModel: ReadModel;
+    @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
 
-    protected override doOpenNode(node: TreeNode): void {
+    protected override doOpenNode(node: CompositeTreeNode): void {
         if (ExpandableTreeNode.is(node)) {
             this.toggleNodeExpansion(node);
         }
         else {
             filePath = this.labelProvider.getLongName(node);
-            this.readModel.parseModel(filePath).then((message: string) => {
-                this.readModel.getClient()?.printFileData(message);
+            this.readModel.parseModel(filePath).then((xmlNodes: XmlNode[]) => {
+                const readModelWidgets = this.widgetManager.getWidgets(ReadModelWidget.ID) as ReadModelWidget[];
+                readModelWidgets.forEach(widget => {
+                    widget.getReadXml(xmlNodes, node);
+                });
             });
         }
     }

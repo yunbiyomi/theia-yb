@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { injectable, interfaces } from '@theia/core/shared/inversify';
-import { FileNode, ReadModel, ReadModelClient, ReadModelPath } from '../../common/read-model/read-model-service';
+import { FileNode, ReadModel, ReadModelClient, ReadModelPath, XmlNode } from '../../common/read-model/read-model-service';
 import path = require('path');
 import fs = require('fs');
 import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
@@ -83,7 +83,8 @@ export class ReadModelImpl implements ReadModel {
         return filePath
     }
 
-    async parseModel(filePath: string): Promise<string> {
+    async parseModel(filePath: string): Promise<XmlNode[]> {
+        const nodes: XmlNode[] = [];
         const searchPath = this.searchFilePath(filePath)
         const directoryPath = '../../../../Mars_Sample/';
         const mainPath = path.join(__dirname, directoryPath, searchPath);
@@ -93,8 +94,36 @@ export class ReadModelImpl implements ReadModel {
         const xmlDom = parseXML(data);
 
         const rootNode = xmlDom.getRootNode();
+        const modelsNode = rootNode.getChild('Models');
+        const modelNode = modelsNode?.getChilds();
 
-        return rootNode.getName();
+        if (modelNode) {
+            for (const node of modelNode) {
+                const fields: XmlNode[] = [];
+
+                if (node.hasChilds()) {
+                    const fieldNode = node.getChilds();
+                    if (fieldNode) {
+                        for (const child of fieldNode) {
+                            const xmlFieldNode: XmlNode = {
+                                id: child.getAttribute('id'),
+                                parent: node.getName()
+                            }
+                            fields.push(xmlFieldNode);
+                        }
+                    }
+                }
+
+                const xmlModelNode: XmlNode = {
+                    id: node.getAttribute('id'),
+                    parent: modelsNode?.getName(),
+                    children: fields
+                }
+                nodes.push(xmlModelNode);
+            }
+        }
+
+        return nodes;
     }
 }
 
