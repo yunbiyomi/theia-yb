@@ -81,16 +81,17 @@ export class ReadModelWidget extends TreeWidget {
         }
     }
 
-    protected createTreeNode(fileNode: FileNode, parent: CompositeTreeNode): TreeNode {
+    protected createTreeNode(fileNode: FileNode, parent: ExpandableTreeNode): TreeNode {
         const newChildren: TreeNode[] = [];
         const nodePath: URI = new URI(fileNode.filePath);
         const nodeType: URIIconReference = fileNode.isDirectory ? URIIconReference.create('folder', nodePath) : URIIconReference.create('file', nodePath);
 
-        const node: CompositeTreeNode = {
+        const node: ExpandableTreeNode = {
             id: fileNode.id,
             name: fileNode.id,
             icon: this.labelProvider.getIcon(nodeType),
             description: fileNode.filePath,
+            expanded: false,
             parent: parent,
             children: newChildren
         }
@@ -129,7 +130,7 @@ export class ReadModelWidget extends TreeWidget {
         await this.model.refresh();
     }
 
-    protected createXmlNode(xmlNode: XmlNode, parent: CompositeTreeNode): TreeNode {
+    protected createXmlNode(xmlNode: XmlNode, parent: ExpandableTreeNode): TreeNode {
         const newChildren: TreeNode[] = [];
 
         const node: CompositeTreeNode = {
@@ -161,18 +162,10 @@ export class ReadModelWidget extends TreeWidget {
         return node
     }
 
-    async getReadXml(xmlNode: XmlNode[], rootNode: CompositeTreeNode): Promise<void> {
-        const xmlRoot: ExpandableTreeNode = {
-            id: rootNode.id,
-            name: rootNode.name,
-            expanded: false,
-            parent: rootNode.parent,
-            children: rootNode.children
-        }
-
+    async getReadXml(xmlNode: XmlNode[], rootNode: ExpandableTreeNode): Promise<void> {
         xmlNode.forEach((xml: XmlNode) => {
-            const node = this.createXmlNode(xml, xmlRoot);
-            CompositeTreeNode.addChild(xmlRoot, node);
+            const node = this.createXmlNode(xml, rootNode);
+            CompositeTreeNode.addChild(rootNode, node);
         })
 
         await this.model.refresh();
@@ -195,11 +188,9 @@ export class ReadModelTreeModel extends TreeModelImpl {
     @inject(ReadModel) protected readonly readModel: ReadModel;
     @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
 
-    protected override doOpenNode(node: CompositeTreeNode): void {
-        if (ExpandableTreeNode.is(node)) {
-            this.toggleNodeExpansion(node);
-        }
-        else {
+    protected override doOpenNode(node: ExpandableTreeNode): void {
+        this.toggleNodeExpansion(node);
+        if (node.id.includes('.xmodel')) {
             filePath = this.labelProvider.getLongName(node);
             this.readModel.parseModel(filePath).then((xmlNodes: XmlNode[]) => {
                 const readModelWidgets = this.widgetManager.getWidgets(ReadModelWidget.ID) as ReadModelWidget[];

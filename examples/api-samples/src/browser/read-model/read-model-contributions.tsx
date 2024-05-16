@@ -20,6 +20,7 @@ import { AbstractViewContribution, bindViewContribution, FrontendApplicationCont
 import { ReadModelClient, ReadModel, ReadModelPath, FileNode } from '../../common/read-model/read-model-service';
 import { ReadModelWidget } from './read-model-widget';
 import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
+import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/src/browser/shell/tab-bar-toolbar';
 
 export const ReadModelCommand: Command = {
     id: ReadModelWidget.ID,
@@ -31,7 +32,7 @@ export class ReadModelFrontend implements ReadModelClient {
 }
 
 @injectable()
-export class ReadModelContribution extends AbstractViewContribution<ReadModelWidget> {
+export class ReadModelContribution extends AbstractViewContribution<ReadModelWidget> implements TabBarToolbarContribution {
 
     @inject(CommandRegistry) protected readonly commandRegistry: CommandRegistry;
     @inject(ReadModel) protected readonly readModel: ReadModel
@@ -66,6 +67,21 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                     this.readModelWidget.getReadModel(fileNode);
                 });
             }
+        });
+    }
+
+    async registerToolbarItems(registry: TabBarToolbarRegistry): Promise<void> {
+        registry.registerItem({
+            id: 'add',
+            command: 'add',
+            tooltip: 'add',
+            priority: 0
+        });
+        registry.registerItem({
+            id: 'delete',
+            command: 'delete',
+            tooltip: 'delete',
+            priority: 1
         });
     }
 }
