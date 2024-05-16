@@ -18,7 +18,7 @@ import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR } from '@the
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
 import { AbstractViewContribution, bindViewContribution, FrontendApplicationContribution, WidgetFactory } from '@theia/core/lib/browser';
 import { ReadModelClient, ReadModel, ReadModelPath, FileNode } from '../../common/read-model/read-model-service';
-import { FileName, ReadModelWidget } from './read-model-widget';
+import { filePath, ReadModelWidget } from './read-model-widget';
 import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 import { OutputChannelManager } from '@theia/output/lib/browser/output-channel';
 
@@ -29,12 +29,13 @@ export const ReadModelCommand: Command = {
 
 @injectable()
 export class ReadModelFrontend implements ReadModelClient {
+    filePath: string;
 
     @inject(OutputChannelManager) protected readonly outputChannelManager: OutputChannelManager;
 
     public printOutputChannelManager(): void {
         const channel = this.outputChannelManager.getChannel('Print Output');
-        channel.appendLine(FileName);
+        channel.appendLine(filePath);
         channel.show();
     }
 

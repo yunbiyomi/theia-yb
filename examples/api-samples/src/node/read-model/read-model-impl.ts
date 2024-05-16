@@ -19,6 +19,7 @@ import { FileNode, ReadModel, ReadModelClient, ReadModelPath } from '../../commo
 import path = require('path');
 import fs = require('fs');
 import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
+import { parseXML } from './xml-parser/np-common-xml';
 
 @injectable()
 export class ReadModelImpl implements ReadModel {
@@ -74,15 +75,26 @@ export class ReadModelImpl implements ReadModel {
 
     }
 
-    async parseModel(): Promise<string> {
-        // const filePath = 'C:\Users\tobesoft\theia\Mars_Sample\_model_\test1.xmodel';
+    searchFilePath(path: string): string {
+        const pathRegex = /_model_\\(.+)/g;
+        const matchPath = path.match(pathRegex);
+        const filePath = matchPath ? matchPath[0] : '';
 
-        const directoryPath = '../../../../Mars_Sample/_model_/test1.xmodel';
-        const modelPath = path.join(__dirname, directoryPath);
+        return filePath
+    }
 
-        const data = fs.readFileSync(modelPath, 'utf-8');
+    async parseModel(filePath: string): Promise<string> {
+        const searchPath = this.searchFilePath(filePath)
+        const directoryPath = '../../../../Mars_Sample/';
+        const mainPath = path.join(__dirname, directoryPath, searchPath);
 
-        return data
+        const data = fs.readFileSync(mainPath, 'utf-8');
+
+        const xmlDom = parseXML(data);
+
+        const rootNode = xmlDom.getRootNode();
+
+        return rootNode.getName();
     }
 }
 

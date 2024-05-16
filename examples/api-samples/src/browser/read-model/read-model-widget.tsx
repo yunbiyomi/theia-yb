@@ -20,7 +20,7 @@ import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, Expandable
 import { FileNode, ReadModel } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 
-export let FileName: string = 'undefined';
+export let filePath: string = '';
 
 @injectable()
 export class ReadModelWidget extends TreeWidget {
@@ -150,8 +150,8 @@ export class ReadModelTreeModel extends TreeModelImpl {
             this.toggleNodeExpansion(node);
         }
         else {
-            FileName = this.labelProvider.getLongName(node);
-            this.readModel.parseModel().then((message: string) => {
+            filePath = this.labelProvider.getLongName(node);
+            this.readModel.parseModel(filePath).then((message: string) => {
                 this.readModel.getClient()?.printFileData(message);
             });
         }
