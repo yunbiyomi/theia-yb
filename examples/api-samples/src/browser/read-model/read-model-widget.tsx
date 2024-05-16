@@ -69,6 +69,7 @@ export class ReadModelWidget extends TreeWidget {
         this.model.refresh();
     }
 
+    // model Root 생성
     protected createRootNode(): ExpandableTreeNode {
         return {
             id: 'model-tree',
@@ -81,8 +82,11 @@ export class ReadModelWidget extends TreeWidget {
         }
     }
 
+    // 폴더 파싱한 결과를 바탕으로 폴더 및 파일 Node 생성
     protected createTreeNode(fileNode: FileNode, parent: ExpandableTreeNode): TreeNode {
         const newChildren: TreeNode[] = [];
+
+        // Node 타입 분류하기
         const nodePath: URI = new URI(fileNode.filePath);
         const nodeType: URIIconReference = fileNode.isDirectory ? URIIconReference.create('folder', nodePath) : URIIconReference.create('file', nodePath);
 
@@ -96,28 +100,19 @@ export class ReadModelWidget extends TreeWidget {
             children: newChildren
         }
 
+        // children이 존재하는 Node의 경우
         if (fileNode.children && Array.isArray(fileNode.children)) {
-            const node: ExpandableTreeNode = {
-                id: fileNode.id,
-                name: fileNode.id,
-                icon: this.labelProvider.getIcon(nodeType),
-                description: fileNode.filePath,
-                expanded: false,
-                parent: parent,
-                children: newChildren
-            }
-
             for (const child of fileNode.children) {
                 const childNode: TreeNode = this.createTreeNode(child, node);
                 newChildren.push(childNode);
             }
-
             return node
         }
 
         return node
     }
 
+    // 가져온 FileNode를 바탕으로 Node 추가
     async getReadModel(fileNode: FileNode[]): Promise<void> {
         const root = this.createRootNode();
 
@@ -130,6 +125,7 @@ export class ReadModelWidget extends TreeWidget {
         await this.model.refresh();
     }
 
+    // xml파일을 파싱한 결과를 바탕으로 속성 Node 생성
     protected createXmlNode(xmlNode: XmlNode, parent: ExpandableTreeNode): TreeNode {
         const newChildren: TreeNode[] = [];
 
@@ -141,6 +137,7 @@ export class ReadModelWidget extends TreeWidget {
             children: newChildren
         }
 
+        // children이 존재하는 Node의 경우
         if (xmlNode.children && Array.isArray(xmlNode.children)) {
             const node: ExpandableTreeNode = {
                 id: xmlNode.id as string,
@@ -155,13 +152,13 @@ export class ReadModelWidget extends TreeWidget {
                 const childNode: TreeNode = this.createXmlNode(child, node);
                 newChildren.push(childNode);
             }
-
             return node
         }
 
         return node
     }
 
+    // 가져온 XmlNode를 바탕으로 Node 추가
     async getReadXml(xmlNode: XmlNode[], rootNode: ExpandableTreeNode): Promise<void> {
         xmlNode.forEach((xml: XmlNode) => {
             const node = this.createXmlNode(xml, rootNode);
@@ -171,6 +168,7 @@ export class ReadModelWidget extends TreeWidget {
         await this.model.refresh();
     }
 
+    // 각 Node에 알맞는 아이콘 render
     protected override renderIcon(node: TreeNode, props: NodeProps): React.ReactNode {
         const icon = this.toNodeIcon(node);
         if (icon) {
@@ -188,8 +186,11 @@ export class ReadModelTreeModel extends TreeModelImpl {
     @inject(ReadModel) protected readonly readModel: ReadModel;
     @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
 
+    // Node 더블 클릭시
     protected override doOpenNode(node: ExpandableTreeNode): void {
         this.toggleNodeExpansion(node);
+
+        // Xml파일인 경우
         if (node.id.includes('.xmodel')) {
             filePath = this.labelProvider.getLongName(node);
             this.readModel.parseModel(filePath).then((xmlNodes: XmlNode[]) => {
