@@ -85,7 +85,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         // Tabbar add command
         registry.registerCommand(NodeAddToolBarCommand, {
             execute: () => {
-                console.log('add 버튼입니다.');
+                console.log('Add 버튼입니다.');
             },
             isEnabled: widget => this.withWidget(widget, () => true),
             isVisible: widget => this.withWidget(widget, () => true),
@@ -94,7 +94,8 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         // Tabbar delete command
         registry.registerCommand(NodeDeleteToolBarCommand, {
             execute: () => {
-                console.log('delete 버튼입니다.');
+                const selectNode = this.readModelWidget.model.selectedNodes[0];
+                this.readModelWidget.deleteNode(selectNode);
             },
             isEnabled: widget => this.withWidget(widget, () => true),
             isVisible: widget => this.withWidget(widget, () => true),

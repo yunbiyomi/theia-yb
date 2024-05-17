@@ -16,7 +16,7 @@
 
 import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
-import { codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
+import { codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
 import { FileNode, ReadModel, XmlNode } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 
@@ -129,12 +129,12 @@ export class ReadModelWidget extends TreeWidget {
     protected createXmlNode(xmlNode: XmlNode, parent: ExpandableTreeNode): TreeNode {
         const newChildren: TreeNode[] = [];
 
-        const node: CompositeTreeNode = {
+        const node: SelectableTreeNode = {
             id: xmlNode.id as string,
             name: xmlNode.id,
             icon: codicon('circle-small'),
             parent: parent,
-            children: newChildren
+            selected: false
         }
 
         // children이 존재하는 Node의 경우
@@ -175,6 +175,13 @@ export class ReadModelWidget extends TreeWidget {
         }
         return null;
     }
+
+    async deleteNode(selectNode: TreeNode): Promise<void> {
+        const parentsNode = selectNode.parent as CompositeTreeNode;
+        CompositeTreeNode.removeChild(parentsNode, selectNode);
+
+        await this.model.refresh();
+    }
 }
 
 
@@ -187,7 +194,7 @@ export class ReadModelTreeModel extends TreeModelImpl {
 
     // Node 더블 클릭시
     protected override doOpenNode(node: ExpandableTreeNode): void {
-        this.toggleNodeExpansion(node);
+        super.doOpenNode(node);
 
         // Xml파일인 경우
         if (node.id.includes('.xmodel')) {

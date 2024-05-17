@@ -116,6 +116,10 @@ export class ReadModelImpl implements ReadModel {
 
         return nodes;
     }
+
+    async deleteNode(): Promise<string> {
+        return 'undefined';
+    }
 }
 
 export const bindReadModelWidgetBackend = (bind: interfaces.Bind) => {

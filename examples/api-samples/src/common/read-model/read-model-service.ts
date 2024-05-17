@@ -38,6 +38,7 @@ export interface ReadModel extends RpcServer<ReadModelClient> {
     getClient(): ReadModelClient | undefined;
     readModel(): Promise<FileNode[]>;
     parseModel(filePath: string): Promise<XmlNode[]>;
+    deleteNode(): Promise<string>;
 }
 
 export const ReadModelClient = Symbol('ReadModelClient');
