@@ -38,6 +38,7 @@ export class ReadModelImpl implements ReadModel {
         throw new Error('Method not implemented.');
     }
 
+    // _model_ 폴더 속 폴더 및 파일 파싱해 객체로 저장
     async readModel(): Promise<FileNode[]> {
         const directoryPath = '../../../../Mars_Sample/_model_';
         const modelPath = path.join(__dirname, directoryPath);
@@ -75,21 +76,11 @@ export class ReadModelImpl implements ReadModel {
 
     }
 
-    searchFilePath(path: string): string {
-        const pathRegex = /_model_\\(.+)/g;
-        const matchPath = path.match(pathRegex);
-        const filePath = matchPath ? matchPath[0] : '';
-
-        return filePath
-    }
-
+    // xml 파일 파싱해 Model 및 Field 객체로 저장
     async parseModel(filePath: string): Promise<XmlNode[]> {
         const nodes: XmlNode[] = [];
-        const searchPath = this.searchFilePath(filePath)
-        const directoryPath = '../../../../Mars_Sample/';
-        const mainPath = path.join(__dirname, directoryPath, searchPath);
 
-        const data = fs.readFileSync(mainPath, 'utf-8');
+        const data = fs.readFileSync(filePath, 'utf-8');
 
         const xmlDom = parseXML(data);
 
