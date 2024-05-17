@@ -16,16 +16,26 @@
 
 import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR } from '@theia/core';
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
-import { AbstractViewContribution, bindViewContribution, FrontendApplicationContribution, WidgetFactory } from '@theia/core/lib/browser';
+import { AbstractViewContribution, bindViewContribution, codicon, FrontendApplicationContribution, Widget, WidgetFactory } from '@theia/core/lib/browser';
 import { ReadModelClient, ReadModel, ReadModelPath, FileNode } from '../../common/read-model/read-model-service';
 import { ReadModelWidget } from './read-model-widget';
 import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
-import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/src/browser/shell/tab-bar-toolbar';
+import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 
 export const ReadModelCommand: Command = {
     id: ReadModelWidget.ID,
     label: ReadModelWidget.LABEL
 };
+
+export const NodeAddToolBarCommand: Command = {
+    id: 'node-add-toolbar-command',
+    iconClass: codicon('add')
+}
+
+export const NodeDeleteToolBarCommand: Command = {
+    id: 'node-delete-toolbar-command',
+    iconClass: codicon('chrome-minimize')
+}
 
 @injectable()
 export class ReadModelFrontend implements ReadModelClient {
@@ -47,6 +57,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         });
     }
 
+    // menu 생성
     override registerMenus(menus: MenuModelRegistry): void {
         const subMenuPath = [...MAIN_MENU_BAR, 'Read Model'];
         menus.registerSubmenu(subMenuPath, 'Read Model', {
@@ -59,7 +70,9 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         });
     }
 
+    // command 생성
     override registerCommands(registry: CommandRegistry): void {
+        // 트리 위젯 호출
         registry.registerCommand(ReadModelCommand, {
             execute: async () => {
                 this.readModel.readModel().then((fileNode: FileNode[]) => {
@@ -68,21 +81,48 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                 });
             }
         });
+
+        // Tabbar add command
+        registry.registerCommand(NodeAddToolBarCommand, {
+            execute: () => {
+                console.log('add 버튼입니다.');
+            },
+            isEnabled: widget => this.withWidget(widget, () => true),
+            isVisible: widget => this.withWidget(widget, () => true),
+        });
+
+        // Tabbar delete command
+        registry.registerCommand(NodeDeleteToolBarCommand, {
+            execute: () => {
+                console.log('delete 버튼입니다.');
+            },
+            isEnabled: widget => this.withWidget(widget, () => true),
+            isVisible: widget => this.withWidget(widget, () => true),
+        });
     }
 
+    // Tabbar 설정
     async registerToolbarItems(registry: TabBarToolbarRegistry): Promise<void> {
         registry.registerItem({
-            id: 'add',
-            command: 'add',
-            tooltip: 'add',
+            id: NodeAddToolBarCommand.id,
+            command: NodeAddToolBarCommand.id,
+            tooltip: 'Node Add',
             priority: 0
         });
+
         registry.registerItem({
-            id: 'delete',
-            command: 'delete',
-            tooltip: 'delete',
+            id: NodeDeleteToolBarCommand.id,
+            command: NodeDeleteToolBarCommand.id,
+            tooltip: 'Node Delete',
             priority: 1
         });
+    }
+
+    protected withWidget<T>(widget: Widget | undefined = this.tryGetWidget(), cb: (bulkEdit: ReadModelWidget) => T): T | false {
+        if (widget instanceof ReadModelWidget) {
+            return cb(widget);
+        }
+        return false;
     }
 }
 
@@ -94,6 +134,7 @@ export const bindReadModelWidget = (bind: interfaces.Bind) => {
         return connection.createProxy<ReadModel>(ReadModelPath, client);
     }).inSingletonScope();
     bindViewContribution(bind, ReadModelContribution);
+    bind(TabBarToolbarContribution).toService(ReadModelContribution);
     bind(FrontendApplicationContribution).toService(ReadModelContribution);
     bind(ReadModelWidget).toDynamicValue(ctx => ReadModelWidget.createWidget(ctx.container)).inSingletonScope();
     bind(WidgetFactory).toDynamicValue(ctx => ({
