@@ -16,7 +16,7 @@
 
 import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
-import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
+import { codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
 import { FileNode, ReadModel, XmlNode } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 
@@ -132,7 +132,7 @@ export class ReadModelWidget extends TreeWidget {
         const node: CompositeTreeNode = {
             id: xmlNode.id as string,
             name: xmlNode.id,
-            icon: 'codicon codicon-file default-file-icon',
+            icon: codicon('circle-small'),
             parent: parent,
             children: newChildren
         }
@@ -142,7 +142,6 @@ export class ReadModelWidget extends TreeWidget {
             const node: ExpandableTreeNode = {
                 id: xmlNode.id as string,
                 name: xmlNode.id,
-                icon: 'codicon codicon-file default-file-icon',
                 expanded: false,
                 parent: parent,
                 children: newChildren
