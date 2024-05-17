@@ -22,6 +22,9 @@ import { URI } from '@theia/core';
 
 export let filePath: string = '';
 
+export interface XmlTreeNode extends SelectableTreeNode, ExpandableTreeNode {
+}
+
 @injectable()
 export class ReadModelWidget extends TreeWidget {
 
@@ -126,7 +129,7 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // xml파일을 파싱한 결과를 바탕으로 속성 Node 생성
-    protected createXmlNode(xmlNode: XmlNode, parent: ExpandableTreeNode): TreeNode {
+    protected createXmlNode(xmlNode: XmlNode, parent: XmlTreeNode): TreeNode {
         const newChildren: TreeNode[] = [];
 
         const node: SelectableTreeNode = {
@@ -139,12 +142,13 @@ export class ReadModelWidget extends TreeWidget {
 
         // children이 존재하는 Node의 경우
         if (xmlNode.children && Array.isArray(xmlNode.children)) {
-            const node: ExpandableTreeNode = {
+            const node: XmlTreeNode = {
                 id: xmlNode.id as string,
                 name: xmlNode.id,
                 expanded: false,
                 parent: parent,
-                children: newChildren
+                children: newChildren,
+                selected: false
             }
 
             for (const child of xmlNode.children) {
@@ -158,7 +162,7 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // 가져온 XmlNode를 바탕으로 Node 추가
-    async getReadXml(xmlNode: XmlNode[], rootNode: ExpandableTreeNode): Promise<void> {
+    async getReadXml(xmlNode: XmlNode[], rootNode: XmlTreeNode): Promise<void> {
         xmlNode.forEach((xml: XmlNode) => {
             const node = this.createXmlNode(xml, rootNode);
             CompositeTreeNode.addChild(rootNode, node);
@@ -176,6 +180,7 @@ export class ReadModelWidget extends TreeWidget {
         return null;
     }
 
+    // 선택한 Node 삭제
     async deleteNode(selectNode: TreeNode): Promise<void> {
         const parentsNode = selectNode.parent as CompositeTreeNode;
         CompositeTreeNode.removeChild(parentsNode, selectNode);
@@ -193,7 +198,7 @@ export class ReadModelTreeModel extends TreeModelImpl {
     @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
 
     // Node 더블 클릭시
-    protected override doOpenNode(node: ExpandableTreeNode): void {
+    protected override doOpenNode(node: XmlTreeNode): void {
         super.doOpenNode(node);
 
         // Xml파일인 경우

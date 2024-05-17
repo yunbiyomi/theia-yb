@@ -96,6 +96,9 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
             execute: () => {
                 const selectNode = this.readModelWidget.model.selectedNodes[0];
                 this.readModelWidget.deleteNode(selectNode);
+                this.readModel.deleteNode(selectNode).then((data: string) => {
+                    console.log(data);
+                })
             },
             isEnabled: widget => this.withWidget(widget, () => true),
             isVisible: widget => this.withWidget(widget, () => true),

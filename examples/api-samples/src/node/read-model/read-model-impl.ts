@@ -20,6 +20,7 @@ import path = require('path');
 import fs = require('fs');
 import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
 import { parseXML } from './xml-parser/np-common-xml';
+import { TreeNode } from '@theia/core/src/browser';
 
 @injectable()
 export class ReadModelImpl implements ReadModel {
@@ -117,8 +118,9 @@ export class ReadModelImpl implements ReadModel {
         return nodes;
     }
 
-    async deleteNode(): Promise<string> {
-        return 'undefined';
+    async deleteNode(node: TreeNode): Promise<string> {
+        const name = node.id as string
+        return name;
     }
 }
 
