@@ -14,11 +14,11 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR } from '@theia/core';
+import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR, QuickInputService, QuickPickItemOrSeparator, QuickPickItem } from '@theia/core';
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
-import { AbstractViewContribution, bindViewContribution, codicon, FrontendApplicationContribution, Widget, WidgetFactory } from '@theia/core/lib/browser';
+import { AbstractViewContribution, bindViewContribution, codicon, FrontendApplicationContribution, QuickViewService, Widget, WidgetFactory } from '@theia/core/lib/browser';
 import { ReadModelClient, ReadModel, ReadModelPath, FileNode } from '../../common/read-model/read-model-service';
-import { ReadModelWidget } from './read-model-widget';
+import { ReadModelWidget, TypeNode } from './read-model-widget';
 import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 
@@ -28,14 +28,18 @@ export const ReadModelCommand: Command = {
 };
 
 export const NodeAddToolBarCommand: Command = {
-    id: 'node-add-toolbar-command',
+    id: 'node-add-toolbar',
     iconClass: codicon('add')
-}
+};
 
 export const NodeDeleteToolBarCommand: Command = {
-    id: 'node-delete-toolbar-command',
+    id: 'node-delete-toolbar',
     iconClass: codicon('chrome-minimize')
-}
+};
+
+export const NodeQuickView: Command = {
+    id: 'node-quick-view'
+};
 
 @injectable()
 export class ReadModelFrontend implements ReadModelClient {
@@ -45,8 +49,10 @@ export class ReadModelFrontend implements ReadModelClient {
 export class ReadModelContribution extends AbstractViewContribution<ReadModelWidget> implements TabBarToolbarContribution {
 
     @inject(CommandRegistry) protected readonly commandRegistry: CommandRegistry;
-    @inject(ReadModel) protected readonly readModel: ReadModel
+    @inject(ReadModel) protected readonly readModel: ReadModel;
     @inject(ReadModelWidget) protected readonly readModelWidget: ReadModelWidget;
+    @inject(QuickViewService) protected readonly quickViewService: QuickViewService;
+    @inject(QuickInputService) protected readonly quickInputService: QuickInputService;
 
     constructor() {
         super({
@@ -85,9 +91,13 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         // Tabbar add command
         registry.registerCommand(NodeAddToolBarCommand, {
             execute: () => {
-                console.log('Add 버튼입니다.');
+                this.addFileQuickView(this.readModelWidget);
             },
-            isEnabled: widget => this.withWidget(widget, () => true),
+            isEnabled: widget => this.withWidget(widget, () => {
+                const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
+                const type = selectNode?.type;
+                return type === 'model' || type === 'file';
+            }),
             isVisible: widget => this.withWidget(widget, () => true),
         });
 
@@ -98,7 +108,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                 this.readModelWidget.deleteNode(selectNode);
                 this.readModel.deleteNode(selectNode).then((data: string) => {
                     console.log(data);
-                })
+                });
             },
             isEnabled: widget => this.withWidget(widget, () => true),
             isVisible: widget => this.withWidget(widget, () => true),
@@ -128,7 +138,61 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         }
         return false;
     }
-}
+
+    // Quick Input 생성
+    protected async addFileQuickView(widget: ReadModelWidget | undefined): Promise<void> {
+        const items: QuickPickItemOrSeparator[] = [];
+        const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
+        const type = selectNode.type;
+        const newNodeRegex = /^[A-Za-z][A-Za-z0-9_]*$/; // 정규표현식을 문자열이 아닌 정규식 리터럴로 변경
+        let quickViewTitle = 'Create';
+        let quickViewContent = 'Enter Name...';
+
+        if (widget && this.readModelWidget.model.selectedNodes) {
+            switch (type) {
+                case 'file':
+                    quickViewTitle = 'Create Model';
+                    quickViewContent = 'Enter Model Name...';
+                    break;
+                case 'model':
+                    quickViewTitle = 'Create Field';
+                    quickViewContent = 'Enter Field Name...';
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        const addNewNode: QuickPickItem & { value?: string } = {
+            id: NodeQuickView.id,
+            label: 'Create New File'
+        };
+
+        this.quickInputService.showQuickPick(items, {
+            title: quickViewTitle,
+            placeholder: quickViewContent,
+            canSelectMany: false,
+            onDidChangeValue: picker => {
+                if (picker.value) {
+                    addNewNode.alwaysShow = true;
+                    addNewNode.value = picker.value;
+                    addNewNode.label = `${quickViewTitle}:  ${picker.value}`;
+
+                    if (newNodeRegex.test(picker.value)) {
+                        addNewNode.description = '';
+                        addNewNode.execute = async () => {
+                            this.readModelWidget.addNewNode(selectNode, type, addNewNode?.value);
+                        };
+                    } else {
+                        addNewNode.description = '이름 형식이 올바르지 않습니다! 다시 입력해주세요.';
+                    }
+
+                    picker.items = [...items, addNewNode];
+                }
+            }
+        });
+    }
+};
 
 export const bindReadModelWidget = (bind: interfaces.Bind) => {
     bind(ReadModelClient).to(ReadModelFrontend).inSingletonScope();
@@ -145,4 +209,4 @@ export const bindReadModelWidget = (bind: interfaces.Bind) => {
         id: ReadModelWidget.ID,
         createWidget: () => ctx.container.get<ReadModelWidget>(ReadModelWidget)
     })).inSingletonScope();
-}
+};
