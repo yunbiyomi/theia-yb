@@ -188,6 +188,7 @@ export class ReadModelImpl implements ReadModel {
         }
 
         const xmlData = buildXML(xmlDom);
+        await fs.writeFileSync(path, xmlData, 'utf-8');
 
         return xmlData;
     }
