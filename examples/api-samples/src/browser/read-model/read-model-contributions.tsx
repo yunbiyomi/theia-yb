@@ -113,7 +113,11 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                     console.log(data);
                 });
             },
-            isEnabled: widget => this.withWidget(widget, () => true),
+            isEnabled: widget => this.withWidget(widget, () => {
+                const selectNode = this.readModelWidget.model.selectedNodes[0] as ExpandTypeNode;
+                const type = selectNode?.type;
+                return type === 'model' || type === 'field';
+            }),
             isVisible: widget => this.withWidget(widget, () => true),
         });
     }
@@ -145,9 +149,11 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
     // Quick Input 생성
     protected async addFileQuickView(widget: ReadModelWidget | undefined): Promise<void> {
         const items: QuickPickItemOrSeparator[] = [];
-        const selectNode = this.readModelWidget.model.selectedNodes[0] as ExpandTypeNode;
+        const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
+        const nodeName = selectNode.id;
+        const path = selectNode.description as string;
         const type = selectNode.type;
-        const newNodeRegex = /^[A-Za-z][A-Za-z0-9_]*$/; // 정규표현식을 문자열이 아닌 정규식 리터럴로 변경
+        const newNodeRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
         let quickViewTitle = 'Create';
         let quickViewContent = 'Enter Name...';
 
@@ -184,8 +190,11 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                     if (newNodeRegex.test(picker.value)) {
                         addNewNode.description = '';
                         addNewNode.execute = async () => {
+                            const value = addNewNode.value as string;
                             this.readModelWidget.addNewNode(selectNode, type, addNewNode?.value);
-                            console.log('성공적으로 이름이 추가되었습니다.');
+                            this.readModel.addNode(nodeName, path, type, value).then((data: string) => {
+                                console.log(data);
+                            });
                         };
                     } else {
                         addNewNode.description = '이름 형식이 올바르지 않습니다! 다시 입력해주세요.';

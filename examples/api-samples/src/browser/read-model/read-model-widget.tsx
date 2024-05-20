@@ -23,7 +23,7 @@ import { URI } from '@theia/core';
 
 export let filePath: string = '';
 
-export interface TypeNode extends SelectableTreeNode {
+export interface TypeNode extends SelectableTreeNode, CompositeTreeNode {
     type: string;
 }
 
@@ -156,6 +156,7 @@ export class ReadModelWidget extends TreeWidget {
             icon: codicon('circle-small'),
             description: xmlNode.filePath,
             parent: parent,
+            children: [],
             selected: false,
             type: 'field'
         };

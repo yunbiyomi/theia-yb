@@ -86,40 +86,39 @@ export class ReadModelImpl implements ReadModel {
 
         const rootNode = xmlDom.getRootNode();
         const modelsNode = rootNode.getChild('Models');
-        const modelNode = modelsNode?.getChilds();
+        const modelNode = modelsNode?.getChilds() as NpXmlNode[];
 
-        if (modelNode) {
-            for (const node of modelNode) {
-                const fields: XmlNode[] = [];
+        for (const node of modelNode) {
+            const fields: XmlNode[] = [];
 
-                if (node.hasChilds()) {
-                    const fieldNode = node.getChilds();
-                    if (fieldNode) {
-                        for (const child of fieldNode) {
-                            const xmlFieldNode: XmlNode = {
-                                id: child.getAttribute('id'),
-                                filePath: filePath,
-                                parent: node.getName()
-                            }
-                            fields.push(xmlFieldNode);
-                        }
+            if (node.hasChilds()) {
+                const fieldNode = node.getChilds() as NpXmlNode[];
+
+                for (const child of fieldNode) {
+                    const xmlFieldNode: XmlNode = {
+                        id: child.getAttribute('id'),
+                        filePath: filePath,
+                        parent: node.getName()
                     }
+                    fields.push(xmlFieldNode);
                 }
-
-                const xmlModelNode: XmlNode = {
-                    id: node.getAttribute('id'),
-                    filePath: filePath,
-                    parent: modelsNode?.getName(),
-                    children: fields
-                }
-
-                nodes.push(xmlModelNode);
             }
+
+            const xmlModelNode: XmlNode = {
+                id: node.getAttribute('id'),
+                filePath: filePath,
+                parent: modelsNode?.getName(),
+                children: fields
+            }
+
+            nodes.push(xmlModelNode);
         }
+
 
         return nodes;
     }
 
+    // Tabber에서 새로운 노드를 삭제할 때 
     async deleteNode(nodeName: string, path: string, type: string): Promise<string> {
         const data = fs.readFileSync(path, 'utf-8');
 
@@ -127,20 +126,64 @@ export class ReadModelImpl implements ReadModel {
 
         const rootNode = xmlDom.getRootNode();
         const modelsNode = rootNode.getChild('Models');
-        const modelsChild = modelsNode?.getChilds();
+        const modelsChild = modelsNode?.getChilds() as NpXmlNode[];
 
-        if (modelsChild) {
-            for (const node of modelsChild) {
-                if (type === 'model') {
+        for (const node of modelsChild) {
+            switch (type) {
+                case 'model':
                     if (node.getAttribute('id') === nodeName)
                         modelsNode?.removeChild(node);
-                } else if (type === 'field') {
+                    break;
+                case 'field':
                     const modelChild = node.getChilds() as NpXmlNode[];
                     for (const modelNode of modelChild) {
                         if (modelNode.getAttribute('id') === nodeName)
                             node.removeChild(modelNode);
                     }
-                }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        const xmlData = buildXML(xmlDom);
+        await fs.writeFileSync(path, xmlData, 'utf-8');
+
+        return xmlData;
+    }
+
+    // Tabber에서 새로운 노드를 추가할 때
+    async addNode(nodeName: string, path: string, type: string, nodeValue: string): Promise<string> {
+        const data = fs.readFileSync(path, 'utf-8');
+        const fileNameRegex = /[^\\]+\.xmodel$/;
+
+        const xmlDom = parseXML(data);
+
+        const rootNode = xmlDom.getRootNode();
+        const modelsNode = rootNode.getChild('Models') as NpXmlNode;
+        const modelsChild = modelsNode?.getChilds() as NpXmlNode[];
+
+        for (const node of modelsChild) {
+            switch (type) {
+                case 'file':
+                    if (fileNameRegex.test(nodeName)) {
+                        const newModelNode = modelsNode.appendChild('Model');
+                        if (newModelNode) {
+                            newModelNode.setAttribute('id', nodeValue);
+                        }
+                    }
+                    break;
+                case 'model':
+                    const modelName = node.getAttribute('id');
+                    if (modelName === nodeName) {
+                        const newFieldNode = node.appendChild('Field');
+                        if (newFieldNode) {
+                            newFieldNode.setAttribute('id', nodeValue);
+                        }
+                    }
+                    break
+                default:
+                    break;
             }
         }
 
