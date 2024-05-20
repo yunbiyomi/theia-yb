@@ -104,13 +104,21 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         // Delete Tabbar Command
         registry.registerCommand(NodeDeleteToolBarCommand, {
             execute: () => {
-                const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
-                this.readModelWidget.deleteNode(selectNode);
-                const nodeName = selectNode.id
-                const path = selectNode.description as string;
-                const type = selectNode.type;
-                const parentName = selectNode.parent?.id as string;
-                this.readModel.deleteNode(nodeName, path, type, parentName);
+                try {
+                    const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
+                    const nodeName = selectNode.id
+                    const path = selectNode.description as string;
+                    const type = selectNode.type;
+                    const parentName = selectNode.parent?.id as string;
+
+                    const nodeDeleteResult = this.readModel.deleteNode(nodeName, path, type, parentName);
+
+                    if (nodeDeleteResult) {
+                        this.readModelWidget.deleteNode(selectNode);
+                    }
+                } catch (error) {
+                    console.error('Node cannot be deleted', error);
+                }
             },
             isEnabled: widget => this.withWidget(widget, () => {
                 const selectNode = this.readModelWidget.model.selectedNodes[0] as ExpandTypeNode;
@@ -189,9 +197,15 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                     if (newNodeRegex.test(picker.value)) {
                         addNewNode.description = '';
                         addNewNode.execute = async () => {
-                            const value = addNewNode.value as string;
-                            this.readModelWidget.addNewNode(selectNode, type, addNewNode?.value);
-                            this.readModel.addNode(nodeName, path, type, value);
+                            try {
+                                const value = addNewNode.value as string;
+                                const nodeAddResult = this.readModel.addNode(nodeName, path, type, value);
+                                if (nodeAddResult) {
+                                    this.readModelWidget.addNewNode(selectNode, type, addNewNode?.value);
+                                }
+                            } catch (error) {
+                                console.error('Node cannot be added', error);
+                            }
                         };
                     } else {
                         addNewNode.description = '이름 형식이 올바르지 않습니다! 다시 입력해주세요.';

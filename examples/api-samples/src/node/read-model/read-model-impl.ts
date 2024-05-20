@@ -25,6 +25,7 @@ import { buildXML, NpXmlNode, parseXML } from './xml-parser/np-common-xml';
 export class ReadModelImpl implements ReadModel {
 
     protected client: ReadModelClient | undefined;
+    protected FilesMap: Map<string, string>;
 
     setClient(client: ReadModelClient): void {
         this.client = client;
@@ -32,6 +33,12 @@ export class ReadModelImpl implements ReadModel {
 
     getClient(): ReadModelClient | undefined {
         if (this.client !== undefined) { return this.client; }
+    }
+
+    getFileData(fileName: string): string | undefined {
+        if (this.FilesMap.has(`${fileName}`)) {
+            return this.FilesMap.get(`${fileName}`) as string;
+        }
     }
 
     dispose(): void {
@@ -42,6 +49,7 @@ export class ReadModelImpl implements ReadModel {
     async readModel(): Promise<FileNode[]> {
         const directoryPath = '../../../../Mars_Sample/_model_';
         const modelPath = path.join(__dirname, directoryPath);
+        const fileContents = new Map<string, string>();
 
         const readDirectory = async (defaultPath: string, parentsFolder?: string): Promise<FileNode[]> => {
             const items = fs.readdirSync(defaultPath, 'utf-8');
@@ -61,6 +69,8 @@ export class ReadModelImpl implements ReadModel {
                     };
                     files.push(folderNode);
                 } else if (stats.isFile()) {
+                    const fileContent = fs.readFileSync(itemPath, 'utf-8');
+                    fileContents.set(item, fileContent);
                     const fileNode: FileNode = {
                         id: item,
                         isDirectory: false,
@@ -72,17 +82,16 @@ export class ReadModelImpl implements ReadModel {
             return files;
         };
 
+        this.FilesMap = fileContents;
         return readDirectory(modelPath);
     }
 
     // xml 파일 파싱해 Model 및 Field 객체로 저장
-    async parseModel(filePath: string): Promise<XmlNode[]> {
+    async parseModel(fileName: string, filePath: string): Promise<XmlNode[]> {
         const nodes: XmlNode[] = [];
-
-        const data = fs.readFileSync(filePath, 'utf-8');
+        const data = this.getFileData(fileName) as string;
 
         const xmlDom = parseXML(data);
-
         const rootNode = xmlDom.getRootNode();
         const modelsNode = rootNode.getChild('Models');
         const modelNode = modelsNode?.getChilds() as NpXmlNode[];
@@ -117,64 +126,91 @@ export class ReadModelImpl implements ReadModel {
     }
 
     // Tabber에서 새로운 노드를 삭제할 때 
-    deleteNode(nodeName: string, path: string, type: string, parentName: string): void {
-        const data = fs.readFileSync(path, 'utf-8');
+    deleteNode(nodeName: string, path: string, type: string, parentName: string): boolean {
+        const fileNameRegex = /[^\\]+\.xmodel$/;
+        const pathMatch = path.match(fileNameRegex) as RegExpMatchArray;
+        const fileName = pathMatch[0];
+
+        const data = this.getFileData(fileName) as string;
         const xmlDom = parseXML(data);
+
         const rootNode = xmlDom.getRootNode();
         const modelsNode = rootNode.getChild('Models');
         const modelsChild = modelsNode?.getChilds() as NpXmlNode[];
 
+        let nodeToRemove: NpXmlNode | undefined;
+
         switch (type) {
             case 'model':
-                const modelNode = modelsChild.find(node => node.getAttribute('id') === nodeName) as NpXmlNode;
-                if (modelsNode) {
-                    modelsNode.removeChild(modelNode);
+                nodeToRemove = modelsChild.find(node => node.getAttribute('id') === nodeName) as NpXmlNode;
+                if (nodeToRemove && modelsNode) {
+                    modelsNode.removeChild(nodeToRemove);
                 }
                 break;
             case 'field':
                 const parentModel = modelsChild.find(node => node.getAttribute('id') === parentName) as NpXmlNode;
-                const modelChild = parentModel.getChilds() as NpXmlNode[];
-                const fileNode = modelChild.find(node => node.getAttribute('id') === nodeName) as NpXmlNode;
                 if (parentModel) {
-                    parentModel.removeChild(fileNode);
+                    const modelChild = parentModel.getChilds() as NpXmlNode[];
+                    nodeToRemove = modelChild.find(node => node.getAttribute('id') === nodeName) as NpXmlNode;
+                    if (nodeToRemove) {
+                        parentModel.removeChild(nodeToRemove);
+                    }
                 }
                 break;
             default:
-                break;
+                return false;
         }
 
-        const xmlData = buildXML(xmlDom);
-        fs.writeFileSync(path, xmlData, 'utf-8');
+        if (nodeToRemove) {
+            const xmlData = buildXML(xmlDom);
+            fs.writeFileSync(path, xmlData, 'utf-8');
+            return true;
+        } else {
+            return false;
+        }
     }
 
+
     // Tabber에서 새로운 노드를 추가할 때
-    addNode(nodeName: string, path: string, type: string, nodeValue: string): void {
-        const data = fs.readFileSync(path, 'utf-8');
+    addNode(nodeName: string, path: string, type: string, nodeValue: string): boolean {
+        const fileNameRegex = /[^\\]+\.xmodel$/;
+        const pathMatch = path.match(fileNameRegex) as RegExpMatchArray;
+        const fileName = pathMatch[0];
+
+        const data = this.getFileData(fileName) as string;
         const xmlDom = parseXML(data);
+
         const rootNode = xmlDom.getRootNode();
         const modelsNode = rootNode.getChild('Models') as NpXmlNode;
         const modelsChild = modelsNode?.getChilds() as NpXmlNode[];
 
+        let nodeToAdd: NpXmlNode | undefined;
+
         switch (type) {
             case 'file':
-                const newModelNode = modelsNode.appendChild('Model');
-                if (newModelNode) {
-                    newModelNode.setAttribute('id', nodeValue);
+                nodeToAdd = modelsNode.appendChild('Model');
+                if (nodeToAdd) {
+                    nodeToAdd.setAttribute('id', nodeValue);
                 }
                 break;
             case 'model':
                 const parentModelNode = modelsChild.find(node => node.getAttribute('id') === nodeName) as NpXmlNode;
-                const newFieldNode = parentModelNode.appendChild('Field');
-                if (newFieldNode) {
-                    newFieldNode.setAttribute('id', nodeValue);
+                nodeToAdd = parentModelNode.appendChild('Field');
+                if (nodeToAdd) {
+                    nodeToAdd.setAttribute('id', nodeValue);
                 }
-                break
-            default:
                 break;
+            default:
+                return false
         }
 
-        const xmlData = buildXML(xmlDom);
-        fs.writeFileSync(path, xmlData, 'utf-8');
+        if (nodeToAdd) {
+            const xmlData = buildXML(xmlDom);
+            fs.writeFileSync(path, xmlData, 'utf-8');
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

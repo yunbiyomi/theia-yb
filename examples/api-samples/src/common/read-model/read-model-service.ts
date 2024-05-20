@@ -37,10 +37,11 @@ export interface FileNode {
 export interface ReadModel extends RpcServer<ReadModelClient> {
     setClient(client: ReadModelClient | undefined): void;
     getClient(): ReadModelClient | undefined;
+    getFileData(fileName: string): string | undefined;
     readModel(): Promise<FileNode[]>;
-    parseModel(filePath: string): Promise<XmlNode[]>;
-    deleteNode(nodeName: string, path: string, type: string, parentName: string): void;
-    addNode(nodeName: string, path: string, type: string, nodeValue: string): void;
+    parseModel(fileName: string, filePath: string): Promise<XmlNode[]>;
+    deleteNode(nodeName: string, path: string, type: string, parentName: string): boolean;
+    addNode(nodeName: string, path: string, type: string, nodeValue: string): boolean;
 }
 
 export const ReadModelClient = Symbol('ReadModelClient');

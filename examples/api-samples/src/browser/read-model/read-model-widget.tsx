@@ -21,8 +21,6 @@ import { codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, E
 import { FileNode, ReadModel, XmlNode } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 
-export let filePath: string = '';
-
 export interface TypeNode extends SelectableTreeNode, CompositeTreeNode {
     type: string;
 }
@@ -260,8 +258,9 @@ export class ReadModelTreeModel extends TreeModelImpl {
 
         // Xml파일인 경우
         if (node.id.includes('.xmodel')) {
-            filePath = this.labelProvider.getLongName(node);
-            this.readModel.parseModel(filePath).then((xmlNodes: XmlNode[]) => {
+            const fileName = this.labelProvider.getName(node);
+            const filePath = this.labelProvider.getLongName(node);
+            this.readModel.parseModel(fileName, filePath).then((xmlNodes: XmlNode[]) => {
                 const readModelWidgets = this.widgetManager.getWidgets(ReadModelWidget.ID) as ReadModelWidget[];
                 readModelWidgets.forEach(widget => {
                     widget.getReadXml(xmlNodes, node);
