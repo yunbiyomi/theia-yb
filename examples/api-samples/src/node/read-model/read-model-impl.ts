@@ -35,7 +35,11 @@ export class ReadModelImpl implements ReadModel {
         if (this.client !== undefined) { return this.client; }
     }
 
-    getFileData(fileName: string): string | undefined {
+    protected setFileData(fileName: string, data: string): Map<string, string> {
+        return this.FilesMap.set(fileName, data);
+    }
+
+    protected getFileData(fileName: string): string | undefined {
         if (this.FilesMap.has(`${fileName}`)) {
             return this.FilesMap.get(`${fileName}`) as string;
         }
@@ -163,6 +167,7 @@ export class ReadModelImpl implements ReadModel {
 
         if (nodeToRemove) {
             const xmlData = buildXML(xmlDom);
+            this.setFileData(fileName, xmlData);
             fs.writeFileSync(path, xmlData, 'utf-8');
             return true;
         } else {
@@ -206,6 +211,7 @@ export class ReadModelImpl implements ReadModel {
 
         if (nodeToAdd) {
             const xmlData = buildXML(xmlDom);
+            this.setFileData(fileName, xmlData);
             fs.writeFileSync(path, xmlData, 'utf-8');
             return true;
         } else {
