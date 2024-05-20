@@ -109,9 +109,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                 const nodeName = selectNode.id
                 const path = selectNode.description as string;
                 const type = selectNode.type;
-                this.readModel.deleteNode(nodeName, path, type).then((data: string) => {
-                    console.log(data);
-                });
+                this.readModel.deleteNode(nodeName, path, type);
             },
             isEnabled: widget => this.withWidget(widget, () => {
                 const selectNode = this.readModelWidget.model.selectedNodes[0] as ExpandTypeNode;
@@ -192,9 +190,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                         addNewNode.execute = async () => {
                             const value = addNewNode.value as string;
                             this.readModelWidget.addNewNode(selectNode, type, addNewNode?.value);
-                            this.readModel.addNode(nodeName, path, type, value).then((data: string) => {
-                                console.log(data);
-                            });
+                            this.readModel.addNode(nodeName, path, type, value);
                         };
                     } else {
                         addNewNode.description = '이름 형식이 올바르지 않습니다! 다시 입력해주세요.';

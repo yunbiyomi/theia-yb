@@ -73,7 +73,6 @@ export class ReadModelImpl implements ReadModel {
         };
 
         return readDirectory(modelPath);
-
     }
 
     // xml 파일 파싱해 Model 및 Field 객체로 저장
@@ -114,12 +113,11 @@ export class ReadModelImpl implements ReadModel {
             nodes.push(xmlModelNode);
         }
 
-
         return nodes;
     }
 
     // Tabber에서 새로운 노드를 삭제할 때 
-    async deleteNode(nodeName: string, path: string, type: string): Promise<string> {
+    deleteNode(nodeName: string, path: string, type: string): void {
         const data = fs.readFileSync(path, 'utf-8');
 
         const xmlDom = parseXML(data);
@@ -147,51 +145,39 @@ export class ReadModelImpl implements ReadModel {
         }
 
         const xmlData = buildXML(xmlDom);
-        await fs.writeFileSync(path, xmlData, 'utf-8');
-
-        return xmlData;
+        fs.writeFileSync(path, xmlData, 'utf-8');
     }
 
     // Tabber에서 새로운 노드를 추가할 때
-    async addNode(nodeName: string, path: string, type: string, nodeValue: string): Promise<string> {
+    addNode(nodeName: string, path: string, type: string, nodeValue: string): void {
         const data = fs.readFileSync(path, 'utf-8');
-        const fileNameRegex = /[^\\]+\.xmodel$/;
-
         const xmlDom = parseXML(data);
-
         const rootNode = xmlDom.getRootNode();
         const modelsNode = rootNode.getChild('Models') as NpXmlNode;
         const modelsChild = modelsNode?.getChilds() as NpXmlNode[];
 
-        for (const node of modelsChild) {
-            switch (type) {
-                case 'file':
-                    if (fileNameRegex.test(nodeName)) {
-                        const newModelNode = modelsNode.appendChild('Model');
-                        if (newModelNode) {
-                            newModelNode.setAttribute('id', nodeValue);
-                        }
-                    }
-                    break;
-                case 'model':
-                    const modelName = node.getAttribute('id');
-                    if (modelName === nodeName) {
-                        const newFieldNode = node.appendChild('Field');
-                        if (newFieldNode) {
-                            newFieldNode.setAttribute('id', nodeValue);
-                        }
-                    }
-                    break
-                default:
-                    break;
-            }
+        switch (type) {
+            case 'file':
+                const newModelNode = modelsNode.appendChild('Model');
+                if (newModelNode) {
+                    newModelNode.setAttribute('id', nodeValue);
+                }
+                break;
+            case 'model':
+                const parentModelNode = modelsChild.find(node => node.getAttribute('id') === nodeName) as NpXmlNode;
+                const newFieldNode = parentModelNode.appendChild('Field');
+                if (newFieldNode) {
+                    newFieldNode.setAttribute('id', nodeValue);
+                }
+                break
+            default:
+                break;
         }
 
         const xmlData = buildXML(xmlDom);
-        await fs.writeFileSync(path, xmlData, 'utf-8');
-
-        return xmlData;
+        fs.writeFileSync(path, xmlData, 'utf-8');
     }
+
 }
 
 export const bindReadModelWidgetBackend = (bind: interfaces.Bind) => {
