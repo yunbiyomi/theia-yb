@@ -18,7 +18,7 @@ import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR, QuickInputS
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
 import { AbstractViewContribution, bindViewContribution, codicon, FrontendApplicationContribution, QuickViewService, Widget, WidgetFactory } from '@theia/core/lib/browser';
 import { ReadModelClient, ReadModel, ReadModelPath, FileNode } from '../../common/read-model/read-model-service';
-import { ReadModelWidget, TypeNode } from './read-model-widget';
+import { ExpandTypeNode, ReadModelWidget, TypeNode } from './read-model-widget';
 import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 
@@ -88,25 +88,28 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
             }
         });
 
-        // Tabbar add command
+        // Add Tabber Command
         registry.registerCommand(NodeAddToolBarCommand, {
             execute: () => {
                 this.addFileQuickView(this.readModelWidget);
             },
             isEnabled: widget => this.withWidget(widget, () => {
-                const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
+                const selectNode = this.readModelWidget.model.selectedNodes[0] as ExpandTypeNode;
                 const type = selectNode?.type;
                 return type === 'model' || type === 'file';
             }),
             isVisible: widget => this.withWidget(widget, () => true),
         });
 
-        // Tabbar delete command
+        // Delete Tabbar Command
         registry.registerCommand(NodeDeleteToolBarCommand, {
             execute: () => {
-                const selectNode = this.readModelWidget.model.selectedNodes[0];
+                const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
                 this.readModelWidget.deleteNode(selectNode);
-                this.readModel.deleteNode(selectNode).then((data: string) => {
+                const nodeName = selectNode.id
+                const path = selectNode.description as string;
+                const type = selectNode.type;
+                this.readModel.deleteNode(nodeName, path, type).then((data: string) => {
                     console.log(data);
                 });
             },
@@ -142,7 +145,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
     // Quick Input 생성
     protected async addFileQuickView(widget: ReadModelWidget | undefined): Promise<void> {
         const items: QuickPickItemOrSeparator[] = [];
-        const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
+        const selectNode = this.readModelWidget.model.selectedNodes[0] as ExpandTypeNode;
         const type = selectNode.type;
         const newNodeRegex = /^[A-Za-z][A-Za-z0-9_]*$/; // 정규표현식을 문자열이 아닌 정규식 리터럴로 변경
         let quickViewTitle = 'Create';
@@ -182,6 +185,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                         addNewNode.description = '';
                         addNewNode.execute = async () => {
                             this.readModelWidget.addNewNode(selectNode, type, addNewNode?.value);
+                            console.log('성공적으로 이름이 추가되었습니다.');
                         };
                     } else {
                         addNewNode.description = '이름 형식이 올바르지 않습니다! 다시 입력해주세요.';

@@ -19,8 +19,7 @@ import { FileNode, ReadModel, ReadModelClient, ReadModelPath, XmlNode } from '..
 import path = require('path');
 import fs = require('fs');
 import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
-import { parseXML } from './xml-parser/np-common-xml';
-import { TreeNode } from '@theia/core/src/browser';
+import { buildXML, NpXmlNode, parseXML } from './xml-parser/np-common-xml';
 
 @injectable()
 export class ReadModelImpl implements ReadModel {
@@ -99,6 +98,7 @@ export class ReadModelImpl implements ReadModel {
                         for (const child of fieldNode) {
                             const xmlFieldNode: XmlNode = {
                                 id: child.getAttribute('id'),
+                                filePath: filePath,
                                 parent: node.getName()
                             }
                             fields.push(xmlFieldNode);
@@ -108,9 +108,11 @@ export class ReadModelImpl implements ReadModel {
 
                 const xmlModelNode: XmlNode = {
                     id: node.getAttribute('id'),
+                    filePath: filePath,
                     parent: modelsNode?.getName(),
                     children: fields
                 }
+
                 nodes.push(xmlModelNode);
             }
         }
@@ -118,9 +120,33 @@ export class ReadModelImpl implements ReadModel {
         return nodes;
     }
 
-    async deleteNode(node: TreeNode): Promise<string> {
-        const name = node.id as string
-        return name;
+    async deleteNode(nodeName: string, path: string, type: string): Promise<string> {
+        const data = fs.readFileSync(path, 'utf-8');
+
+        const xmlDom = parseXML(data);
+
+        const rootNode = xmlDom.getRootNode();
+        const modelsNode = rootNode.getChild('Models');
+        const modelsChild = modelsNode?.getChilds();
+
+        if (modelsChild) {
+            for (const node of modelsChild) {
+                if (type === 'model') {
+                    if (node.getAttribute('id') === nodeName)
+                        modelsNode?.removeChild(node);
+                } else if (type === 'field') {
+                    const modelChild = node.getChilds() as NpXmlNode[];
+                    for (const modelNode of modelChild) {
+                        if (modelNode.getAttribute('id') === nodeName)
+                            node.removeChild(modelNode);
+                    }
+                }
+            }
+        }
+
+        const xmlData = buildXML(xmlDom);
+
+        return xmlData;
     }
 }
 

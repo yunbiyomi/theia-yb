@@ -23,8 +23,11 @@ import { URI } from '@theia/core';
 
 export let filePath: string = '';
 
-export interface TypeNode extends SelectableTreeNode, ExpandableTreeNode {
+export interface TypeNode extends SelectableTreeNode {
     type: string;
+}
+
+export interface ExpandTypeNode extends TypeNode, ExpandableTreeNode {
 }
 
 @injectable()
@@ -95,7 +98,7 @@ export class ReadModelWidget extends TreeWidget {
         const nodePath: URI = new URI(fileNode.filePath);
         const nodeType: URIIconReference = fileNode.isDirectory ? URIIconReference.create('folder', nodePath) : URIIconReference.create('file', nodePath);
 
-        const node: TypeNode = {
+        const node: ExpandTypeNode = {
             id: fileNode.id,
             name: fileNode.id,
             icon: this.labelProvider.getIcon(nodeType),
@@ -144,23 +147,26 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // xml파일을 파싱한 결과를 바탕으로 속성 Node 생성
-    protected createXmlNode(xmlNode: XmlNode, parent: TypeNode): TreeNode {
+    protected createXmlNode(xmlNode: XmlNode, parent: ExpandTypeNode): TreeNode {
         const newChildren: TreeNode[] = [];
 
-        const node: SelectableTreeNode = {
+        const node: TypeNode = {
             id: xmlNode.id as string,
             name: xmlNode.id,
             icon: codicon('circle-small'),
+            description: xmlNode.filePath,
             parent: parent,
-            selected: false
+            selected: false,
+            type: 'field'
         };
 
         // children이 존재하는 Node의 경우
         if (xmlNode.children && Array.isArray(xmlNode.children)) {
             // eslint-disable-next-line @typescript-eslint/no-shadow
-            const node: TypeNode = {
+            const node: ExpandTypeNode = {
                 id: xmlNode.id as string,
                 name: xmlNode.id,
+                description: xmlNode.filePath,
                 expanded: false,
                 parent: parent,
                 children: newChildren,
@@ -179,7 +185,7 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // 가져온 XmlNode를 바탕으로 Node 추가
-    async getReadXml(xmlNode: XmlNode[], rootNode: TypeNode): Promise<void> {
+    async getReadXml(xmlNode: XmlNode[], rootNode: ExpandTypeNode): Promise<void> {
         xmlNode.forEach((xml: XmlNode) => {
             const node = this.createXmlNode(xml, rootNode);
             CompositeTreeNode.addChild(rootNode, node);
@@ -210,7 +216,7 @@ export class ReadModelWidget extends TreeWidget {
 
         // 새로운 Model을 추가할 때
         if (type === 'file') {
-            const newnNode: TypeNode = {
+            const newnNode: ExpandTypeNode = {
                 id: value as string,
                 name: value,
                 expanded: false,
@@ -248,7 +254,7 @@ export class ReadModelTreeModel extends TreeModelImpl {
     @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
 
     // Node 더블 클릭시
-    protected override doOpenNode(node: TypeNode): void {
+    protected override doOpenNode(node: ExpandTypeNode): void {
         super.doOpenNode(node);
 
         // Xml파일인 경우

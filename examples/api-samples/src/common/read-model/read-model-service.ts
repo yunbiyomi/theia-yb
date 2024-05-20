@@ -15,13 +15,13 @@
 // *****************************************************************************
 
 import { RpcServer } from '@theia/core/lib/common/messaging/proxy-factory';
-import { TreeNode } from '@theia/core/src/browser';
 
 export const ReadModelPath = '/services/readModel';
 export const ReadModel = Symbol('ReadModel');
 
 export interface XmlNode {
     id: string | undefined;
+    filePath: string;
     parent?: string;
     children?: XmlNode[]
 }
@@ -39,7 +39,7 @@ export interface ReadModel extends RpcServer<ReadModelClient> {
     getClient(): ReadModelClient | undefined;
     readModel(): Promise<FileNode[]>;
     parseModel(filePath: string): Promise<XmlNode[]>;
-    deleteNode(node: TreeNode): Promise<string>;
+    deleteNode(nodeName: string, nodePath: string, type: string): Promise<string>;
 }
 
 export const ReadModelClient = Symbol('ReadModelClient');
