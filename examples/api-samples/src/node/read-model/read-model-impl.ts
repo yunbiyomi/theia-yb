@@ -117,31 +117,30 @@ export class ReadModelImpl implements ReadModel {
     }
 
     // Tabber에서 새로운 노드를 삭제할 때 
-    deleteNode(nodeName: string, path: string, type: string): void {
+    deleteNode(nodeName: string, path: string, type: string, parentName: string): void {
         const data = fs.readFileSync(path, 'utf-8');
-
         const xmlDom = parseXML(data);
-
         const rootNode = xmlDom.getRootNode();
         const modelsNode = rootNode.getChild('Models');
         const modelsChild = modelsNode?.getChilds() as NpXmlNode[];
 
-        for (const node of modelsChild) {
-            switch (type) {
-                case 'model':
-                    if (node.getAttribute('id') === nodeName)
-                        modelsNode?.removeChild(node);
-                    break;
-                case 'field':
-                    const modelChild = node.getChilds() as NpXmlNode[];
-                    for (const modelNode of modelChild) {
-                        if (modelNode.getAttribute('id') === nodeName)
-                            node.removeChild(modelNode);
-                    }
-                    break;
-                default:
-                    break;
-            }
+        switch (type) {
+            case 'model':
+                const modelNode = modelsChild.find(node => node.getAttribute('id') === nodeName) as NpXmlNode;
+                if (modelsNode) {
+                    modelsNode.removeChild(modelNode);
+                }
+                break;
+            case 'field':
+                const parentModel = modelsChild.find(node => node.getAttribute('id') === parentName) as NpXmlNode;
+                const modelChild = parentModel.getChilds() as NpXmlNode[];
+                const fileNode = modelChild.find(node => node.getAttribute('id') === nodeName) as NpXmlNode;
+                if (parentModel) {
+                    parentModel.removeChild(fileNode);
+                }
+                break;
+            default:
+                break;
         }
 
         const xmlData = buildXML(xmlDom);

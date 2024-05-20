@@ -109,7 +109,8 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                 const nodeName = selectNode.id
                 const path = selectNode.description as string;
                 const type = selectNode.type;
-                this.readModel.deleteNode(nodeName, path, type);
+                const parentName = selectNode.parent?.id as string;
+                this.readModel.deleteNode(nodeName, path, type, parentName);
             },
             isEnabled: widget => this.withWidget(widget, () => {
                 const selectNode = this.readModelWidget.model.selectedNodes[0] as ExpandTypeNode;
