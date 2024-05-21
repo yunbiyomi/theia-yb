@@ -81,9 +81,9 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         // 트리 위젯 호출
         registry.registerCommand(ReadModelCommand, {
             execute: async () => {
-                this.readModel.readModel().then((fileNode: ParseNode[]) => {
+                this.readModel.readModel().then((parseNode: ParseNode[]) => {
                     super.openView({ activate: false, reveal: true });
-                    this.readModelWidget.getReadModel(fileNode);
+                    this.readModelWidget.getReadModel(parseNode);
                 });
             }
         });

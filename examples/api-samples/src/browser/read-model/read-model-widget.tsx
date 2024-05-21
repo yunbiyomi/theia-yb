@@ -17,7 +17,7 @@
 import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
 // eslint-disable-next-line max-len
-import { codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
+import { codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
 import { ParseNode, ReadModel } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 
@@ -88,12 +88,12 @@ export class ReadModelWidget extends TreeWidget {
         };
     }
 
-    createTypeNode(fileNode: ParseNode, icon: string, parent: ExpandTypeNode, type: string): TypeNode {
+    createTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode, type: string): TypeNode {
         return {
-            id: fileNode.id,
-            name: fileNode.id,
+            id: parseNode.id,
+            name: parseNode.id,
             icon,
-            description: fileNode.filePath,
+            description: parseNode.filePath,
             parent,
             children: [],
             type,
@@ -101,12 +101,12 @@ export class ReadModelWidget extends TreeWidget {
         }
     }
 
-    createExpandTypeNode(fileNode: ParseNode, icon: string, parent: ExpandTypeNode, type: string): ExpandTypeNode {
+    createExpandTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode, type: string): ExpandTypeNode {
         return {
-            id: fileNode.id,
-            name: fileNode.id,
+            id: parseNode.id,
+            name: parseNode.id,
             icon,
-            description: fileNode.filePath,
+            description: parseNode.filePath,
             parent,
             children: [],
             type,
@@ -169,12 +169,12 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // 가져온 FileNode를 바탕으로 Node 추가
-    async getReadModel(fileNode: ParseNode[]): Promise<void> {
+    async getReadModel(parseNode: ParseNode[]): Promise<void> {
         const root = this.createRootNode() as ExpandTypeNode;
 
-        fileNode.forEach((file: ParseNode) => {
-            const node = this.createTreeNode(file, root) as TreeNode;
-            CompositeTreeNode.addChild(root, node);
+        parseNode.forEach((node: ParseNode) => {
+            const newNode = this.createTreeNode(node, root) as TreeNode;
+            CompositeTreeNode.addChild(root, newNode);
         });
 
         this.model.root = root;
@@ -182,10 +182,10 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // 가져온 XmlNode를 바탕으로 Node 추가
-    async getReadXml(xmlNode: ParseNode[], rootNode: ExpandTypeNode): Promise<void> {
-        xmlNode.forEach((xml: ParseNode) => {
-            const node = this.createTreeNode(xml, rootNode) as TreeNode;
-            CompositeTreeNode.addChild(rootNode, node);
+    async getReadXml(parseNode: ParseNode[], rootNode: ExpandTypeNode): Promise<void> {
+        parseNode.forEach((node: ParseNode) => {
+            const newNode = this.createTreeNode(node, rootNode) as TreeNode;
+            CompositeTreeNode.addChild(rootNode, newNode);
         });
 
         await this.model.refresh();
@@ -193,7 +193,7 @@ export class ReadModelWidget extends TreeWidget {
 
 
     // 각 Node에 알맞는 아이콘 render
-    protected override renderIcon(node: TreeNode, props: NodeProps): React.ReactNode {
+    protected override renderIcon(node: TreeNode): React.ReactNode {
         const icon = this.toNodeIcon(node);
         if (icon) {
             return <div className={icon + ' file-icon'}></div>;
@@ -204,7 +204,6 @@ export class ReadModelWidget extends TreeWidget {
     // 선택한 Node 삭제
     async deleteNode(selectNode: TreeNode): Promise<void> {
         const parentsNode = selectNode.parent as CompositeTreeNode;
-
         CompositeTreeNode.removeChild(parentsNode, selectNode);
 
         if (selectNode.nextSibling) {
@@ -212,7 +211,6 @@ export class ReadModelWidget extends TreeWidget {
         } else {
             this.model.selectPrevNode();
         }
-
 
         await this.model.refresh();
     }
