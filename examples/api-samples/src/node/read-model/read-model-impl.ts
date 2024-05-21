@@ -35,13 +35,15 @@ export class ReadModelImpl implements ReadModel {
         if (this.client !== undefined) { return this.client; }
     }
 
-    protected setFileData(fileName: string, data: string): Map<string, string> {
-        return this.FilesMap.set(fileName, data);
+    protected setFileData(filePath: string, data: string): Map<string, string> {
+        return this.FilesMap.set(filePath, data);
     }
 
-    protected getFileData(fileName: string): string | undefined {
-        if (this.FilesMap.has(`${fileName}`)) {
-            return this.FilesMap.get(`${fileName}`) as string;
+    protected getFileData(filePath: string): string | undefined {
+        if (this.FilesMap.has(`${filePath}`)) {
+            return this.FilesMap.get(`${filePath}`) as string;
+        } else {
+            return undefined
         }
     }
 
@@ -74,7 +76,7 @@ export class ReadModelImpl implements ReadModel {
                     files.push(folderNode);
                 } else if (stats.isFile()) {
                     const fileContent = fs.readFileSync(itemPath, 'utf-8');
-                    fileContents.set(item, fileContent);
+                    fileContents.set(itemPath, fileContent);
                     const fileNode: FileNode = {
                         id: item,
                         isDirectory: false,
@@ -91,9 +93,9 @@ export class ReadModelImpl implements ReadModel {
     }
 
     // xml 파일 파싱해 Model 및 Field 객체로 저장
-    async parseModel(fileName: string, filePath: string): Promise<XmlNode[]> {
+    async parseModel(filePath: string): Promise<XmlNode[]> {
         const nodes: XmlNode[] = [];
-        const data = this.getFileData(fileName) as string;
+        const data = this.getFileData(filePath) as string;
 
         const xmlDom = parseXML(data);
         const rootNode = xmlDom.getRootNode();
@@ -131,11 +133,7 @@ export class ReadModelImpl implements ReadModel {
 
     // Tabber에서 새로운 노드를 삭제할 때 
     deleteNode(nodeName: string, path: string, type: string, parentName: string): boolean {
-        const fileNameRegex = /[^\\]+\.xmodel$/;
-        const pathMatch = path.match(fileNameRegex) as RegExpMatchArray;
-        const fileName = pathMatch[0];
-
-        const data = this.getFileData(fileName) as string;
+        const data = this.getFileData(path) as string;
         const xmlDom = parseXML(data);
 
         const rootNode = xmlDom.getRootNode();
@@ -167,7 +165,7 @@ export class ReadModelImpl implements ReadModel {
 
         if (nodeToRemove) {
             const xmlData = buildXML(xmlDom);
-            this.setFileData(fileName, xmlData);
+            this.setFileData(path, xmlData);
             fs.writeFileSync(path, xmlData, 'utf-8');
             return true;
         } else {
@@ -178,11 +176,7 @@ export class ReadModelImpl implements ReadModel {
 
     // Tabber에서 새로운 노드를 추가할 때
     addNode(nodeName: string, path: string, type: string, nodeValue: string): boolean {
-        const fileNameRegex = /[^\\]+\.xmodel$/;
-        const pathMatch = path.match(fileNameRegex) as RegExpMatchArray;
-        const fileName = pathMatch[0];
-
-        const data = this.getFileData(fileName) as string;
+        const data = this.getFileData(path) as string;
         const xmlDom = parseXML(data);
 
         const rootNode = xmlDom.getRootNode();
@@ -211,7 +205,7 @@ export class ReadModelImpl implements ReadModel {
 
         if (nodeToAdd) {
             const xmlData = buildXML(xmlDom);
-            this.setFileData(fileName, xmlData);
+            this.setFileData(path, xmlData);
             fs.writeFileSync(path, xmlData, 'utf-8');
             return true;
         } else {
