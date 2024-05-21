@@ -206,12 +206,20 @@ export class ReadModelWidget extends TreeWidget {
     // 선택한 Node 삭제
     async deleteNode(selectNode: TreeNode): Promise<void> {
         const parentsNode = selectNode.parent as CompositeTreeNode;
+
         CompositeTreeNode.removeChild(parentsNode, selectNode);
+
+        if (selectNode.nextSibling) {
+            this.model.selectNextNode();
+        } else {
+            this.model.selectPrevNode();
+        }
 
         await this.model.refresh();
     }
 
-    async addNewNode(selectNode: CompositeTreeNode, type: string, value: string | undefined): Promise<void> {
+    // 새로운 Node 추가
+    async addNewNode(selectNode: ExpandTypeNode | TypeNode, type: string, value: string | undefined): Promise<void> {
         const root = selectNode;
         const path = root.description;
 
@@ -258,7 +266,7 @@ export class ReadModelTreeModel extends TreeModelImpl {
     @inject(ReadModel) protected readonly readModel: ReadModel;
     @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
 
-    // Node 더블 클릭시
+    // Node 더블 클릭시 
     protected override doOpenNode(node: ExpandTypeNode): void {
         super.doOpenNode(node);
 
