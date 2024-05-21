@@ -213,6 +213,7 @@ export class ReadModelWidget extends TreeWidget {
             this.model.selectPrevNode();
         }
 
+
         await this.model.refresh();
     }
 
@@ -239,6 +240,11 @@ export class ReadModelWidget extends TreeWidget {
                 break;
         }
 
+        // root가 접혀있을 때 node 추가시 펴주기
+        if (!root.expanded) {
+            this.model.expandNode(root);
+        }
+
         await this.model.refresh();
     }
 }
@@ -250,19 +256,20 @@ export class ReadModelTreeModel extends TreeModelImpl {
     @inject(ReadModel) protected readonly readModel: ReadModel;
     @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
 
-    // Node 더블 클릭시 
-    protected override doOpenNode(node: ExpandTypeNode): void {
-        super.doOpenNode(node);
-
-        // Xml파일인 경우
-        if (node.id.includes('.xmodel')) {
-            const filePath = this.labelProvider.getLongName(node);
-            this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[]) => {
-                const readModelWidgets = this.widgetManager.getWidgets(ReadModelWidget.ID) as ReadModelWidget[];
-                readModelWidgets.forEach(widget => {
-                    widget.getReadXml(xmlNodes, node);
+    override async toggleNodeExpansion(node: ExpandTypeNode): Promise<void> {
+        if (node.expanded) {
+            await this.collapseNode(node);
+        } else {
+            if (node.id.includes('.xmodel')) {
+                const filePath = this.labelProvider.getLongName(node);
+                this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[]) => {
+                    const readModelWidgets = this.widgetManager.getWidgets(ReadModelWidget.ID) as ReadModelWidget[];
+                    readModelWidgets.forEach(widget => {
+                        widget.getReadXml(xmlNodes, node);
+                    });
                 });
-            });
+            }
+            await this.expandNode(node);
         }
     }
 }
