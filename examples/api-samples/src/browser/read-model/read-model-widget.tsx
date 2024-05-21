@@ -18,7 +18,7 @@ import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
 // eslint-disable-next-line max-len
 import { codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
-import { FileNode, ReadModel, XmlNode } from '../../common/read-model/read-model-service';
+import { ParseNode, ReadModel } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 
 export interface TypeNode extends SelectableTreeNode, CompositeTreeNode {
@@ -88,55 +88,92 @@ export class ReadModelWidget extends TreeWidget {
         };
     }
 
-    // 폴더 파싱한 결과를 바탕으로 폴더 및 파일 Node 생성
-    protected createTreeNode(fileNode: FileNode, parent: ExpandableTreeNode): TreeNode {
-        const newChildren: TreeNode[] = [];
-
-        // Node 타입 분류하기
-        const nodePath: URI = new URI(fileNode.filePath);
-        const nodeType: URIIconReference = fileNode.isDirectory ? URIIconReference.create('folder', nodePath) : URIIconReference.create('file', nodePath);
-
-        const node: ExpandTypeNode = {
+    createTypeNode(fileNode: ParseNode, icon: string, parent: ExpandTypeNode, type: string): TypeNode {
+        return {
             id: fileNode.id,
             name: fileNode.id,
-            icon: this.labelProvider.getIcon(nodeType),
+            icon,
             description: fileNode.filePath,
+            parent,
+            children: [],
+            type,
+            selected: false,
+        }
+    }
+
+    createExpandTypeNode(fileNode: ParseNode, icon: string, parent: ExpandTypeNode, type: string): ExpandTypeNode {
+        return {
+            id: fileNode.id,
+            name: fileNode.id,
+            icon,
+            description: fileNode.filePath,
+            parent,
+            children: [],
+            type,
             expanded: false,
-            parent: parent,
-            children: newChildren,
-            type: 'file',
             selected: false
         };
+    }
 
-        // children이 존재하는 Node의 경우
-        if (fileNode.children && Array.isArray(fileNode.children)) {
-            // eslint-disable-next-line @typescript-eslint/no-shadow
-            const node: ExpandableTreeNode = {
-                id: fileNode.id,
-                name: fileNode.id,
-                icon: this.labelProvider.getIcon(nodeType),
-                description: fileNode.filePath,
-                expanded: false,
-                parent: parent,
-                children: newChildren
-            };
+    // 폴더 파싱한 결과를 바탕으로 폴더 및 파일 Node 생성
+    protected createTreeNode(parseNode: ParseNode, parent: ExpandTypeNode): TreeNode | undefined {
+        const parseType = parseNode.parseType;
+        let nodeChilds: TreeNode[] = [];
 
-            for (const child of fileNode.children) {
-                const childNode: TreeNode = this.createTreeNode(child, node);
-                newChildren.push(childNode);
-            }
-            return node;
+        switch (parseType) {
+            case 'readModel':
+                const nodePath: URI = new URI(parseNode.filePath);
+                const nodeType: URIIconReference = parseNode.isDirectory ? URIIconReference.create('folder', nodePath) : URIIconReference.create('file', nodePath);
+                const nodeIcon = this.labelProvider.getIcon(nodeType);
+
+                const fileNode = this.createExpandTypeNode(parseNode, nodeIcon, parent, 'file');
+
+                if (parseNode.children && Array.isArray(parseNode.children)) {
+                    const folderNode = this.createExpandTypeNode(parseNode, nodeIcon, parent, 'folder');
+
+                    for (const child of parseNode.children) {
+                        const childNode = this.createTreeNode(child, folderNode);
+                        if (childNode) {
+                            nodeChilds.push(childNode);
+                        }
+                    }
+
+                    folderNode.children = nodeChilds;
+                    return folderNode;
+                }
+
+                return fileNode;
+            case 'readXml':
+                const fieldIcon = codicon('circle-small');
+                const fieldNode = this.createTypeNode(parseNode, fieldIcon, parent, 'field');
+
+                if (parseNode.children && Array.isArray(parseNode.children)) {
+                    const modelIcon = codicon('symbol-field');
+                    const modelNode = this.createExpandTypeNode(parseNode, modelIcon, parent, 'model');
+
+                    for (const child of parseNode.children) {
+                        const childNode = this.createTreeNode(child, modelNode);
+                        if (childNode) {
+                            nodeChilds.push(childNode);
+                        }
+                    }
+
+                    modelNode.children = nodeChilds;
+                    return modelNode;
+                }
+
+                return fieldNode;
+            default:
+                return undefined
         }
-
-        return node;
     }
 
     // 가져온 FileNode를 바탕으로 Node 추가
-    async getReadModel(fileNode: FileNode[]): Promise<void> {
-        const root = this.createRootNode();
+    async getReadModel(fileNode: ParseNode[]): Promise<void> {
+        const root = this.createRootNode() as ExpandTypeNode;
 
-        fileNode.forEach((file: FileNode) => {
-            const node = this.createTreeNode(file, root);
+        fileNode.forEach((file: ParseNode) => {
+            const node = this.createTreeNode(file, root) as TreeNode;
             CompositeTreeNode.addChild(root, node);
         });
 
@@ -144,49 +181,10 @@ export class ReadModelWidget extends TreeWidget {
         await this.model.refresh();
     }
 
-    // xml파일을 파싱한 결과를 바탕으로 속성 Node 생성
-    protected createXmlNode(xmlNode: XmlNode, parent: ExpandTypeNode): TreeNode {
-        const newChildren: TreeNode[] = [];
-
-        const node: TypeNode = {
-            id: xmlNode.id as string,
-            name: xmlNode.id,
-            icon: codicon('circle-small'),
-            description: xmlNode.filePath,
-            parent: parent,
-            children: [],
-            selected: false,
-            type: 'field'
-        };
-
-        // children이 존재하는 Node의 경우
-        if (xmlNode.children && Array.isArray(xmlNode.children)) {
-            // eslint-disable-next-line @typescript-eslint/no-shadow
-            const node: ExpandTypeNode = {
-                id: xmlNode.id as string,
-                name: xmlNode.id,
-                description: xmlNode.filePath,
-                expanded: false,
-                parent: parent,
-                children: newChildren,
-                selected: false,
-                type: 'model'
-            };
-
-            for (const child of xmlNode.children) {
-                const childNode: TreeNode = this.createXmlNode(child, node);
-                newChildren.push(childNode);
-            }
-            return node;
-        }
-
-        return node;
-    }
-
     // 가져온 XmlNode를 바탕으로 Node 추가
-    async getReadXml(xmlNode: XmlNode[], rootNode: ExpandTypeNode): Promise<void> {
-        xmlNode.forEach((xml: XmlNode) => {
-            const node = this.createXmlNode(xml, rootNode);
+    async getReadXml(xmlNode: ParseNode[], rootNode: ExpandTypeNode): Promise<void> {
+        xmlNode.forEach((xml: ParseNode) => {
+            const node = this.createTreeNode(xml, rootNode) as TreeNode;
             CompositeTreeNode.addChild(rootNode, node);
         });
 
@@ -220,39 +218,25 @@ export class ReadModelWidget extends TreeWidget {
 
     // 새로운 Node 추가
     async addNewNode(selectNode: ExpandTypeNode | TypeNode, type: string, value: string | undefined): Promise<void> {
-        const root = selectNode;
+        const root = selectNode as ExpandTypeNode;
         const path = root.description;
+        const newNodeinfo = { id: value, filePath: path } as ParseNode;
 
-        // 새로운 Model을 추가할 때
-        if (type === 'file') {
-            const newnNode: ExpandTypeNode = {
-                id: value as string,
-                name: value,
-                expanded: false,
-                description: path,
-                parent: root,
-                children: [],
-                selected: false,
-                type: 'model'
-            };
-
-            CompositeTreeNode.addChild(root, newnNode);
-        }
-
-        // 새로운 Field을 추가할 때
-        if (type === 'model') {
-            const newNode: TypeNode = {
-                id: value as string,
-                name: value,
-                description: path,
-                icon: codicon('circle-small'),
-                parent: root,
-                children: [],
-                selected: false,
-                type: 'field'
-            };
-
-            CompositeTreeNode.addChild(root, newNode);
+        switch (type) {
+            case 'file':
+                const modelIcon = codicon('symbol-field');
+                const nodeType = 'model';
+                const modelNode = this.createExpandTypeNode(newNodeinfo, modelIcon, root, nodeType);
+                CompositeTreeNode.addChild(root, modelNode);
+                break;
+            case 'model':
+                const fieldIcon = codicon('circle-small');
+                const fieldType = 'field';
+                const fieldNode = this.createTypeNode(newNodeinfo, fieldIcon, root, fieldType);
+                CompositeTreeNode.addChild(root, fieldNode);
+                break;
+            default:
+                break;
         }
 
         await this.model.refresh();
@@ -273,7 +257,7 @@ export class ReadModelTreeModel extends TreeModelImpl {
         // Xml파일인 경우
         if (node.id.includes('.xmodel')) {
             const filePath = this.labelProvider.getLongName(node);
-            this.readModel.parseModel(filePath).then((xmlNodes: XmlNode[]) => {
+            this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[]) => {
                 const readModelWidgets = this.widgetManager.getWidgets(ReadModelWidget.ID) as ReadModelWidget[];
                 readModelWidgets.forEach(widget => {
                     widget.getReadXml(xmlNodes, node);

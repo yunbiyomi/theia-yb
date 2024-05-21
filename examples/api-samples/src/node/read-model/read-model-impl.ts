@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { injectable, interfaces } from '@theia/core/shared/inversify';
-import { FileNode, ReadModel, ReadModelClient, ReadModelPath, XmlNode } from '../../common/read-model/read-model-service';
+import { ParseNode, ReadModel, ReadModelClient, ReadModelPath } from '../../common/read-model/read-model-service';
 import path = require('path');
 import fs = require('fs');
 import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
@@ -52,36 +52,40 @@ export class ReadModelImpl implements ReadModel {
     }
 
     // _model_ 폴더 속 폴더 및 파일 파싱해 객체로 저장
-    async readModel(): Promise<FileNode[]> {
+    async readModel(): Promise<ParseNode[]> {
         const directoryPath = '../../../../Mars_Sample/_model_';
         const modelPath = path.join(__dirname, directoryPath);
         const fileContents = new Map<string, string>();
 
-        const readDirectory = async (defaultPath: string, parentsFolder?: string): Promise<FileNode[]> => {
+        const readDirectory = async (defaultPath: string, parentsFolder?: string): Promise<ParseNode[]> => {
             const items = fs.readdirSync(defaultPath, 'utf-8');
-            const files: FileNode[] = [];
+            const files: ParseNode[] = [];
 
             for (const item of items) {
                 const itemPath = path.join(defaultPath, item);
                 const stats = fs.statSync(itemPath);
 
                 if (stats.isDirectory()) {
-                    const folderNode: FileNode = {
+                    const folderNode: ParseNode = {
                         id: item,
-                        isDirectory: true,
                         filePath: itemPath,
+                        parseType: 'readModel',
+                        isDirectory: true,
                         parent: parentsFolder,
                         children: await readDirectory(itemPath, item)
                     };
+
                     files.push(folderNode);
                 } else if (stats.isFile()) {
                     const fileContent = fs.readFileSync(itemPath, 'utf-8');
                     fileContents.set(itemPath, fileContent);
-                    const fileNode: FileNode = {
+                    const fileNode: ParseNode = {
                         id: item,
+                        filePath: itemPath,
+                        parseType: 'readModel',
                         isDirectory: false,
-                        filePath: itemPath
                     };
+
                     files.push(fileNode);
                 }
             }
@@ -93,8 +97,8 @@ export class ReadModelImpl implements ReadModel {
     }
 
     // xml 파일 파싱해 Model 및 Field 객체로 저장
-    async parseModel(filePath: string): Promise<XmlNode[]> {
-        const nodes: XmlNode[] = [];
+    async parseModel(filePath: string): Promise<ParseNode[]> {
+        const domNodes: ParseNode[] = [];
         const data = this.getFileData(filePath) as string;
 
         const xmlDom = parseXML(data);
@@ -103,32 +107,34 @@ export class ReadModelImpl implements ReadModel {
         const modelNode = modelsNode?.getChilds() as NpXmlNode[];
 
         for (const node of modelNode) {
-            const fields: XmlNode[] = [];
+            const fields: ParseNode[] = [];
 
             if (node.hasChilds()) {
                 const fieldNode = node.getChilds() as NpXmlNode[];
 
                 for (const child of fieldNode) {
-                    const xmlFieldNode: XmlNode = {
-                        id: child.getAttribute('id'),
+                    const xmlFieldNode: ParseNode = {
+                        id: child.getAttribute('id') as string,
                         filePath: filePath,
+                        parseType: 'readXml',
                         parent: node.getName()
                     }
                     fields.push(xmlFieldNode);
                 }
             }
 
-            const xmlModelNode: XmlNode = {
-                id: node.getAttribute('id'),
+            const xmlModelNode: ParseNode = {
+                id: node.getAttribute('id') as string,
                 filePath: filePath,
+                parseType: 'readXml',
                 parent: modelsNode?.getName(),
                 children: fields
             }
 
-            nodes.push(xmlModelNode);
+            domNodes.push(xmlModelNode);
         }
 
-        return nodes;
+        return domNodes;
     }
 
     // Tabber에서 새로운 노드를 삭제할 때 

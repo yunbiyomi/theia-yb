@@ -17,8 +17,8 @@
 import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR, QuickInputService, QuickPickItemOrSeparator, QuickPickItem } from '@theia/core';
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
 import { AbstractViewContribution, bindViewContribution, codicon, FrontendApplicationContribution, QuickViewService, Widget, WidgetFactory } from '@theia/core/lib/browser';
-import { ReadModelClient, ReadModel, ReadModelPath, FileNode } from '../../common/read-model/read-model-service';
-import { ExpandTypeNode, ReadModelWidget, TypeNode } from './read-model-widget';
+import { ReadModelClient, ReadModel, ReadModelPath, ParseNode } from '../../common/read-model/read-model-service';
+import { ReadModelWidget, TypeNode } from './read-model-widget';
 import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 
@@ -81,7 +81,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         // 트리 위젯 호출
         registry.registerCommand(ReadModelCommand, {
             execute: async () => {
-                this.readModel.readModel().then((fileNode: FileNode[]) => {
+                this.readModel.readModel().then((fileNode: ParseNode[]) => {
                     super.openView({ activate: false, reveal: true });
                     this.readModelWidget.getReadModel(fileNode);
                 });
@@ -94,9 +94,9 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                 this.addFileQuickView(this.readModelWidget);
             },
             isEnabled: widget => this.withWidget(widget, () => {
-                const selectNode = this.readModelWidget.model.selectedNodes[0] as ExpandTypeNode;
-                const type = selectNode?.type;
-                return type === 'model' || type === 'file';
+                const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
+                const selectNodeType = selectNode.type;
+                return selectNodeType === 'model' || selectNodeType === 'file';
             }),
             isVisible: widget => this.withWidget(widget, () => true),
         });
@@ -120,7 +120,11 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                     console.error('Node cannot be deleted', error);
                 }
             },
-            isEnabled: widget => this.withWidget(widget, () => true),
+            isEnabled: widget => this.withWidget(widget, () => {
+                const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
+                const selectNodeType = selectNode.type;
+                return selectNodeType === 'model' || selectNodeType === 'field';
+            }),
             isVisible: widget => this.withWidget(widget, () => true),
         });
     }
