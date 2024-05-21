@@ -246,9 +246,11 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     protected override renderExpansionToggle(node: ExpandTypeNode, props: NodeProps): React.ReactNode {
-        if (!node.children || node.children.length === 0) {
-            const classes = 'theia-TreeNodeSegment theia-ExpansionToggle';
-            return <div data-node-id={node.id} className={classes} style={{ visibility: 'hidden' }} />;
+        if (ExpandableTreeNode.is(node)) {
+            if (!node.children || node.children.length === 0) {
+                const classes = 'theia-TreeNodeSegment theia-ExpansionToggle';
+                return <div data-node-id={node.id} className={classes} style={{ visibility: 'hidden' }} />;
+            }
         }
         return super.renderExpansionToggle(node, props);
     }
