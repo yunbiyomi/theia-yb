@@ -98,7 +98,7 @@ export class ReadModelWidget extends TreeWidget {
             children: [],
             type,
             selected: false,
-        }
+        };
     }
 
     createExpandTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode, type: string): ExpandTypeNode {
@@ -118,7 +118,7 @@ export class ReadModelWidget extends TreeWidget {
     // 폴더 파싱한 결과를 바탕으로 폴더 및 파일 Node 생성
     protected createTreeNode(parseNode: ParseNode, parent: ExpandTypeNode): TreeNode | undefined {
         const parseType = parseNode.parseType;
-        let nodeChilds: TreeNode[] = [];
+        const nodeChilds: TreeNode[] = [];
 
         switch (parseType) {
             case 'readModel':
@@ -164,7 +164,7 @@ export class ReadModelWidget extends TreeWidget {
 
                 return fieldNode;
             default:
-                return undefined
+                return undefined;
         }
     }
 
@@ -190,7 +190,6 @@ export class ReadModelWidget extends TreeWidget {
 
         await this.model.refresh();
     }
-
 
     // 각 Node에 알맞는 아이콘 render
     protected override renderIcon(node: TreeNode): React.ReactNode {
@@ -218,7 +217,7 @@ export class ReadModelWidget extends TreeWidget {
     // 새로운 Node 추가
     async addNewNode(selectNode: ExpandTypeNode | TypeNode, type: string, value: string | undefined): Promise<void> {
         const root = selectNode as ExpandTypeNode;
-        const path = root.description;
+        const path = this.labelProvider.getLongName(root);
         const newNodeinfo = { id: value, filePath: path } as ParseNode;
 
         switch (type) {

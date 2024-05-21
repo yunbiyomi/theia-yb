@@ -16,7 +16,8 @@
 
 import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR, QuickInputService, QuickPickItemOrSeparator, QuickPickItem } from '@theia/core';
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
-import { AbstractViewContribution, bindViewContribution, codicon, FrontendApplicationContribution, QuickViewService, Widget, WidgetFactory } from '@theia/core/lib/browser';
+// eslint-disable-next-line max-len
+import { AbstractViewContribution, bindViewContribution, codicon, FrontendApplicationContribution, LabelProvider, QuickViewService, Widget, WidgetFactory } from '@theia/core/lib/browser';
 import { ReadModelClient, ReadModel, ReadModelPath, ParseNode } from '../../common/read-model/read-model-service';
 import { ReadModelWidget, TypeNode } from './read-model-widget';
 import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
@@ -53,6 +54,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
     @inject(ReadModelWidget) protected readonly readModelWidget: ReadModelWidget;
     @inject(QuickViewService) protected readonly quickViewService: QuickViewService;
     @inject(QuickInputService) protected readonly quickInputService: QuickInputService;
+    @inject(LabelProvider) protected readonly labelProvider: LabelProvider;
 
     constructor() {
         super({
@@ -106,8 +108,8 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
             execute: () => {
                 try {
                     const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
-                    const nodeName = selectNode.id
-                    const path = selectNode.description as string;
+                    const nodeName = selectNode.id;
+                    const path = this.labelProvider.getLongName(selectNode);
                     const type = selectNode.type;
                     const parentName = selectNode.parent?.id as string;
 
@@ -158,7 +160,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         const items: QuickPickItemOrSeparator[] = [];
         const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
         const nodeName = selectNode.id;
-        const path = selectNode.description as string;
+        const path = this.labelProvider.getLongName(selectNode);
         const type = selectNode.type;
         const newNodeRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
         let quickViewTitle = 'Create';

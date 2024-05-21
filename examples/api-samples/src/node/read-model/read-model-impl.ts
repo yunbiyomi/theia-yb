@@ -43,7 +43,7 @@ export class ReadModelImpl implements ReadModel {
         if (this.FilesMap.has(`${filePath}`)) {
             return this.FilesMap.get(`${filePath}`) as string;
         } else {
-            return undefined
+            return undefined;
         }
     }
 
@@ -118,7 +118,7 @@ export class ReadModelImpl implements ReadModel {
                         filePath: filePath,
                         parseType: 'readXml',
                         parent: node.getName()
-                    }
+                    };
                     fields.push(xmlFieldNode);
                 }
             }
@@ -129,7 +129,7 @@ export class ReadModelImpl implements ReadModel {
                 parseType: 'readXml',
                 parent: modelsNode?.getName(),
                 children: fields
-            }
+            };
 
             domNodes.push(xmlModelNode);
         }
@@ -137,9 +137,9 @@ export class ReadModelImpl implements ReadModel {
         return domNodes;
     }
 
-    // Tabber에서 새로운 노드를 삭제할 때 
-    deleteNode(nodeName: string, path: string, type: string, parentName: string): boolean {
-        const data = this.getFileData(path) as string;
+    // Tabber에서 새로운 노드를 삭제할 때
+    deleteNode(nodeName: string, filePath: string, type: string, parentName: string): boolean {
+        const data = this.getFileData(filePath) as string;
         const xmlDom = parseXML(data);
 
         const rootNode = xmlDom.getRootNode();
@@ -171,18 +171,17 @@ export class ReadModelImpl implements ReadModel {
 
         if (nodeToRemove) {
             const xmlData = buildXML(xmlDom);
-            this.setFileData(path, xmlData);
-            fs.writeFileSync(path, xmlData, 'utf-8');
+            this.setFileData(filePath, xmlData);
+            fs.writeFileSync(filePath, xmlData, 'utf-8');
             return true;
         } else {
             return false;
         }
     }
 
-
     // Tabber에서 새로운 노드를 추가할 때
-    addNode(nodeName: string, path: string, type: string, nodeValue: string): boolean {
-        const data = this.getFileData(path) as string;
+    addNode(nodeName: string, filePath: string, type: string, nodeValue: string): boolean {
+        const data = this.getFileData(filePath) as string;
         const xmlDom = parseXML(data);
 
         const rootNode = xmlDom.getRootNode();
@@ -206,13 +205,13 @@ export class ReadModelImpl implements ReadModel {
                 }
                 break;
             default:
-                return false
+                return false;
         }
 
         if (nodeToAdd) {
             const xmlData = buildXML(xmlDom);
-            this.setFileData(path, xmlData);
-            fs.writeFileSync(path, xmlData, 'utf-8');
+            this.setFileData(filePath, xmlData);
+            fs.writeFileSync(filePath, xmlData, 'utf-8');
             return true;
         } else {
             return false;
@@ -230,4 +229,4 @@ export const bindReadModelWidgetBackend = (bind: interfaces.Bind) => {
             return server;
         })
     ).inSingletonScope();
-}
+};
