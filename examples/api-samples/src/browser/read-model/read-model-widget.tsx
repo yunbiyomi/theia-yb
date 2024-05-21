@@ -17,7 +17,7 @@
 import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
 // eslint-disable-next-line max-len
-import { codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
+import { codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
 import { ParseNode, ReadModel } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 
@@ -244,6 +244,15 @@ export class ReadModelWidget extends TreeWidget {
 
         await this.model.refresh();
     }
+
+    protected override renderExpansionToggle(node: ExpandTypeNode, props: NodeProps): React.ReactNode {
+        if (!node.children || node.children.length === 0) {
+            const classes = 'theia-TreeNodeSegment theia-ExpansionToggle';
+            return <div data-node-id={node.id} className={classes} style={{ visibility: 'hidden' }} />;
+        }
+        return super.renderExpansionToggle(node, props);
+    }
+
 }
 
 @injectable()
