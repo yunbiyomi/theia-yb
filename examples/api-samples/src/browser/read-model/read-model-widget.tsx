@@ -264,20 +264,19 @@ export class ReadModelTreeModel extends TreeModelImpl {
     @inject(ReadModel) protected readonly readModel: ReadModel;
     @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
 
-    override async toggleNodeExpansion(node: ExpandTypeNode): Promise<void> {
-        if (node.expanded) {
-            await this.collapseNode(node);
-        } else {
-            if (node.id.includes('.xmodel')) {
-                const filePath = this.labelProvider.getLongName(node);
-                this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[]) => {
-                    const readModelWidgets = this.widgetManager.getWidgets(ReadModelWidget.ID) as ReadModelWidget[];
-                    readModelWidgets.forEach(widget => {
-                        widget.getReadXml(xmlNodes, node);
-                    });
+    // Node 더블 클릭시
+    protected override doOpenNode(node: ExpandTypeNode): void {
+        super.doOpenNode(node);
+
+        // Xml파일인 경우
+        if (node.id.includes('.xmodel')) {
+            const filePath = this.labelProvider.getLongName(node);
+            this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[]) => {
+                const readModelWidgets = this.widgetManager.getWidgets(ReadModelWidget.ID) as ReadModelWidget[];
+                readModelWidgets.forEach(widget => {
+                    widget.getReadXml(xmlNodes, node);
                 });
-            }
-            await this.expandNode(node);
+            });
         }
     }
 }

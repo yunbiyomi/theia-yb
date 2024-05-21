@@ -98,7 +98,9 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
             isEnabled: widget => this.withWidget(widget, () => {
                 const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
                 const selectNodeType = selectNode.type;
-                return selectNodeType === 'model' || selectNodeType === 'file';
+                const childrenCount = selectNode.children.length;
+                // childrenCount가 0이면 아직 파싱 안된 파일임
+                return childrenCount !== 0 && selectNodeType === 'file' || selectNodeType === 'model';
             }),
             isVisible: widget => this.withWidget(widget, () => true),
         });
