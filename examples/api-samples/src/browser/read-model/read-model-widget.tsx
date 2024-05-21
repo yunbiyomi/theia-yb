@@ -193,6 +193,7 @@ export class ReadModelWidget extends TreeWidget {
         await this.model.refresh();
     }
 
+
     // 각 Node에 알맞는 아이콘 render
     protected override renderIcon(node: TreeNode, props: NodeProps): React.ReactNode {
         const icon = this.toNodeIcon(node);
@@ -212,6 +213,7 @@ export class ReadModelWidget extends TreeWidget {
 
     async addNewNode(selectNode: CompositeTreeNode, type: string, value: string | undefined): Promise<void> {
         const root = selectNode;
+        const path = root.description;
 
         // 새로운 Model을 추가할 때
         if (type === 'file') {
@@ -219,7 +221,8 @@ export class ReadModelWidget extends TreeWidget {
                 id: value as string,
                 name: value,
                 expanded: false,
-                parent: selectNode,
+                description: path,
+                parent: root,
                 children: [],
                 selected: false,
                 type: 'model'
@@ -230,12 +233,15 @@ export class ReadModelWidget extends TreeWidget {
 
         // 새로운 Field을 추가할 때
         if (type === 'model') {
-            const newNode: SelectableTreeNode = {
+            const newNode: TypeNode = {
                 id: value as string,
                 name: value,
+                description: path,
                 icon: codicon('circle-small'),
                 parent: root,
-                selected: false
+                children: [],
+                selected: false,
+                type: 'field'
             };
 
             CompositeTreeNode.addChild(root, newNode);

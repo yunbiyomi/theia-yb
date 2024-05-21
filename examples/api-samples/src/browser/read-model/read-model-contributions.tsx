@@ -120,11 +120,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                     console.error('Node cannot be deleted', error);
                 }
             },
-            isEnabled: widget => this.withWidget(widget, () => {
-                const selectNode = this.readModelWidget.model.selectedNodes[0] as ExpandTypeNode;
-                const type = selectNode?.type;
-                return type === 'model' || type === 'field';
-            }),
+            isEnabled: widget => this.withWidget(widget, () => true),
             isVisible: widget => this.withWidget(widget, () => true),
         });
     }
