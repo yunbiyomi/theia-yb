@@ -115,10 +115,27 @@ export class ReadModelWidget extends TreeWidget {
         };
     }
 
+    // 자식이 있는 node의 자식 node 추가 함수
+    createChildNodes(parseNode: ParseNode, nodeIcon: string, parent: ExpandTypeNode, type: string): ExpandTypeNode {
+        const nodeChilds: TreeNode[] = [];
+        const parentNode = this.createExpandTypeNode(parseNode, nodeIcon, parent, type);
+        const parentNodeChildren = parseNode.children as ParseNode[];
+
+        for (const child of parentNodeChildren) {
+            const childNode = this.createTreeNode(child, parentNode);
+            if (childNode) {
+                nodeChilds.push(childNode);
+            }
+        }
+
+        parentNode.children = nodeChilds;
+
+        return parentNode
+    }
+
     // 폴더 파싱한 결과를 바탕으로 폴더 및 파일 Node 생성
     protected createTreeNode(parseNode: ParseNode, parent: ExpandTypeNode): TreeNode | undefined {
         const parseType = parseNode.parseType;
-        const nodeChilds: TreeNode[] = [];
 
         switch (parseType) {
             case 'readModel':
@@ -126,40 +143,23 @@ export class ReadModelWidget extends TreeWidget {
                 const nodeType: URIIconReference = parseNode.isDirectory ? URIIconReference.create('folder', nodePath) : URIIconReference.create('file', nodePath);
                 const nodeIcon = this.labelProvider.getIcon(nodeType);
 
-                const fileNode = this.createExpandTypeNode(parseNode, nodeIcon, parent, 'file');
+                let fileNode = this.createExpandTypeNode(parseNode, nodeIcon, parent, 'file');
 
                 if (parseNode.children && Array.isArray(parseNode.children)) {
-                    const folderNode = this.createExpandTypeNode(parseNode, nodeIcon, parent, 'folder');
-
-                    for (const child of parseNode.children) {
-                        const childNode = this.createTreeNode(child, folderNode);
-                        if (childNode) {
-                            nodeChilds.push(childNode);
-                        }
-                    }
-
-                    folderNode.children = nodeChilds;
-                    return folderNode;
+                    fileNode = this.createChildNodes(parseNode, nodeIcon, parent, 'folder');
+                    return fileNode
                 }
 
                 return fileNode;
             case 'readXml':
                 const fieldIcon = codicon('circle-small');
-                const fieldNode = this.createTypeNode(parseNode, fieldIcon, parent, 'field');
+                const modelIcon = codicon('symbol-field');
+
+                let fieldNode = this.createTypeNode(parseNode, fieldIcon, parent, 'field');
 
                 if (parseNode.children && Array.isArray(parseNode.children)) {
-                    const modelIcon = codicon('symbol-field');
-                    const modelNode = this.createExpandTypeNode(parseNode, modelIcon, parent, 'model');
-
-                    for (const child of parseNode.children) {
-                        const childNode = this.createTreeNode(child, modelNode);
-                        if (childNode) {
-                            nodeChilds.push(childNode);
-                        }
-                    }
-
-                    modelNode.children = nodeChilds;
-                    return modelNode;
+                    this.createChildNodes(parseNode, modelIcon, parent, 'model');
+                    return fieldNode;
                 }
 
                 return fieldNode;
@@ -169,26 +169,29 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // 가져온 FileNode를 바탕으로 Node 추가
-    async getReadModel(parseNode: ParseNode[]): Promise<void> {
-        const root = this.createRootNode() as ExpandTypeNode;
+    async getReadTree(parseNodes: ParseNode[], type: string, rootNode?: ExpandTypeNode): Promise<void> {
+        let root: ExpandTypeNode;
 
-        parseNode.forEach((node: ParseNode) => {
+        switch (type) {
+            case 'readModel':
+                root = this.createRootNode() as ExpandTypeNode;
+                this.model.root = root;
+                break;
+            case 'readXml':
+                root = rootNode as ExpandTypeNode;
+                break;
+            default:
+                break;
+        }
+
+        parseNodes.forEach((node: ParseNode) => {
             const newNode = this.createTreeNode(node, root) as TreeNode;
             CompositeTreeNode.addChild(root, newNode);
         });
 
-        this.model.root = root;
-        await this.model.refresh();
-    }
-
-    // 가져온 XmlNode를 바탕으로 Node 추가
-    async getReadXml(parseNode: ParseNode[], rootNode: ExpandTypeNode): Promise<void> {
-        parseNode.forEach((node: ParseNode) => {
-            const newNode = this.createTreeNode(node, rootNode) as TreeNode;
-            CompositeTreeNode.addChild(rootNode, newNode);
-        });
-
-        await this.model.refresh();
+        if (root!) {
+            await this.model.refresh();
+        }
     }
 
     // 각 Node에 알맞는 아이콘 render
@@ -206,9 +209,11 @@ export class ReadModelWidget extends TreeWidget {
         CompositeTreeNode.removeChild(parentsNode, selectNode);
 
         if (selectNode.nextSibling) {
-            this.model.selectNextNode();
+            const nextNode = selectNode.nextSibling as SelectableTreeNode;
+            this.model.selectNode(nextNode);
         } else {
-            this.model.selectPrevNode();
+            const prevNode = selectNode.previousSibling as SelectableTreeNode;
+            this.model.selectNode(prevNode);
         }
 
         await this.model.refresh();
@@ -274,9 +279,13 @@ export class ReadModelTreeModel extends TreeModelImpl {
             this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[]) => {
                 const readModelWidgets = this.widgetManager.getWidgets(ReadModelWidget.ID) as ReadModelWidget[];
                 readModelWidgets.forEach(widget => {
-                    widget.getReadXml(xmlNodes, node);
+                    widget.getReadTree(xmlNodes, 'readXml', node);
                 });
             });
+
+            if (!node.expanded) {
+                this.expandNode(node);
+            }
         }
     }
 }

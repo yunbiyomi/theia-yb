@@ -78,6 +78,37 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         });
     }
 
+    // tabbar Enabled check
+    protected checkEnabled(type: string): boolean {
+        const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
+        const selectNodeType = selectNode.type;
+        const childrenCount = selectNode.children.length;
+
+        switch (type) {
+            case 'add':
+                return childrenCount !== 0 && selectNodeType === 'file' || selectNodeType === 'model';
+            case 'delete':
+                return selectNodeType === 'model' || selectNodeType === 'field';
+            default:
+                return false
+        }
+    }
+
+    // deleteNode execute 함수
+    protected deleteNodeHandler(): void {
+        const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
+        const nodeName = selectNode.id;
+        const path = this.labelProvider.getLongName(selectNode);
+        const type = selectNode.type;
+        const parentName = selectNode.parent?.id as string;
+
+        const nodeDeleteResult = this.readModel.deleteNode(nodeName, path, type, parentName);
+
+        if (nodeDeleteResult) {
+            this.readModelWidget.deleteNode(selectNode);
+        }
+    }
+
     // command 생성
     override registerCommands(registry: CommandRegistry): void {
         // 트리 위젯 호출
@@ -85,7 +116,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
             execute: async () => {
                 this.readModel.readModel().then((parseNode: ParseNode[]) => {
                     super.openView({ activate: false, reveal: true });
-                    this.readModelWidget.getReadModel(parseNode);
+                    this.readModelWidget.getReadTree(parseNode, 'readModel');
                 });
             }
         });
@@ -95,40 +126,16 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
             execute: () => {
                 this.addFileQuickView(this.readModelWidget);
             },
-            isEnabled: widget => this.withWidget(widget, () => {
-                const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
-                const selectNodeType = selectNode.type;
-                const childrenCount = selectNode.children.length;
-                // childrenCount가 0이면 아직 파싱 안된 파일임
-                return childrenCount !== 0 && selectNodeType === 'file' || selectNodeType === 'model';
-            }),
+            isEnabled: widget => this.withWidget(widget, () => this.checkEnabled('add')),
             isVisible: widget => this.withWidget(widget, () => true),
         });
 
         // Delete Tabbar Command
         registry.registerCommand(NodeDeleteToolBarCommand, {
             execute: () => {
-                try {
-                    const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
-                    const nodeName = selectNode.id;
-                    const path = this.labelProvider.getLongName(selectNode);
-                    const type = selectNode.type;
-                    const parentName = selectNode.parent?.id as string;
-
-                    const nodeDeleteResult = this.readModel.deleteNode(nodeName, path, type, parentName);
-
-                    if (nodeDeleteResult) {
-                        this.readModelWidget.deleteNode(selectNode);
-                    }
-                } catch (error) {
-                    console.error('Node cannot be deleted', error);
-                }
+                this.deleteNodeHandler();
             },
-            isEnabled: widget => this.withWidget(widget, () => {
-                const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
-                const selectNodeType = selectNode.type;
-                return selectNodeType === 'model' || selectNodeType === 'field';
-            }),
+            isEnabled: widget => this.withWidget(widget, () => this.checkEnabled('delete')),
             isVisible: widget => this.withWidget(widget, () => true),
         });
     }
