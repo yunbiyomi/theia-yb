@@ -138,7 +138,7 @@ export class ReadModelImpl implements ReadModel {
     }
 
     // Tabber에서 새로운 노드를 삭제할 때
-    deleteNode(nodeName: string, filePath: string, type: string, parentName: string): boolean {
+    async deleteNode(nodeName: string, filePath: string, type: string, parentName: string): Promise<boolean> {
         const data = this.getFileData(filePath) as string;
         const xmlDom = parseXML(data);
 
@@ -179,8 +179,57 @@ export class ReadModelImpl implements ReadModel {
         }
     }
 
+    // 아이디 유효성 검사
+    async checkIdRegex(nodeValue: string): Promise<boolean> {
+        const idRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
+        const regexResult = idRegex.test(nodeValue);
+
+        if (!regexResult) {
+            return false;
+        }
+
+        let duplicationResult = false;
+
+        for (const [, content] of this.FilesMap) {
+            const xmlDom = parseXML(content);
+            const rootNode = xmlDom.getRootNode();
+            const modelsNode = rootNode.getChild('Models');
+            const modelsChild = modelsNode?.getChilds() as NpXmlNode[];
+
+            if (!modelsChild) {
+                continue;
+            }
+
+            const modelDuplication = modelsChild.some(node => node.getAttribute('id') === nodeValue);
+            if (modelDuplication) {
+                duplicationResult = true;
+                break;
+            }
+
+            for (const model of modelsChild) {
+                if (model.hasChilds()) {
+                    const fields = model.getChilds() as NpXmlNode[];
+                    const fieldDuplication = fields.some(node => node.getAttribute('id') === nodeValue);
+                    if (fieldDuplication) {
+                        duplicationResult = true;
+                        break;
+                    }
+                }
+            }
+
+            if (duplicationResult) {
+                break;
+            }
+        }
+
+
+        return !duplicationResult;
+    }
+
+
+
     // Tabber에서 새로운 노드를 추가할 때
-    addNode(nodeName: string, filePath: string, type: string, nodeValue: string): boolean {
+    async addNode(nodeName: string, filePath: string, type: string, nodeValue: string): Promise<boolean> {
         const data = this.getFileData(filePath) as string;
         const xmlDom = parseXML(data);
 

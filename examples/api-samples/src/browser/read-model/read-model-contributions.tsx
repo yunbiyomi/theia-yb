@@ -102,11 +102,11 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         const type = selectNode.type;
         const parentName = selectNode.parent?.id as string;
 
-        const nodeDeleteResult = this.readModel.deleteNode(nodeName, path, type, parentName);
-
-        if (nodeDeleteResult) {
-            this.readModelWidget.deleteNode(selectNode);
-        }
+        this.readModel.deleteNode(nodeName, path, type, parentName).then((result: boolean) => {
+            if (result) {
+                this.readModelWidget.deleteNode(selectNode);
+            }
+        });
     }
 
     // command 생성
@@ -171,7 +171,6 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         const nodeName = selectNode.id;
         const path = this.labelProvider.getLongName(selectNode);
         const type = selectNode.type;
-        const newNodeRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
         let quickViewTitle = 'Create';
         let quickViewContent = 'Enter Name...';
 
@@ -204,25 +203,25 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                     addNewNode.alwaysShow = true;
                     addNewNode.value = picker.value;
                     addNewNode.label = `${quickViewTitle}:  ${picker.value}`;
-
-                    if (newNodeRegex.test(picker.value)) {
-                        addNewNode.description = '';
-                        addNewNode.execute = async () => {
-                            try {
-                                const value = addNewNode.value as string;
-                                const nodeAddResult = this.readModel.addNode(nodeName, path, type, value);
-                                if (nodeAddResult) {
-                                    this.readModelWidget.addNewNode(selectNode, type, addNewNode?.value);
-                                }
-                            } catch (error) {
-                                console.error('Node cannot be added', error);
-                            }
-                        };
-                    } else {
-                        addNewNode.description = '이름 형식이 올바르지 않습니다! 다시 입력해주세요.';
-                    }
-
-                    picker.items = [...items, addNewNode];
+                    this.readModel.checkIdRegex(picker.value).then((result: boolean) => {
+                        if (result) {
+                            addNewNode.description = '';
+                            addNewNode.execute = async () => {
+                                const idValue = addNewNode.value as string;
+                                this.readModel.addNode(nodeName, path, type, idValue).then((result: boolean) => {
+                                    if (result) {
+                                        this.readModelWidget.addNewNode(selectNode, type, idValue);
+                                    }
+                                });
+                            };
+                        } else {
+                            addNewNode.description = '이름 형식이 올바르지 않습니다! 다시 입력해주세요.';
+                            addNewNode.execute = async () => {
+                                alert("추가실패");
+                            };
+                        }
+                        picker.items = [...items, addNewNode];
+                    });
                 }
             }
         });
