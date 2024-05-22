@@ -196,20 +196,12 @@ export class ReadModelWidget extends TreeWidget {
         parseNodes.forEach((node: ParseNode) => {
             const newNode = this.createTreeNode(node, root) as TreeNode;
             CompositeTreeNode.addChild(root, newNode);
+
         });
 
         if (root!) {
             await this.model.refresh();
         }
-    }
-
-    // 각 Node에 알맞는 아이콘 render
-    protected override renderIcon(node: TreeNode): React.ReactNode {
-        const icon = this.toNodeIcon(node);
-        if (icon) {
-            return <div className={icon + ' file-icon'}></div>;
-        }
-        return undefined;
     }
 
     // 선택한 Node 삭제
@@ -220,9 +212,17 @@ export class ReadModelWidget extends TreeWidget {
         if (selectNode.nextSibling) {
             const nextNode = selectNode.nextSibling as SelectableTreeNode;
             this.model.selectNode(nextNode);
+            this.focusService.setFocus(nextNode);
+            this.node.focus();
         } else {
             const prevNode = selectNode.previousSibling as SelectableTreeNode;
             this.model.selectNode(prevNode);
+            this.focusService.setFocus(prevNode);
+            this.node.focus();
+
+            if (!prevNode) {
+                this.model.selectPrev();
+            }
         }
 
         await this.model.refresh();
@@ -259,7 +259,19 @@ export class ReadModelWidget extends TreeWidget {
         await this.model.refresh();
     }
 
+    // 각 Node에 알맞는 아이콘 render
+    protected override renderIcon(node: TypeNode): React.ReactNode {
+        const icon = this.toNodeIcon(node);
+        if (node.type === 'model') {
+            return <div className={icon + ' file-icon'} style={{ paddingRight: '5px' }}></div>;
+        } else if (icon) {
+            return <div className={icon + ' file-icon'}></div>;
+        }
+        return undefined;
+    }
+
     protected override renderExpansionToggle(node: ExpandTypeNode, props: NodeProps): React.ReactNode {
+        // expand node child 없는 경우 토글 버튼 숨겨주기
         if (ExpandableTreeNode.is(node)) {
             if (!node.children || node.children.length === 0) {
                 const classes = 'theia-TreeNodeSegment theia-ExpansionToggle';
@@ -267,6 +279,19 @@ export class ReadModelWidget extends TreeWidget {
             }
         }
         return super.renderExpansionToggle(node, props);
+    }
+
+    // 트리 위젯 초기화
+    override restoreState(oldState: object): void {
+        super.restoreState(oldState);
+
+        const { root, model } = (oldState as any);
+        if (root) {
+            this.model.root = undefined;
+        }
+        if (model) {
+            this.model.clearSelection();
+        }
     }
 
 }

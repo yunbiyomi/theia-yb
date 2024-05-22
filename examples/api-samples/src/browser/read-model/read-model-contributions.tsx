@@ -124,7 +124,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         // Add Tabber Command
         registry.registerCommand(NodeAddToolBarCommand, {
             execute: () => {
-                this.addFileQuickView(this.readModelWidget);
+                this.addFileQuickInput(this.readModelWidget);
             },
             isEnabled: widget => this.withWidget(widget, () => this.checkEnabled('add')),
             isVisible: widget => this.withWidget(widget, () => true),
@@ -165,24 +165,24 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
     }
 
     // Quick Input 생성
-    protected async addFileQuickView(widget: ReadModelWidget | undefined): Promise<void> {
+    protected async addFileQuickInput(widget: ReadModelWidget | undefined): Promise<void> {
         const items: QuickPickItemOrSeparator[] = [];
         const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
         const nodeName = selectNode.id;
         const path = this.labelProvider.getLongName(selectNode);
         const type = selectNode.type;
-        let quickViewTitle = 'Create';
-        let quickViewContent = 'Enter Name...';
+        let quickInputTitle = 'Create';
+        let quickInputContent = 'Enter Name...';
 
         if (widget && this.readModelWidget.model.selectedNodes) {
             switch (type) {
                 case 'file':
-                    quickViewTitle = 'Create Model';
-                    quickViewContent = 'Enter Model Name...';
+                    quickInputTitle = 'Create Model';
+                    quickInputContent = 'Enter Model Name...';
                     break;
                 case 'model':
-                    quickViewTitle = 'Create Field';
-                    quickViewContent = 'Enter Field Name...';
+                    quickInputTitle = 'Create Field';
+                    quickInputContent = 'Enter Field Name...';
                     break;
                 default:
                     break;
@@ -195,14 +195,14 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         };
 
         this.quickInputService.showQuickPick(items, {
-            title: quickViewTitle,
-            placeholder: quickViewContent,
+            title: quickInputTitle,
+            placeholder: quickInputContent,
             canSelectMany: false,
             onDidChangeValue: picker => {
                 if (picker.value) {
                     addNewNode.alwaysShow = true;
                     addNewNode.value = picker.value;
-                    addNewNode.label = `${quickViewTitle}:  ${picker.value}`;
+                    addNewNode.label = `${quickInputTitle}:  ${picker.value}`;
                     this.readModel.checkIdRegex(picker.value).then((result: boolean) => {
                         if (result) {
                             addNewNode.description = '';
@@ -217,7 +217,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                         } else {
                             addNewNode.description = '이름 형식이 올바르지 않습니다! 다시 입력해주세요.';
                             addNewNode.execute = async () => {
-                                alert("추가실패");
+                                alert("노드가 추가되지 않았습니다");
                             };
                         }
                         picker.items = [...items, addNewNode];
