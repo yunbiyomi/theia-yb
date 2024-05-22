@@ -17,7 +17,7 @@
 import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
 // eslint-disable-next-line max-len
-import { codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
+import { ApplicationShell, codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
 import { ParseNode, ReadModel } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 
@@ -152,14 +152,23 @@ export class ReadModelWidget extends TreeWidget {
 
                 return fileNode;
             case 'readXml':
+                const nodeChilds: TreeNode[] = [];
                 const fieldIcon = codicon('circle-small');
-                const modelIcon = codicon('symbol-field');
-
-                let fieldNode = this.createTypeNode(parseNode, fieldIcon, parent, 'field');
+                const fieldNode = this.createTypeNode(parseNode, fieldIcon, parent, 'field');
 
                 if (parseNode.children && Array.isArray(parseNode.children)) {
-                    this.createChildNodes(parseNode, modelIcon, parent, 'model');
-                    return fieldNode;
+                    const modelIcon = codicon('symbol-field');
+                    const modelNode = this.createExpandTypeNode(parseNode, modelIcon, parent, 'model');
+
+                    for (const child of parseNode.children) {
+                        const childNode = this.createTreeNode(child, modelNode);
+                        if (childNode) {
+                            nodeChilds.push(childNode);
+                        }
+                    }
+
+                    modelNode.children = nodeChilds;
+                    return modelNode;
                 }
 
                 return fieldNode;
@@ -268,6 +277,7 @@ export class ReadModelTreeModel extends TreeModelImpl {
     @inject(LabelProvider) protected readonly labelProvider: LabelProvider;
     @inject(ReadModel) protected readonly readModel: ReadModel;
     @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
+    @inject(ApplicationShell) protected readonly applicationShell: ApplicationShell;
 
     // Node 더블 클릭시
     protected override doOpenNode(node: ExpandTypeNode): void {
@@ -287,5 +297,10 @@ export class ReadModelTreeModel extends TreeModelImpl {
                 this.expandNode(node);
             }
         }
+    }
+
+    override selectNode(node: Readonly<SelectableTreeNode>): void {
+        super.selectNode(node);
+        this.applicationShell.leftPanelHandler.toolBar.update();
     }
 }
