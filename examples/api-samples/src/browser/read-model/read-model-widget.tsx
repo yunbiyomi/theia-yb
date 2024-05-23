@@ -76,7 +76,7 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // model Root 생성
-    protected createRootNode(): ExpandableTreeNode {
+    protected createRootNode(): ExpandTypeNode {
         return {
             id: 'model-tree',
             name: '_model_',
@@ -84,7 +84,9 @@ export class ReadModelWidget extends TreeWidget {
             icon: 'codicon codicon-folder default-folder-icon',
             visible: true,
             expanded: false,
-            children: []
+            children: [],
+            type: 'root',
+            selected: false
         };
     }
 
@@ -177,26 +179,36 @@ export class ReadModelWidget extends TreeWidget {
         }
     }
 
+    // 노드에 selected / focus 추가
+    protected selectNodeHandle(selectedNode: SelectableTreeNode): void {
+        this.model.selectNode(selectedNode);
+        this.focusService.setFocus(selectedNode);
+        this.node.focus();
+    };
+
     // 가져온 FileNode를 바탕으로 Node 추가
     async getReadTree(parseNodes: ParseNode[], type: string, rootNode?: ExpandTypeNode): Promise<void> {
         let root: ExpandTypeNode;
 
         switch (type) {
             case 'readModel':
-                root = this.createRootNode() as ExpandTypeNode;
+                root = this.createRootNode();
                 this.model.root = root;
                 break;
             case 'readXml':
-                root = rootNode as ExpandTypeNode;
+                if (rootNode) {
+                    root = rootNode;
+                }
                 break;
             default:
                 break;
         }
 
         parseNodes.forEach((node: ParseNode) => {
-            const newNode = this.createTreeNode(node, root) as TreeNode;
-            CompositeTreeNode.addChild(root, newNode);
-
+            const newNode = this.createTreeNode(node, root);
+            if (newNode) {
+                CompositeTreeNode.addChild(root, newNode);
+            }
         });
 
         if (root!) {
@@ -209,19 +221,18 @@ export class ReadModelWidget extends TreeWidget {
         const parentsNode = selectNode.parent as CompositeTreeNode;
         CompositeTreeNode.removeChild(parentsNode, selectNode);
 
-        if (selectNode.nextSibling) {
-            const nextNode = selectNode.nextSibling as SelectableTreeNode;
-            this.model.selectNode(nextNode);
-            this.focusService.setFocus(nextNode);
-            this.node.focus();
+        const nextNode = selectNode.nextSibling as SelectableTreeNode;
+        if (nextNode) {
+            this.selectNodeHandle(nextNode);
         } else {
             const prevNode = selectNode.previousSibling as SelectableTreeNode;
-            this.model.selectNode(prevNode);
-            this.focusService.setFocus(prevNode);
-            this.node.focus();
-
-            if (!prevNode) {
-                this.model.selectPrev();
+            if (prevNode) {
+                this.selectNodeHandle(prevNode);
+            } else {
+                const parentNode = SelectableTreeNode.getVisibleParent(selectNode);
+                if (parentNode) {
+                    this.selectNodeHandle(parentNode);
+                }
             }
         }
 
@@ -229,26 +240,31 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // 새로운 Node 추가
-    async addNewNode(selectNode: ExpandTypeNode | TypeNode, type: string, value: string | undefined): Promise<void> {
-        const root = selectNode as ExpandTypeNode;
+    async addNewNode(selectNode: ExpandTypeNode, type: string, value: string): Promise<void> {
+        const root = selectNode;
         const path = this.labelProvider.getLongName(root);
         const newNodeinfo = { id: value, filePath: path } as ParseNode;
+        let newAddNode: TypeNode | ExpandTypeNode;
 
         switch (type) {
             case 'file':
                 const modelIcon = codicon('symbol-field');
                 const nodeType = 'model';
-                const modelNode = this.createExpandTypeNode(newNodeinfo, modelIcon, root, nodeType);
-                CompositeTreeNode.addChild(root, modelNode);
+                newAddNode = this.createExpandTypeNode(newNodeinfo, modelIcon, root, nodeType);
                 break;
             case 'model':
                 const fieldIcon = codicon('circle-small');
                 const fieldType = 'field';
-                const fieldNode = this.createTypeNode(newNodeinfo, fieldIcon, root, fieldType);
-                CompositeTreeNode.addChild(root, fieldNode);
+                newAddNode = this.createTypeNode(newNodeinfo, fieldIcon, root, fieldType);
                 break;
             default:
                 break;
+        }
+
+        if (newAddNode!) {
+            CompositeTreeNode.addChild(root, newAddNode);
+            this.model.refresh();
+            this.selectNodeHandle(newAddNode);
         }
 
         // root가 접혀있을 때 node 추가시 펴주기

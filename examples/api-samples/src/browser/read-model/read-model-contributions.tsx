@@ -17,7 +17,7 @@
 import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR, QuickInputService, QuickPickItemOrSeparator, QuickPickItem } from '@theia/core';
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
 // eslint-disable-next-line max-len
-import { AbstractViewContribution, bindViewContribution, codicon, FrontendApplicationContribution, LabelProvider, QuickViewService, Widget, WidgetFactory } from '@theia/core/lib/browser';
+import { AbstractViewContribution, bindViewContribution, codicon, ExpandableTreeNode, FrontendApplicationContribution, LabelProvider, QuickViewService, Widget, WidgetFactory } from '@theia/core/lib/browser';
 import { ReadModelClient, ReadModel, ReadModelPath, ParseNode } from '../../common/read-model/read-model-service';
 import { ReadModelWidget, TypeNode } from './read-model-widget';
 import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
@@ -210,7 +210,9 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                                 const idValue = addNewNode.value as string;
                                 this.readModel.addNode(nodeName, path, type, idValue).then((result: boolean) => {
                                     if (result) {
-                                        this.readModelWidget.addNewNode(selectNode, type, idValue);
+                                        if (ExpandableTreeNode.is(selectNode)) {
+                                            this.readModelWidget.addNewNode(selectNode, type, idValue);
+                                        }
                                     }
                                 });
                             };
