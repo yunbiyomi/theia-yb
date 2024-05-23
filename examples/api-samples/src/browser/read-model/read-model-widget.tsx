@@ -267,7 +267,7 @@ export class ReadModelWidget extends TreeWidget {
 
         if (newAddNode!) {
             CompositeTreeNode.addChild(root, newAddNode);
-            this.model.refresh();
+            await this.model.refresh();
             this.selectNodeHandle(newAddNode);
         }
 
