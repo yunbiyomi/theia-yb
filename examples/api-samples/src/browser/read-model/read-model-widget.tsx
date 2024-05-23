@@ -20,6 +20,8 @@ import { Container, inject, injectable, interfaces, postConstruct } from '@theia
 import { ApplicationShell, codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
 import { nodeType, ParseNode, ReadModel } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
+import { EditorWidgetFactory } from '@theia/editor/lib/browser/editor-widget-factory';
+import { EditorManager } from '@theia/editor/lib/browser';
 
 export interface TypeNode extends SelectableTreeNode, CompositeTreeNode {
     type: nodeType;
@@ -323,32 +325,45 @@ export class ReadModelTreeModel extends TreeModelImpl {
     @inject(ReadModel) protected readonly readModel: ReadModel;
     @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
     @inject(ApplicationShell) protected readonly applicationShell: ApplicationShell;
+    @inject(EditorManager) protected readonly editorManager: EditorManager;
+    @inject(EditorWidgetFactory) protected readonly editorWidgetFactory: EditorWidgetFactory;
 
     // Node 더블 클릭시
-    protected override doOpenNode(node: ExpandTypeNode): void {
+    protected override async doOpenNode(node: ExpandTypeNode) {
         super.doOpenNode(node);
+
+        const filePath = this.labelProvider.getLongName(node);
+        const doOpenNodeType: nodeType = node.type;
 
         // Xml파일인 경우
         if (node.id.includes('.xmodel')) {
-            const filePath = this.labelProvider.getLongName(node);
-            this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[] | undefined) => {
-                if (!xmlNodes) {
-                    return
-                }
+            if (node.children.length === 0) {
+                this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[] | undefined) => {
+                    if (!xmlNodes) {
+                        return
+                    }
 
-                const readModelWidgets = this.widgetManager.getWidgets(ReadModelWidget.ID) as ReadModelWidget[];
-                readModelWidgets.forEach(widget => {
-                    widget.getReadTree(xmlNodes, 'readXml', node);
+                    const readModelWidgets = this.widgetManager.getWidgets(ReadModelWidget.ID) as ReadModelWidget[];
+                    readModelWidgets.forEach(widget => {
+                        widget.getReadTree(xmlNodes, 'readXml', node);
+                    });
                 });
-            });
 
-            if (!node.expanded) {
-                this.expandNode(node);
+                if (!node.expanded) {
+                    this.expandNode(node);
+                }
             }
         }
+
+        // model이나 field 클릭시 해당 파일로 이동
+        if (doOpenNodeType === 'model' || doOpenNodeType === 'field') {
+            const nodeURI = new URI(filePath).withScheme('file');
+            this.editorManager.open(nodeURI);
+        }
+
     }
 
-    override selectNode(node: Readonly<SelectableTreeNode>): void {
+    override selectNode(node: TypeNode): void {
         super.selectNode(node);
         this.applicationShell.leftPanelHandler.toolBar.update();
     }
