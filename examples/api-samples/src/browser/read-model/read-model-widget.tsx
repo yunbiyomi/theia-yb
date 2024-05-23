@@ -331,7 +331,11 @@ export class ReadModelTreeModel extends TreeModelImpl {
         // Xml파일인 경우
         if (node.id.includes('.xmodel')) {
             const filePath = this.labelProvider.getLongName(node);
-            this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[]) => {
+            this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[] | undefined) => {
+                if (!xmlNodes) {
+                    return
+                }
+
                 const readModelWidgets = this.widgetManager.getWidgets(ReadModelWidget.ID) as ReadModelWidget[];
                 readModelWidgets.forEach(widget => {
                     widget.getReadTree(xmlNodes, 'readXml', node);

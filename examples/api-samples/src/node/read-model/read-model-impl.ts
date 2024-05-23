@@ -15,17 +15,21 @@
 // *****************************************************************************
 
 import { injectable, interfaces } from '@theia/core/shared/inversify';
-import { ParseNode, ReadModel, ReadModelClient, ReadModelPath } from '../../common/read-model/read-model-service';
+import { ParseNode, parseType, ReadModel, ReadModelClient, ReadModelPath } from '../../common/read-model/read-model-service';
 import path = require('path');
 import fs = require('fs');
 import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
-import { buildXML, NpXmlNode, parseXML } from './xml-parser/np-common-xml';
+import { buildXML, NpXmlDom, NpXmlNode, parseXML } from './xml-parser/np-common-xml';
 
 @injectable()
 export class ReadModelImpl implements ReadModel {
 
     protected client: ReadModelClient | undefined;
-    protected FilesMap: Map<string, string>;
+    protected FilesMap: Map<string, NpXmlDom>;
+
+    dispose(): void {
+        throw new Error('Method not implemented.');
+    }
 
     setClient(client: ReadModelClient): void {
         this.client = client;
@@ -35,27 +39,34 @@ export class ReadModelImpl implements ReadModel {
         if (this.client !== undefined) { return this.client; }
     }
 
-    protected setFileData(filePath: string, data: string): Map<string, string> {
+    protected setFileDom(filePath: string, data: NpXmlDom): Map<string, NpXmlDom> {
         return this.FilesMap.set(filePath, data);
     }
 
-    protected getFileData(filePath: string): string | undefined {
+    protected getFileDom(filePath: string): NpXmlDom | undefined {
         if (this.FilesMap.has(`${filePath}`)) {
-            return this.FilesMap.get(`${filePath}`) as string;
+            return this.FilesMap.get(`${filePath}`)
         } else {
-            return undefined;
+            return undefined
         }
     }
 
-    dispose(): void {
-        throw new Error('Method not implemented.');
+    protected createParseNode(id: string, filePath: string, parseType: parseType, isDirectory?: boolean, parent?: string, children?: ParseNode[]): ParseNode {
+        return {
+            id,
+            filePath,
+            parseType,
+            isDirectory,
+            parent,
+            children
+        }
     }
 
     // _model_ 폴더 속 폴더 및 파일 파싱해 객체로 저장
     async readModel(): Promise<ParseNode[]> {
         const directoryPath = '../../../../Mars_Sample/_model_';
         const modelPath = path.join(__dirname, directoryPath);
-        const fileContents = new Map<string, string>();
+        const fileContents = new Map<string, NpXmlDom>();
 
         const readDirectory = async (defaultPath: string, parentsFolder?: string): Promise<ParseNode[]> => {
             const items = fs.readdirSync(defaultPath, 'utf-8');
@@ -66,26 +77,16 @@ export class ReadModelImpl implements ReadModel {
                 const stats = fs.statSync(itemPath);
 
                 if (stats.isDirectory()) {
-                    const folderNode: ParseNode = {
-                        id: item,
-                        filePath: itemPath,
-                        parseType: 'readModel',
-                        isDirectory: true,
-                        parent: parentsFolder,
-                        children: await readDirectory(itemPath, item)
-                    };
-
+                    const children = await readDirectory(itemPath, item);
+                    const folderNode = this.createParseNode(item, itemPath, 'readModel', true, parentsFolder, children);
                     files.push(folderNode);
                 } else if (stats.isFile()) {
+                    // 각 파일 content NpXmlDom 형태로 저장
                     const fileContent = fs.readFileSync(itemPath, 'utf-8');
-                    fileContents.set(itemPath, fileContent);
-                    const fileNode: ParseNode = {
-                        id: item,
-                        filePath: itemPath,
-                        parseType: 'readModel',
-                        isDirectory: false,
-                    };
+                    const parseFileContent = parseXML(fileContent);
+                    fileContents.set(itemPath, parseFileContent);
 
+                    const fileNode = this.createParseNode(item, itemPath, 'readModel', false);
                     files.push(fileNode);
                 }
             }
@@ -97,11 +98,14 @@ export class ReadModelImpl implements ReadModel {
     }
 
     // xml 파일 파싱해 Model 및 Field 객체로 저장
-    async parseModel(filePath: string): Promise<ParseNode[]> {
+    async parseModel(filePath: string): Promise<ParseNode[] | undefined> {
         const domNodes: ParseNode[] = [];
-        const data = this.getFileData(filePath) as string;
+        const xmlDom = this.getFileDom(filePath);
 
-        const xmlDom = parseXML(data);
+        if (!xmlDom) {
+            return;
+        }
+
         const rootNode = xmlDom.getRootNode();
         const modelsNode = rootNode.getChild('Models');
         const modelNode = modelsNode?.getChilds() as NpXmlNode[];
@@ -113,24 +117,26 @@ export class ReadModelImpl implements ReadModel {
                 const fieldNode = node.getChilds() as NpXmlNode[];
 
                 for (const child of fieldNode) {
-                    const xmlFieldNode: ParseNode = {
-                        id: child.getAttribute('id') as string,
-                        filePath: filePath,
-                        parseType: 'readXml',
-                        parent: node.getName()
-                    };
+                    const childId = child.getAttribute('id');
+                    const fieldParent = node.getName();
+
+                    if (!childId) {
+                        return;
+                    }
+
+                    const xmlFieldNode = this.createParseNode(childId, filePath, 'readXml', undefined, fieldParent);
                     fields.push(xmlFieldNode);
                 }
             }
 
-            const xmlModelNode: ParseNode = {
-                id: node.getAttribute('id') as string,
-                filePath: filePath,
-                parseType: 'readXml',
-                parent: modelsNode?.getName(),
-                children: fields
-            };
+            const modelId = node.getAttribute('id');
+            const modelParent = modelsNode?.getName();
 
+            if (!modelId) {
+                return;
+            }
+
+            const xmlModelNode = this.createParseNode(modelId, filePath, 'readXml', undefined, modelParent, fields);
             domNodes.push(xmlModelNode);
         }
 
@@ -139,8 +145,11 @@ export class ReadModelImpl implements ReadModel {
 
     // Tabber에서 새로운 노드를 삭제할 때
     async deleteNode(nodeName: string, filePath: string, type: string, parentName: string): Promise<boolean> {
-        const data = this.getFileData(filePath) as string;
-        const xmlDom = parseXML(data);
+        const xmlDom = this.getFileDom(filePath);
+
+        if (!xmlDom) {
+            return false
+        }
 
         const rootNode = xmlDom.getRootNode();
         const modelsNode = rootNode.getChild('Models');
@@ -170,8 +179,8 @@ export class ReadModelImpl implements ReadModel {
         }
 
         if (nodeToRemove) {
+            this.setFileDom(filePath, xmlDom);
             const xmlData = buildXML(xmlDom);
-            this.setFileData(filePath, xmlData);
             fs.writeFileSync(filePath, xmlData, 'utf-8');
             return true;
         } else {
@@ -191,7 +200,7 @@ export class ReadModelImpl implements ReadModel {
         let duplicationResult = false;
 
         for (const [, content] of this.FilesMap) {
-            const xmlDom = parseXML(content);
+            const xmlDom = content;
             const rootNode = xmlDom.getRootNode();
             const modelsNode = rootNode.getChild('Models');
             const modelsChild = modelsNode?.getChilds() as NpXmlNode[];
@@ -230,8 +239,11 @@ export class ReadModelImpl implements ReadModel {
 
     // Tabber에서 새로운 노드를 추가할 때
     async addNode(nodeName: string, filePath: string, type: string, nodeValue: string): Promise<boolean> {
-        const data = this.getFileData(filePath) as string;
-        const xmlDom = parseXML(data);
+        const xmlDom = this.getFileDom(filePath);
+
+        if (!xmlDom) {
+            return false
+        }
 
         const rootNode = xmlDom.getRootNode();
         const modelsNode = rootNode.getChild('Models') as NpXmlNode;
@@ -258,8 +270,8 @@ export class ReadModelImpl implements ReadModel {
         }
 
         if (nodeToAdd) {
+            this.setFileDom(filePath, xmlDom);
             const xmlData = buildXML(xmlDom);
-            this.setFileData(filePath, xmlData);
             fs.writeFileSync(filePath, xmlData, 'utf-8');
             return true;
         } else {

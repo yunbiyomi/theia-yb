@@ -34,8 +34,8 @@ export type nodeType = 'mainRoot' | 'folder' | 'file' | 'model' | 'field';
 export interface ReadModel extends RpcServer<ReadModelClient> {
     setClient(client: ReadModelClient | undefined): void;
     getClient(): ReadModelClient | undefined;
-    readModel(): Promise<ParseNode[]>;
-    parseModel(filePath: string): Promise<ParseNode[]>;
+    readModel(): Promise<ParseNode[] | undefined>;
+    parseModel(filePath: string): Promise<ParseNode[] | undefined>;
     checkIdRegex(nodeValue: string): Promise<boolean>;
     deleteNode(nodeName: string, filePath: string, type: string, parentName: string): Promise<boolean>;
     addNode(nodeName: string, filePath: string, type: string, nodeValue: string): Promise<boolean>;
