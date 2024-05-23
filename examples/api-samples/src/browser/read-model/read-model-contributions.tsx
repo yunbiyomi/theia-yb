@@ -79,12 +79,12 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
     }
 
     // tabbar Enabled check
-    protected checkEnabled(type: string): boolean {
+    protected checkEnabled(tabType: string): boolean {
         const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
         const selectNodeType = selectNode.type;
         const childrenCount = selectNode.children.length;
 
-        switch (type) {
+        switch (tabType) {
             case 'add':
                 return childrenCount !== 0 && selectNodeType === 'file' || selectNodeType === 'model';
             case 'delete':
@@ -176,6 +176,8 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
 
         if (widget && this.readModelWidget.model.selectedNodes) {
             switch (type) {
+                case 'folder':
+                    break;
                 case 'file':
                     quickInputTitle = 'Create Model';
                     quickInputContent = 'Enter Model Name...';
@@ -183,6 +185,8 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                 case 'model':
                     quickInputTitle = 'Create Field';
                     quickInputContent = 'Enter Field Name...';
+                    break;
+                case 'field':
                     break;
                 default:
                     break;

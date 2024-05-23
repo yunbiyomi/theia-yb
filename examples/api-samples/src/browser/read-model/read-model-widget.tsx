@@ -18,11 +18,11 @@ import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
 // eslint-disable-next-line max-len
 import { ApplicationShell, codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
-import { ParseNode, ReadModel } from '../../common/read-model/read-model-service';
+import { nodeType, ParseNode, ReadModel } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 
 export interface TypeNode extends SelectableTreeNode, CompositeTreeNode {
-    type: string;
+    type: nodeType;
 }
 
 export interface ExpandTypeNode extends TypeNode, ExpandableTreeNode {
@@ -85,12 +85,12 @@ export class ReadModelWidget extends TreeWidget {
             visible: true,
             expanded: false,
             children: [],
-            type: 'root',
+            type: 'mainRoot',
             selected: false
         };
     }
 
-    createTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode, type: string): TypeNode {
+    createTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode, type: nodeType): TypeNode {
         return {
             id: parseNode.id,
             name: parseNode.id,
@@ -103,7 +103,7 @@ export class ReadModelWidget extends TreeWidget {
         };
     }
 
-    createExpandTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode, type: string): ExpandTypeNode {
+    createExpandTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode, type: nodeType): ExpandTypeNode {
         return {
             id: parseNode.id,
             name: parseNode.id,
@@ -118,7 +118,7 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // 자식이 있는 node의 자식 node 추가 함수
-    createChildNodes(parseNode: ParseNode, nodeIcon: string, parent: ExpandTypeNode, type: string): ExpandTypeNode {
+    createChildNodes(parseNode: ParseNode, nodeIcon: string, parent: ExpandTypeNode, type: nodeType): ExpandTypeNode {
         const nodeChilds: TreeNode[] = [];
         const parentNode = this.createExpandTypeNode(parseNode, nodeIcon, parent, type);
         const parentNodeChildren = parseNode.children as ParseNode[];
@@ -247,6 +247,8 @@ export class ReadModelWidget extends TreeWidget {
         let newAddNode: TypeNode | ExpandTypeNode;
 
         switch (type) {
+            case 'folder':
+                break;
             case 'file':
                 const modelIcon = codicon('symbol-field');
                 const nodeType = 'model';
@@ -256,6 +258,8 @@ export class ReadModelWidget extends TreeWidget {
                 const fieldIcon = codicon('circle-small');
                 const fieldType = 'field';
                 newAddNode = this.createTypeNode(newNodeinfo, fieldIcon, root, fieldType);
+                break;
+            case 'field':
                 break;
             default:
                 break;

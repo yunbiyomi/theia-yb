@@ -22,11 +22,14 @@ export const ReadModel = Symbol('ReadModel');
 export interface ParseNode {
     id: string;
     filePath: string;
-    parseType: string;
+    parseType: parseType;
     isDirectory?: boolean;
     parent?: string;
     children?: ParseNode[]
 }
+
+export type parseType = 'readModel' | 'readXml';
+export type nodeType = 'mainRoot' | 'folder' | 'file' | 'model' | 'field';
 
 export interface ReadModel extends RpcServer<ReadModelClient> {
     setClient(client: ReadModelClient | undefined): void;
