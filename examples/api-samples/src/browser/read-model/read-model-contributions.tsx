@@ -22,6 +22,7 @@ import { ReadModelClient, ReadModel, ReadModelPath, ParseNode } from '../../comm
 import { ReadModelWidget, TypeNode } from './read-model-widget';
 import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
+import { OutputChannelManager, OutputChannelSeverity } from '@theia/output/lib/browser/output-channel';
 
 export const ReadModelCommand: Command = {
     id: ReadModelWidget.ID,
@@ -46,6 +47,7 @@ export const NodeQuickView: Command = {
 export class ReadModelFrontend implements ReadModelClient {
 }
 
+
 @injectable()
 export class ReadModelContribution extends AbstractViewContribution<ReadModelWidget> implements TabBarToolbarContribution {
 
@@ -55,6 +57,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
     @inject(QuickViewService) protected readonly quickViewService: QuickViewService;
     @inject(QuickInputService) protected readonly quickInputService: QuickInputService;
     @inject(LabelProvider) protected readonly labelProvider: LabelProvider;
+    @inject(OutputChannelManager) protected readonly outputChannelManager: OutputChannelManager;
 
     constructor() {
         super({
@@ -76,6 +79,13 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
             commandId: ReadModelCommand.id,
             order: '0'
         });
+    }
+
+    // ReadModel OutputChannel
+    protected readModelOutput(message: string): void {
+        const channel = this.outputChannelManager.getChannel('Read Model');
+        channel.appendLine(message, OutputChannelSeverity.Error);
+        channel.show();
     }
 
     // tabbar Enabled check
@@ -223,7 +233,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                         } else {
                             addNewNode.description = '이름 형식이 올바르지 않습니다! 다시 입력해주세요.';
                             addNewNode.execute = async () => {
-                                alert("노드가 추가되지 않았습니다");
+                                this.readModelOutput('노드가 추가되지 않았습니다.');
                             };
                         }
                         picker.items = [...items, addNewNode];
