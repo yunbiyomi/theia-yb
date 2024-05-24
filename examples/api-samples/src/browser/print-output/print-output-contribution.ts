@@ -18,7 +18,7 @@ import { Command, CommandContribution, CommandRegistry, MenuContribution, MenuMo
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
 import { PrintOutput, PrintOutputClient, PrintOutputPath } from '../../common/print-output/print-output-service';
 import { OutputChannelManager } from '@theia/output/lib/browser/output-channel';
-import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
+import { LocalConnectionProvider, ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 
 const PrintOutputCommand: Command = {
     id: 'print-output',
@@ -77,7 +77,7 @@ export const bindPrintOutput = (bind: interfaces.Bind) => {
     bind(MenuContribution).to(PrintOutputMenuContribution).inSingletonScope();
     bind(PrintOutputClient).to(PrintOutputContribution).inSingletonScope();
     bind(PrintOutput).toDynamicValue(ctx => {
-        const connection = ctx.container.get(ServiceConnectionProvider);
+        const connection = ctx.container.get<ServiceConnectionProvider>(LocalConnectionProvider);
         const client = ctx.container.get<PrintOutputClient>(PrintOutputClient);
         return connection.createProxy<PrintOutput>(PrintOutputPath, client);
     }).inSingletonScope();

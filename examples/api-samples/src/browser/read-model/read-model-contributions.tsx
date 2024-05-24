@@ -20,7 +20,7 @@ import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
 import { AbstractViewContribution, bindViewContribution, codicon, ExpandableTreeNode, FrontendApplicationContribution, LabelProvider, QuickViewService, Widget, WidgetFactory } from '@theia/core/lib/browser';
 import { ReadModelClient, ReadModel, ReadModelPath, ParseNode } from '../../common/read-model/read-model-service';
 import { ReadModelWidget, TypeNode } from './read-model-widget';
-import { ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
+import { LocalConnectionProvider, ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { OutputChannelManager, OutputChannelSeverity } from '@theia/output/lib/browser/output-channel';
 
@@ -91,6 +91,9 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
     // tabbar Enabled check
     protected checkEnabled(tabType: string): boolean {
         const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
+        if (!selectNode) {
+            return false;
+        }
         const selectNodeType = selectNode.type;
         const childrenCount = selectNode.children.length;
 
@@ -247,7 +250,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
 export const bindReadModelWidget = (bind: interfaces.Bind) => {
     bind(ReadModelClient).to(ReadModelFrontend).inSingletonScope();
     bind(ReadModel).toDynamicValue(ctx => {
-        const connection = ctx.container.get(ServiceConnectionProvider);
+        const connection = ctx.container.get<ServiceConnectionProvider>(LocalConnectionProvider);
         const client = ctx.container.get<ReadModelClient>(ReadModelClient);
         return connection.createProxy<ReadModel>(ReadModelPath, client);
     }).inSingletonScope();
