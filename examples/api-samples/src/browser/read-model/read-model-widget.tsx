@@ -379,8 +379,10 @@ export class ReadModelTreeModel extends TreeModelImpl {
                 this.editorManager.open(nodeURI);
             }
         }
+
         super.doOpenNode(node);
     }
+
 
     override selectNode(node: TypeNode): void {
         super.selectNode(node);

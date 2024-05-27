@@ -228,12 +228,15 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                     addNewNode.alwaysShow = true;
                     addNewNode.value = picker.value;
                     addNewNode.label = `${quickInputTitle}:  ${picker.value}`;
+
+                    // Id 유효성 검사
                     this.readModel.checkIdRegex(picker.value).then((checkIdResult) => {
                         const { isValid, errorMsg } = checkIdResult;
                         if (isValid) {
                             addNewNode.description = '';
                             addNewNode.execute = async () => {
                                 const idValue = addNewNode.value as string;
+                                // 새로운 Node 추가
                                 this.readModel.addNodeServer(nodeName, path, type, idValue, nodeParentName).then((result: boolean) => {
                                     if (result) {
                                         this.readModelWidget.addNode(selectNode, type, idValue);
@@ -241,6 +244,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                                 });
                             };
                         } else {
+                            // Node 추가 실패
                             if (errorMsg) {
                                 addNewNode.description = errorMsg;
                                 addNewNode.execute = async () => {
