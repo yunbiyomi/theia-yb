@@ -17,10 +17,9 @@
 import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
 // eslint-disable-next-line max-len
-import { ApplicationShell, codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, open, OpenerService, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
+import { ApplicationShell, codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
 import { nodeType, ParseNode, ReadModel } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
-import { EditorWidgetFactory } from '@theia/editor/lib/browser/editor-widget-factory';
 import { EditorManager } from '@theia/editor/lib/browser';
 
 export interface TypeNode extends SelectableTreeNode, CompositeTreeNode {
@@ -37,7 +36,6 @@ export class ReadModelWidget extends TreeWidget {
     static readonly LABEL = 'Read Model';
 
     @inject(LabelProvider) protected override readonly labelProvider: LabelProvider;
-    @inject(OpenerService) protected readonly openerService: OpenerService;
 
     static createContainer(parent: interfaces.Container): Container {
         const child = createTreeContainer(parent, {
@@ -316,14 +314,6 @@ export class ReadModelWidget extends TreeWidget {
             this.model.clearSelection();
         }
     }
-
-    async openCondEditor(fileRoute: URI): Promise<void> {
-        try {
-            await open(this.openerService, fileRoute, undefined);
-        } catch (e) {
-            console.error(`Fail to open '${URI.toString()}':`, e);
-        }
-    }
 }
 
 @injectable()
@@ -334,7 +324,6 @@ export class ReadModelTreeModel extends TreeModelImpl {
     @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
     @inject(ApplicationShell) protected readonly applicationShell: ApplicationShell;
     @inject(EditorManager) protected readonly editorManager: EditorManager;
-    @inject(EditorWidgetFactory) protected readonly editorWidgetFactory: EditorWidgetFactory;;
 
     // Node 더블 클릭시
     protected override async doOpenNode(node: ExpandTypeNode) {
@@ -344,7 +333,7 @@ export class ReadModelTreeModel extends TreeModelImpl {
 
         if (widget) {
             // Xml파일인 경우
-            if (node.parent && node.id.includes('.xmodel')) {
+            if (node.id.includes('.xmodel')) {
                 if (node.children.length === 0) {
                     this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[] | undefined) => {
                         if (!xmlNodes) {
@@ -361,8 +350,9 @@ export class ReadModelTreeModel extends TreeModelImpl {
 
             // model이나 field 클릭시 해당 파일로 이동
             if (doOpenNodeType === 'model' || doOpenNodeType === 'field') {
-                const nodeURI = new URI(filePath).withScheme('file');
-                widget.openCondEditor(nodeURI);
+                // const nodeURI = new URI(filePath).withScheme('file');
+                const nodeURI = URI.fromFilePath(filePath);
+                this.editorManager.open(nodeURI);
             }
         }
         super.doOpenNode(node);
