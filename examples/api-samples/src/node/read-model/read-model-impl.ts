@@ -188,17 +188,7 @@ export class ReadModelImpl implements ReadModel {
         }
     }
 
-    // 아이디 유효성 검사
-    async checkIdRegex(nodeValue: string): Promise<boolean> {
-        const idRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
-        const regexResult = idRegex.test(nodeValue);
-
-        if (!regexResult) {
-            return false;
-        }
-
-        let duplicationResult = false;
-
+    private isIdDuplicate(nodeValue: string): boolean {
         for (const [, content] of this.FilesMap) {
             const xmlDom = content;
             const rootNode = xmlDom.getRootNode();
@@ -209,30 +199,63 @@ export class ReadModelImpl implements ReadModel {
                 continue;
             }
 
-            const modelDuplication = modelsChild.some(node => node.getAttribute('id') === nodeValue);
-            if (modelDuplication) {
-                duplicationResult = true;
-                break;
-            }
-
-            for (const model of modelsChild) {
-                if (model.hasChilds()) {
-                    const fields = model.getChilds() as NpXmlNode[];
-                    const fieldDuplication = fields.some(node => node.getAttribute('id') === nodeValue);
-                    if (fieldDuplication) {
-                        duplicationResult = true;
-                        break;
-                    }
-                }
-            }
-
-            if (duplicationResult) {
-                break;
+            if (this.isDuplicateInNodes(modelsChild, nodeValue)) {
+                return true;
             }
         }
 
+        return false;
+    }
 
-        return !duplicationResult;
+    private isDuplicateInNodes(nodes: NpXmlNode[], nodeValue: string): boolean {
+        for (const node of nodes) {
+            if (node.getAttribute('id') === nodeValue) {
+                return true;
+            }
+
+            if (node.hasChilds()) {
+                const childNodes = node.getChilds() as NpXmlNode[];
+                if (this.isDuplicateInNodes(childNodes, nodeValue)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    // 아이디 유효성 검사
+    async checkIdRegex(nodeValue: string): Promise<{ isValid: boolean; errorMsg?: string }> {
+        // 아이디 생성 규칙 검사
+        const idRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
+        const regexResult = idRegex.test(nodeValue);
+
+        if (!regexResult) {
+            return {
+                isValid: false,
+                errorMsg: '아이디 생성 규칙에 적합하지 않아 노드를 추가할 수 없습니다. 영어 대/소문자 및 숫자, _ 기호만 사용 가능합니다.'
+            };
+        }
+
+        // 아이디 중복 검사
+        const isDuplicate = this.isIdDuplicate(nodeValue);
+        if (isDuplicate) {
+            return {
+                isValid: false,
+                errorMsg: '이미 중복된 아이디가 존재해 노드를 추가할 수 없습니다.'
+            };
+        }
+
+        // 아이디 최대 길이 검사
+        if (nodeValue.length > 255) {
+            return {
+                isValid: false,
+                errorMsg: 'Id 길이가 너무 길어 노드를 추가할 수 없습니다. 최대 255자까지 가능합니다.'
+            };
+        }
+
+        return { isValid: true };
     }
 
 

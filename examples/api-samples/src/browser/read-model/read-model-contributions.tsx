@@ -220,8 +220,9 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                     addNewNode.alwaysShow = true;
                     addNewNode.value = picker.value;
                     addNewNode.label = `${quickInputTitle}:  ${picker.value}`;
-                    this.readModel.checkIdRegex(picker.value).then((result: boolean) => {
-                        if (result) {
+                    this.readModel.checkIdRegex(picker.value).then((checkIdResult) => {
+                        const { isValid, errorMsg } = checkIdResult;
+                        if (isValid) {
                             addNewNode.description = '';
                             addNewNode.execute = async () => {
                                 const idValue = addNewNode.value as string;
@@ -234,10 +235,12 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                                 });
                             };
                         } else {
-                            addNewNode.description = '이름 형식이 올바르지 않습니다! 다시 입력해주세요.';
-                            addNewNode.execute = async () => {
-                                this.readModelOutput('노드가 추가되지 않았습니다.');
-                            };
+                            if (errorMsg) {
+                                addNewNode.description = errorMsg;
+                                addNewNode.execute = async () => {
+                                    this.readModelOutput(errorMsg);
+                                };
+                            }
                         }
                         picker.items = [...items, addNewNode];
                     });
