@@ -91,7 +91,7 @@ export class ReadModelWidget extends TreeWidget {
         };
     }
 
-    createTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode, type: nodeType): TypeNode {
+    createTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode | CompositeTreeNode, type: nodeType): TypeNode {
         return {
             id: parseNode.id,
             name: parseNode.id,
@@ -104,7 +104,7 @@ export class ReadModelWidget extends TreeWidget {
         };
     }
 
-    createExpandTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode, type: nodeType): ExpandTypeNode {
+    createExpandTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode | TypeNode, type: nodeType): ExpandTypeNode {
         return {
             id: parseNode.id,
             name: parseNode.id,
@@ -240,41 +240,66 @@ export class ReadModelWidget extends TreeWidget {
         await this.model.refresh();
     }
 
+    // Node insert 함수
+    insertChild(parent: CompositeTreeNode, currentNode: TreeNode, child: TreeNode): CompositeTreeNode {
+        const children = parent.children as TreeNode[];
+        const currentIndex = CompositeTreeNode.indexOf(parent, currentNode);
+        if (currentIndex !== -1) {
+            children.splice(currentIndex, 0, child);
+            CompositeTreeNode.setParent(child, currentIndex, parent);
+        }
+        return parent;
+    }
+
     // 새로운 Node 추가
-    async addNewNode(selectNode: ExpandTypeNode, type: string, value: string): Promise<void> {
-        const root = selectNode;
+    async addNode(selectNode: ExpandTypeNode | TypeNode, type: string, value: string): Promise<void> {
+        let root = selectNode;
         const path = this.labelProvider.getLongName(root);
         const newNodeinfo = { id: value, filePath: path } as ParseNode;
+        const modelIcon = codicon('symbol-field');
+        const nodeType = 'model';
+        const fieldIcon = codicon('circle-small');
+        const fieldType = 'field';
         let newAddNode: TypeNode | ExpandTypeNode;
 
         switch (type) {
             case 'folder':
                 break;
             case 'file':
-                const modelIcon = codicon('symbol-field');
-                const nodeType = 'model';
                 newAddNode = this.createExpandTypeNode(newNodeinfo, modelIcon, root, nodeType);
                 break;
             case 'model':
-                const fieldIcon = codicon('circle-small');
-                const fieldType = 'field';
                 newAddNode = this.createTypeNode(newNodeinfo, fieldIcon, root, fieldType);
                 break;
             case 'field':
+                if (selectNode.parent) {
+                    root = selectNode.parent as ExpandTypeNode;
+                    if (root) {
+                        newAddNode = this.createTypeNode(newNodeinfo, fieldIcon, root, fieldType);
+                    }
+                }
                 break;
             default:
                 break;
         }
 
         if (newAddNode!) {
-            CompositeTreeNode.addChild(root, newAddNode);
+            if (type === 'field') {
+                this.insertChild(root, selectNode, newAddNode);
+            }
+            else {
+                CompositeTreeNode.addChild(root, newAddNode);
+            }
             await this.model.refresh();
             this.selectNodeHandle(newAddNode);
         }
 
         // root가 접혀있을 때 node 추가시 펴주기
-        if (!root.expanded) {
-            this.model.expandNode(root);
+        if (ExpandableTreeNode.is(root)) {
+            if (!root.expanded) {
+                this.model.expandNode(root);
+            }
+
         }
 
         await this.model.refresh();
@@ -350,7 +375,6 @@ export class ReadModelTreeModel extends TreeModelImpl {
 
             // model이나 field 클릭시 해당 파일로 이동
             if (doOpenNodeType === 'model' || doOpenNodeType === 'field') {
-                // const nodeURI = new URI(filePath).withScheme('file');
                 const nodeURI = URI.fromFilePath(filePath);
                 this.editorManager.open(nodeURI);
             }

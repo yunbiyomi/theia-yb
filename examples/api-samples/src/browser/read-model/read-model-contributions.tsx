@@ -17,7 +17,7 @@
 import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR, QuickInputService, QuickPickItemOrSeparator, QuickPickItem } from '@theia/core';
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
 // eslint-disable-next-line max-len
-import { AbstractViewContribution, bindViewContribution, codicon, ExpandableTreeNode, FrontendApplicationContribution, LabelProvider, QuickViewService, Widget, WidgetFactory } from '@theia/core/lib/browser';
+import { AbstractViewContribution, bindViewContribution, codicon, FrontendApplicationContribution, LabelProvider, QuickViewService, Widget, WidgetFactory } from '@theia/core/lib/browser';
 import { ReadModelClient, ReadModel, ReadModelPath, ParseNode } from '../../common/read-model/read-model-service';
 import { ReadModelWidget, TypeNode } from './read-model-widget';
 import { LocalConnectionProvider, ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
@@ -99,7 +99,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
 
         switch (tabType) {
             case 'add':
-                return childrenCount !== 0 && selectNodeType === 'file' || selectNodeType === 'model';
+                return childrenCount !== 0 && selectNodeType === 'file' || selectNodeType === 'model' || selectNodeType === 'field';
             case 'delete':
                 return selectNodeType === 'model' || selectNodeType === 'field';
             default:
@@ -182,8 +182,14 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         const items: QuickPickItemOrSeparator[] = [];
         const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
         const nodeName = selectNode.id;
+        let nodeParentName: string;
         const path = this.labelProvider.getLongName(selectNode);
         const type = selectNode.type;
+
+        if (selectNode.parent) {
+            nodeParentName = selectNode.parent.id;
+        }
+
         let quickInputTitle = 'Create';
         let quickInputContent = 'Enter Name...';
 
@@ -200,6 +206,8 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                     quickInputContent = 'Enter Field Name...';
                     break;
                 case 'field':
+                    quickInputTitle = 'Create Field';
+                    quickInputContent = 'Enter Field Name...';
                     break;
                 default:
                     break;
@@ -226,11 +234,9 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                             addNewNode.description = '';
                             addNewNode.execute = async () => {
                                 const idValue = addNewNode.value as string;
-                                this.readModel.addNode(nodeName, path, type, idValue).then((result: boolean) => {
+                                this.readModel.addNodeServer(nodeName, path, type, idValue, nodeParentName).then((result: boolean) => {
                                     if (result) {
-                                        if (ExpandableTreeNode.is(selectNode)) {
-                                            this.readModelWidget.addNewNode(selectNode, type, idValue);
-                                        }
+                                        this.readModelWidget.addNode(selectNode, type, idValue);
                                     }
                                 });
                             };

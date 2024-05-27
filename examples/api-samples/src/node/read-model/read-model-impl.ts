@@ -261,7 +261,7 @@ export class ReadModelImpl implements ReadModel {
 
 
     // Tabber에서 새로운 노드를 추가할 때
-    async addNode(nodeName: string, filePath: string, type: string, nodeValue: string): Promise<boolean> {
+    async addNodeServer(nodeName: string, filePath: string, type: string, nodeValue: string, parentName?: string): Promise<boolean> {
         const xmlDom = this.getFileDom(filePath);
 
         if (!xmlDom) {
@@ -275,24 +275,31 @@ export class ReadModelImpl implements ReadModel {
         let nodeToAdd: NpXmlNode | undefined;
 
         switch (type) {
+            case 'folder':
+                break;
             case 'file':
                 nodeToAdd = modelsNode.appendChild('Model');
-                if (nodeToAdd) {
-                    nodeToAdd.setAttribute('id', nodeValue);
-                }
                 break;
             case 'model':
                 const parentModelNode = modelsChild.find(node => node.getAttribute('id') === nodeName) as NpXmlNode;
                 nodeToAdd = parentModelNode.appendChild('Field');
-                if (nodeToAdd) {
-                    nodeToAdd.setAttribute('id', nodeValue);
-                }
                 break;
+            case 'field':
+                const parentNode = modelsChild.find(node => node.getAttribute('id') === parentName) as NpXmlNode;
+                const modelChild = parentNode.getChilds() as NpXmlNode[];
+                const currentNodeIndex = modelChild.find(node => node.getAttribute('id') === nodeName)?.getIndex();
+
+                if (currentNodeIndex) {
+                    nodeToAdd = parentNode.insertChild('Field', currentNodeIndex);
+                } else {
+                    nodeToAdd = parentNode.appendChild('Field');
+                }
             default:
-                return false;
+                break;
         }
 
         if (nodeToAdd) {
+            nodeToAdd.setAttribute('id', nodeValue);
             this.setFileDom(filePath, xmlDom);
             const xmlData = buildXML(xmlDom);
             fs.writeFileSync(filePath, xmlData, 'utf-8');
