@@ -97,6 +97,20 @@ export class ReadModelImpl implements ReadModel {
         return readDirectory(modelPath);
     }
 
+    // 코드 에디터에서 save 동작 시 수정된 파일 내용 Map에 반영
+    async readChangeFile(filePath: string): Promise<boolean> {
+        if (this.FilesMap.has(filePath)) {
+            const fileContent = fs.readFileSync(filePath, 'utf-8');
+            const parseFileContent = parseXML(fileContent);
+
+            this.setFileDom(filePath, parseFileContent);
+
+            return true
+        } else {
+            return false
+        }
+    }
+
     // xml 파일 파싱해 Model 및 Field 객체로 저장
     async parseModel(filePath: string): Promise<ParseNode[] | undefined> {
         const domNodes: ParseNode[] = [];
@@ -143,7 +157,7 @@ export class ReadModelImpl implements ReadModel {
         return domNodes;
     }
 
-    // Tabber에서 새로운 노드를 삭제할 때
+    // delete tabber 클릭 시
     async deleteNode(nodeName: string, filePath: string, type: string, parentName: string): Promise<boolean> {
         const xmlDom = this.getFileDom(filePath);
 
@@ -188,6 +202,7 @@ export class ReadModelImpl implements ReadModel {
         }
     }
 
+    // ID 중복 검사
     private isIdDuplicate(nodeValue: string): boolean {
         for (const [, content] of this.FilesMap) {
             const xmlDom = content;
@@ -206,6 +221,7 @@ export class ReadModelImpl implements ReadModel {
 
         return false;
     }
+
 
     private isDuplicateInNodes(nodes: NpXmlNode[], nodeValue: string): boolean {
         for (const node of nodes) {
@@ -260,7 +276,7 @@ export class ReadModelImpl implements ReadModel {
 
 
 
-    // Tabber에서 새로운 노드를 추가할 때
+    // add tabbar 클릭 시
     async addNodeServer(nodeName: string, filePath: string, type: string, nodeValue: string, parentName?: string): Promise<boolean> {
         const xmlDom = this.getFileDom(filePath);
 

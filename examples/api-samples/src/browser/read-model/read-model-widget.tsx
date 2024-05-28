@@ -17,10 +17,11 @@
 import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
 // eslint-disable-next-line max-len
-import { ApplicationShell, codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
-import { nodeType, ParseNode, ReadModel } from '../../common/read-model/read-model-service';
+import { ApplicationShell, codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, open, OpenerService, SelectableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget, URIIconReference, WidgetManager } from '@theia/core/lib/browser';
+import { nodeType, ParseNode, parseType, ReadModel } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 import { EditorManager } from '@theia/editor/lib/browser';
+import { MonacoEditorProvider } from '@theia/monaco/lib/browser/monaco-editor-provider';
 
 export interface TypeNode extends SelectableTreeNode, CompositeTreeNode {
     type: nodeType;
@@ -36,6 +37,7 @@ export class ReadModelWidget extends TreeWidget {
     static readonly LABEL = 'Read Model';
 
     @inject(LabelProvider) protected override readonly labelProvider: LabelProvider;
+    @inject(OpenerService) protected readonly openerService: OpenerService;
 
     static createContainer(parent: interfaces.Container): Container {
         const child = createTreeContainer(parent, {
@@ -136,9 +138,9 @@ export class ReadModelWidget extends TreeWidget {
         return parentNode
     }
 
-    // 폴더 파싱한 결과를 바탕으로 폴더 및 파일 Node 생성
+    // 폴더 파싱한 결과를 바탕으로 Node 생성
     protected createTreeNode(parseNode: ParseNode, parent: ExpandTypeNode): TreeNode | undefined {
-        const parseType = parseNode.parseType;
+        const parseType: parseType = parseNode.parseType;
 
         switch (parseType) {
             case 'readModel':
@@ -180,14 +182,14 @@ export class ReadModelWidget extends TreeWidget {
         }
     }
 
-    // 노드에 selected / focus 추가
+    // Node에 selected / focus 추가
     protected selectNodeHandle(selectedNode: SelectableTreeNode): void {
         this.model.selectNode(selectedNode);
         this.focusService.setFocus(selectedNode);
         this.node.focus();
     };
 
-    // 가져온 FileNode를 바탕으로 Node 추가
+    // 가져온 FileNode를 바탕으로 Node 매달기
     async getReadTree(parseNodes: ParseNode[], type: string, rootNode?: ExpandTypeNode): Promise<void> {
         let root: ExpandTypeNode;
 
@@ -240,7 +242,7 @@ export class ReadModelWidget extends TreeWidget {
         await this.model.refresh();
     }
 
-    // Node insert 함수
+    // Node insert
     insertChild(parent: CompositeTreeNode, currentNode: TreeNode, child: TreeNode): CompositeTreeNode {
         const children = parent.children as TreeNode[];
         const currentIndex = CompositeTreeNode.indexOf(parent, currentNode);
@@ -294,7 +296,7 @@ export class ReadModelWidget extends TreeWidget {
             this.selectNodeHandle(newAddNode);
         }
 
-        // root가 접혀있을 때 node 추가시 펴주기
+        // root가 접혀있을 때 node 추가시 expanded
         if (ExpandableTreeNode.is(root)) {
             if (!root.expanded) {
                 this.model.expandNode(root);
@@ -339,6 +341,10 @@ export class ReadModelWidget extends TreeWidget {
             this.model.clearSelection();
         }
     }
+
+    async openCodeEditor(filePath: URI): Promise<void> {
+        await open(this.openerService, filePath, undefined);
+    }
 }
 
 @injectable()
@@ -349,14 +355,37 @@ export class ReadModelTreeModel extends TreeModelImpl {
     @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
     @inject(ApplicationShell) protected readonly applicationShell: ApplicationShell;
     @inject(EditorManager) protected readonly editorManager: EditorManager;
+    @inject(MonacoEditorProvider) protected readonly monacoEditorProvider: MonacoEditorProvider;
 
-    // Node 더블 클릭시
     protected override async doOpenNode(node: ExpandTypeNode) {
         const filePath = this.labelProvider.getLongName(node);
         const doOpenNodeType: nodeType = node.type;
         const widget = await this.widgetManager.getWidget<ReadModelWidget>('read-model-widget');
+        const nodeURI = URI.fromFilePath(filePath);
+        const monacoEditor = await this.monacoEditorProvider.get(nodeURI);
+        const parent = node.parent;
 
+        // 코드 편집창에서 save 동작 시
         if (widget) {
+            monacoEditor.document.onDidSaveModel(() => {
+                this.readModel.readChangeFile(filePath).then((isChanged: boolean) => {
+                    if (isChanged) {
+                        this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[] | undefined) => {
+                            if (!xmlNodes) {
+                                return
+                            }
+                            widget.getReadTree(xmlNodes, 'readXml', node);
+                        });
+                    }
+                    if (ExpandableTreeNode.is(parent)) {
+                        if (!parent.expanded) {
+                            this.expandNode(parent);
+                        }
+
+                    }
+                });
+            })
+
             // Xml파일인 경우
             if (node.id.includes('.xmodel')) {
                 if (node.children.length === 0) {
@@ -375,12 +404,12 @@ export class ReadModelTreeModel extends TreeModelImpl {
 
             // model이나 field 클릭시 해당 파일로 이동
             if (doOpenNodeType === 'model' || doOpenNodeType === 'field') {
-                const nodeURI = URI.fromFilePath(filePath);
-                this.editorManager.open(nodeURI);
+                await widget.openCodeEditor(nodeURI);
             }
         }
 
         super.doOpenNode(node);
+
     }
 
 

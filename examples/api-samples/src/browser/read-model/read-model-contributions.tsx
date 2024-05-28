@@ -81,47 +81,6 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         });
     }
 
-    // ReadModel OutputChannel
-    protected readModelOutput(message: string): void {
-        const channel = this.outputChannelManager.getChannel('Read Model');
-        channel.appendLine(message, OutputChannelSeverity.Error);
-        channel.show();
-    }
-
-    // tabbar Enabled check
-    protected checkEnabled(tabType: string): boolean {
-        const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
-        if (!selectNode) {
-            return false;
-        }
-        const selectNodeType = selectNode.type;
-        const childrenCount = selectNode.children.length;
-
-        switch (tabType) {
-            case 'add':
-                return childrenCount !== 0 && selectNodeType === 'file' || selectNodeType === 'model' || selectNodeType === 'field';
-            case 'delete':
-                return selectNodeType === 'model' || selectNodeType === 'field';
-            default:
-                return false
-        }
-    }
-
-    // deleteNode execute 함수
-    protected deleteNodeHandler(): void {
-        const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
-        const nodeName = selectNode.id;
-        const path = this.labelProvider.getLongName(selectNode);
-        const type = selectNode.type;
-        const parentName = selectNode.parent?.id as string;
-
-        this.readModel.deleteNode(nodeName, path, type, parentName).then((result: boolean) => {
-            if (result) {
-                this.readModelWidget.deleteNode(selectNode);
-            }
-        });
-    }
-
     // command 생성
     override registerCommands(registry: CommandRegistry): void {
         // 트리 위젯 호출
@@ -177,7 +136,33 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         return false;
     }
 
-    // Quick Input 생성
+    // tabbar Enabled check
+    protected checkEnabled(tabType: string): boolean {
+        const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
+        if (!selectNode) {
+            return false;
+        }
+        const selectNodeType = selectNode.type;
+        const childrenCount = selectNode.children.length;
+
+        switch (tabType) {
+            case 'add':
+                return childrenCount !== 0 && selectNodeType === 'file' || selectNodeType === 'model' || selectNodeType === 'field';
+            case 'delete':
+                return selectNodeType === 'model' || selectNodeType === 'field';
+            default:
+                return false
+        }
+    }
+
+    // ReadModel OutputChannel
+    protected readModelOutput(message: string): void {
+        const channel = this.outputChannelManager.getChannel('Read Model');
+        channel.appendLine(message, OutputChannelSeverity.Error);
+        channel.show();
+    }
+
+    // add Tabbar execute
     protected async addFileQuickInput(widget: ReadModelWidget | undefined): Promise<void> {
         const items: QuickPickItemOrSeparator[] = [];
         const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
@@ -258,6 +243,22 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
             }
         });
     }
+
+    // delete tabbar execute 
+    protected deleteNodeHandler(): void {
+        const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
+        const nodeName = selectNode.id;
+        const path = this.labelProvider.getLongName(selectNode);
+        const type = selectNode.type;
+        const parentName = selectNode.parent?.id as string;
+
+        this.readModel.deleteNode(nodeName, path, type, parentName).then((result: boolean) => {
+            if (result) {
+                this.readModelWidget.deleteNode(selectNode);
+            }
+        });
+    }
+
 };
 
 export const bindReadModelWidget = (bind: interfaces.Bind) => {

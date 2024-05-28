@@ -35,6 +35,7 @@ export interface ReadModel extends RpcServer<ReadModelClient> {
     setClient(client: ReadModelClient | undefined): void;
     getClient(): ReadModelClient | undefined;
     readModel(): Promise<ParseNode[] | undefined>;
+    readChangeFile(filePath: string): Promise<boolean>;
     parseModel(filePath: string): Promise<ParseNode[] | undefined>;
     checkIdRegex(nodeValue: string): Promise<{ isValid: boolean; errorMsg?: string }>;
     deleteNode(nodeName: string, filePath: string, type: string, parentName: string): Promise<boolean>;
