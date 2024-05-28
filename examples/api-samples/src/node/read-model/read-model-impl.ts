@@ -303,14 +303,8 @@ export class ReadModelImpl implements ReadModel {
             case 'field':
                 const parentNode = modelsChild.find(node => node.getAttribute('id') === parentName) as NpXmlNode;
                 const modelChild = parentNode.getChilds() as NpXmlNode[];
-                const currentNodeIndex = modelChild.find(node => node.getAttribute('id') === nodeName)?.getIndex();
-
-                if (currentNodeIndex) {
-                    nodeToAdd = parentNode.insertChild('Field', currentNodeIndex);
-                } else {
-                    nodeToAdd = parentNode.appendChild('Field');
-                }
-            default:
+                const currentNodeIndex = modelChild.find(node => node.getAttribute('id') === nodeName)?.getIndex() as number;
+                nodeToAdd = parentNode.insertChild('Field', currentNodeIndex);
                 break;
         }
 
