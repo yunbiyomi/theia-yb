@@ -363,7 +363,6 @@ export class ReadModelTreeModel extends TreeModelImpl {
         const widget = await this.widgetManager.getWidget<ReadModelWidget>('read-model-widget');
         const nodeURI = URI.fromFilePath(filePath);
         const monacoEditor = await this.monacoEditorProvider.get(nodeURI);
-        const parent = node.parent;
 
         // 코드 편집창에서 save 동작 시
         if (widget) {
@@ -376,12 +375,6 @@ export class ReadModelTreeModel extends TreeModelImpl {
                             }
                             widget.getReadTree(xmlNodes, 'readXml', node);
                         });
-                    }
-                    if (ExpandableTreeNode.is(parent)) {
-                        if (!parent.expanded) {
-                            this.expandNode(parent);
-                        }
-
                     }
                 });
             })
