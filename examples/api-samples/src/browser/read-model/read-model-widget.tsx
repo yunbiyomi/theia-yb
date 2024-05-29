@@ -21,9 +21,12 @@ import { codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, E
 import { nodeType, ParseNode, parseType } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 import { ReadModelTreeModel } from './read-model-tree-model';
+import { TiUndoRedoService, TiUndoRedoStack } from './undo-redo/ti-undo-redo-service';
+import { TiUndoRedoInfo, UNDO_REDO_ACTION, UNDO_REDO_AREA } from './undo-redo/ti-undo-redo-definition';
 
 export interface TypeNode extends SelectableTreeNode, CompositeTreeNode {
     type: nodeType;
+    index?: number;
 }
 
 export interface ExpandTypeNode extends TypeNode, ExpandableTreeNode {
@@ -75,6 +78,7 @@ export class ReadModelWidget extends TreeWidget {
 
         this.model.root = undefined;
         this.model.refresh();
+
     }
 
     // model Root 생성
@@ -92,7 +96,7 @@ export class ReadModelWidget extends TreeWidget {
         };
     }
 
-    createTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode | CompositeTreeNode, type: nodeType): TypeNode {
+    createTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode | CompositeTreeNode, type: nodeType, index?: number): TypeNode {
         return {
             id: parseNode.id,
             name: parseNode.id,
@@ -102,10 +106,11 @@ export class ReadModelWidget extends TreeWidget {
             children: [],
             type,
             selected: false,
+            index
         };
     }
 
-    createExpandTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode | TypeNode, type: nodeType): ExpandTypeNode {
+    createExpandTypeNode(parseNode: ParseNode, icon: string, parent: ExpandTypeNode | TypeNode, type: nodeType, index?: number): ExpandTypeNode {
         return {
             id: parseNode.id,
             name: parseNode.id,
@@ -115,7 +120,8 @@ export class ReadModelWidget extends TreeWidget {
             children: [],
             type,
             expanded: false,
-            selected: false
+            selected: false,
+            index
         };
     }
 
@@ -239,6 +245,8 @@ export class ReadModelWidget extends TreeWidget {
         }
 
         await this.model.refresh();
+        this.model.getNode('nodeee');
+        await this.model.refresh();
     }
 
     // Node insert
@@ -261,6 +269,7 @@ export class ReadModelWidget extends TreeWidget {
         const nodeType = 'model';
         const fieldIcon = codicon('circle-small');
         const fieldType = 'field';
+        const nodeIndex = selectNode?.index;
         let newAddNode: TypeNode | ExpandTypeNode;
 
         switch (type) {
@@ -270,13 +279,13 @@ export class ReadModelWidget extends TreeWidget {
                 newAddNode = this.createExpandTypeNode(newNodeinfo, modelIcon, root, nodeType);
                 break;
             case 'model':
-                newAddNode = this.createTypeNode(newNodeinfo, fieldIcon, root, fieldType);
+                newAddNode = this.createTypeNode(newNodeinfo, fieldIcon, root, fieldType, nodeIndex);
                 break;
             case 'field':
                 if (selectNode.parent) {
                     root = selectNode.parent as ExpandTypeNode;
                     if (root) {
-                        newAddNode = this.createTypeNode(newNodeinfo, fieldIcon, root, fieldType);
+                        newAddNode = this.createTypeNode(newNodeinfo, fieldIcon, root, fieldType, nodeIndex);
                     }
                 }
                 break;
@@ -293,6 +302,7 @@ export class ReadModelWidget extends TreeWidget {
             }
             await this.model.refresh();
             this.selectNodeHandle(newAddNode);
+            this.createUndoRedoStack(newAddNode, UNDO_REDO_ACTION.create, UNDO_REDO_AREA.contentsEditor);
         }
 
         // root가 접혀있을 때 node 추가시 expanded
@@ -343,5 +353,27 @@ export class ReadModelWidget extends TreeWidget {
 
     async openCodeEditor(filePath: URI): Promise<void> {
         await open(this.openerService, filePath, undefined);
+    }
+
+    // UndoRedo
+    undoRedoService = new TiUndoRedoService;
+    undoRedoStack = new TiUndoRedoStack;
+
+    createUndoRedoStack(node: TypeNode | ExpandTypeNode, action: UNDO_REDO_ACTION, area: UNDO_REDO_AREA): void {
+        const newInfo: TiUndoRedoInfo = {
+            action,
+            area,
+            extraInfo: node
+        }
+
+        this.undoRedoStack.push(newInfo);
+        this.undoRedoService.pushStack(this.undoRedoStack);
+
+        if (this.undoRedoService.isModified()) {
+            console.log('undo/redo 가능');
+        } else {
+            const undoPos = this.undoRedoService.getUndoPos();
+            this.undoRedoService.removeStack(undoPos);
+        }
     }
 }

@@ -17,7 +17,7 @@
 import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR, QuickInputService, QuickPickItemOrSeparator, QuickPickItem } from '@theia/core';
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
 // eslint-disable-next-line max-len
-import { AbstractViewContribution, bindViewContribution, codicon, FrontendApplicationContribution, LabelProvider, QuickViewService, Widget, WidgetFactory } from '@theia/core/lib/browser';
+import { AbstractViewContribution, ApplicationShell, bindViewContribution, codicon, CommonCommands, CommonMenus, FrontendApplicationContribution, Keybinding, KeybindingContext, KeybindingRegistry, LabelProvider, QuickViewService, Widget, WidgetFactory } from '@theia/core/lib/browser';
 import { ReadModelClient, ReadModel, ReadModelPath, ParseNode } from '../../common/read-model/read-model-service';
 import { ReadModelWidget, TypeNode } from './read-model-widget';
 import { LocalConnectionProvider, ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
@@ -41,6 +41,16 @@ export const NodeDeleteToolBarCommand: Command = {
 
 export const NodeQuickView: Command = {
     id: 'node-quick-view'
+};
+
+export const TreeUndo: Command = {
+    id: 'tree-undo',
+    label: 'Tree Undo'
+};
+
+export const TreeRedo: Command = {
+    id: 'tree-redo',
+    label: 'Tree Redo'
 };
 
 @injectable()
@@ -68,6 +78,11 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         });
     }
 
+    isTreeWidget(arg?: Keybinding): boolean {
+        const widget = this.shell.activeWidget;
+        return widget instanceof ReadModelWidget;
+    }
+
     // menu 생성
     override registerMenus(menus: MenuModelRegistry): void {
         const subMenuPath = [...MAIN_MENU_BAR, 'Read Model'];
@@ -78,6 +93,19 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         menus.registerMenuAction(subMenuPath, {
             commandId: ReadModelCommand.id,
             order: '0'
+        });
+
+        menus.unregisterMenuAction(CommonCommands.UNDO);
+        menus.unregisterMenuAction(CommonCommands.REDO);
+
+        menus.registerMenuAction(CommonMenus.EDIT_UNDO, {
+            commandId: TreeUndo.id,
+            order: '0'
+        });
+
+        menus.registerMenuAction(CommonMenus.EDIT_UNDO, {
+            commandId: TreeRedo.id,
+            order: '1'
         });
     }
 
@@ -110,6 +138,39 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
             isEnabled: widget => this.withWidget(widget, () => this.checkEnabled('delete')),
             isVisible: widget => this.withWidget(widget, () => true),
         });
+
+        registry.unregisterCommand(CommonCommands.UNDO);
+        registry.unregisterCommand(CommonCommands.REDO);
+
+        registry.registerCommand(TreeUndo, {
+            execute: () => {
+                console.log('Undo');
+            }
+        })
+
+        registry.registerCommand(TreeRedo, {
+            execute: () => {
+                console.log('Redo');
+            }
+        })
+    }
+
+    override registerKeybindings(keybindings: KeybindingRegistry): void {
+        keybindings.unregisterKeybinding(CommonCommands.UNDO);
+        keybindings.unregisterKeybinding(CommonCommands.REDO);
+
+        keybindings.registerKeybindings(
+            {
+                command: TreeUndo.id,
+                keybinding: 'ctrlcmd+z',
+                context: 'readModelKeybindingContext'
+            },
+            {
+                command: TreeRedo.id,
+                keybinding: 'ctrlcmd+y',
+                context: 'readModelKeybindingContext'
+            }
+        )
     }
 
     // Tabbar 설정
@@ -276,4 +337,19 @@ export const bindReadModelWidget = (bind: interfaces.Bind) => {
         id: ReadModelWidget.ID,
         createWidget: () => ctx.container.get<ReadModelWidget>(ReadModelWidget)
     })).inSingletonScope();
+    bind(ReadModelKeybindingContext).toSelf().inSingletonScope();
+    bind(KeybindingContext).toService(ReadModelKeybindingContext);
 };
+
+@injectable()
+export class ReadModelKeybindingContext implements KeybindingContext {
+    readonly id = 'readModelKeybindingContext';
+
+    @inject(ApplicationShell)
+    protected readonly shell: ApplicationShell;
+
+    isEnabled(arg?: Keybinding): boolean {
+        const widget = this.shell.activeWidget || this.shell.currentWidget;
+        return widget instanceof ReadModelWidget;
+    }
+}
