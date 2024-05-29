@@ -144,14 +144,20 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
 
         registry.registerCommand(TreeUndo, {
             execute: () => {
-                console.log('Undo');
-            }
+                this.readModelWidget.runUndo().then(() => {
+                    console.log('Undo');
+                });
+            },
+            isEnabled: () => this.readModelWidget.undoRedoService.canUndo()
         })
 
         registry.registerCommand(TreeRedo, {
             execute: () => {
-                console.log('Redo');
-            }
+                this.readModelWidget.runRedo().then(() => {
+                    console.log('Redo');
+                });
+            },
+            isEnabled: () => this.readModelWidget.undoRedoService.canRedo()
         })
     }
 

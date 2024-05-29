@@ -225,9 +225,10 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // 선택한 Node 삭제
-    async deleteNode(selectNode: TreeNode): Promise<void> {
+    async deleteNode(selectNode: TypeNode): Promise<void> {
         const parentsNode = selectNode.parent as CompositeTreeNode;
         CompositeTreeNode.removeChild(parentsNode, selectNode);
+        this.createUndoRedoStack(selectNode, UNDO_REDO_ACTION.delete, UNDO_REDO_AREA.contentsEditor);
 
         const nextNode = selectNode.nextSibling as SelectableTreeNode;
         if (nextNode) {
@@ -244,8 +245,6 @@ export class ReadModelWidget extends TreeWidget {
             }
         }
 
-        await this.model.refresh();
-        this.model.getNode('nodeee');
         await this.model.refresh();
     }
 
@@ -368,12 +367,69 @@ export class ReadModelWidget extends TreeWidget {
 
         this.undoRedoStack.push(newInfo);
         this.undoRedoService.pushStack(this.undoRedoStack);
+    }
 
-        if (this.undoRedoService.isModified()) {
-            console.log('undo/redo 가능');
-        } else {
-            const undoPos = this.undoRedoService.getUndoPos();
-            this.undoRedoService.removeStack(undoPos);
+    async runUndo(): Promise<void> {
+        if (!this.undoRedoService) {
+            return;
         }
+
+        const undoItem: TiUndoRedoStack | undefined = this.undoRedoService.undo();
+
+        if (undoItem !== undefined) {
+            const count = undoItem.count();
+            for (let i = count - 1; i >= 0; i--) {
+                this.doUndo(undoItem, i);
+            }
+        }
+        // if (this.undoRedoService.isModified()) {
+        //     const undoItem: 
+        // } else {
+        //     console.log('undo/redo 불가능');
+        // }
+    }
+
+    async runRedo(): Promise<void> {
+        if (!this.undoRedoService) {
+            return;
+        }
+
+        const undoItem: TiUndoRedoStack | undefined = this.undoRedoService.undo();
+
+        if (undoItem !== undefined) {
+            const count = undoItem.count();
+            for (let i = 0; i < count; i++) {
+                this.doUndo(undoItem, i);
+            }
+        }
+
+        // if (this.undoRedoService.isModified()) {
+        //     this.undoRedoService.redo();
+        // } else {
+        //     console.log('undo/redo 불가능');
+        // }
+    }
+
+    async doUndo(item: TiUndoRedoStack, index: number): Promise<void> {
+        if (!item) {
+            return;
+        }
+
+        const currentItem = item.getInfoData(index);
+        const undoAction = currentItem.action;
+        const undoNode = currentItem.extraInfo;
+
+        switch (undoAction) {
+            case 1:
+                await this.deleteNode(undoNode);
+                break;
+            case 2:
+                await this.addNode(undoNode, undoNode.type, undoNode.id);
+                break;
+            default:
+                break;
+        }
+
+        console.log('doUndo success');
     }
 }
