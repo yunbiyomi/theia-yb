@@ -33,51 +33,55 @@ export class ReadModelTreeModel extends TreeModelImpl {
     @inject(MonacoEditorProvider) protected readonly monacoEditorProvider: MonacoEditorProvider;
 
     protected override async doOpenNode(node: ExpandTypeNode) {
-        const filePath = this.labelProvider.getLongName(node);
         const doOpenNodeType: nodeType = node.type;
         const widget = await this.widgetManager.getWidget<ReadModelWidget>('read-model-widget');
+        const filePath = this.labelProvider.getLongName(node);
         const nodeURI = URI.fromFilePath(filePath);
-        const monacoEditor = await this.monacoEditorProvider.get(nodeURI);
 
-        // 코드 편집창에서 save 동작 시
         if (widget) {
-            monacoEditor.document.onDidSaveModel(() => {
-                this.readModel.readChangeFile(filePath).then((isChanged: boolean) => {
-                    if (isChanged) {
+            switch (doOpenNodeType) {
+                case 'folder':
+                    return
+                case 'file':
+                    if (node.children.length === 0) {
                         this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[] | undefined) => {
                             if (!xmlNodes) {
                                 return
                             }
                             widget.getReadTree(xmlNodes, 'readXml', node);
                         });
-                    }
-                });
-            })
 
-            // Xml파일인 경우
-            if (node.id.includes('.xmodel')) {
-                if (node.children.length === 0) {
-                    this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[] | undefined) => {
-                        if (!xmlNodes) {
-                            return
+                        if (!node.expanded) {
+                            this.expandNode(node);
                         }
-                        widget.getReadTree(xmlNodes, 'readXml', node);
-                    });
-
-                    if (!node.expanded) {
-                        this.expandNode(node);
                     }
-                }
-            }
+                    return
+                case 'model':
+                case 'field':
+                    const monacoEditor = await this.monacoEditorProvider.get(nodeURI);
 
-            // model이나 field 클릭시 해당 파일로 이동
-            if (doOpenNodeType === 'model' || doOpenNodeType === 'field') {
-                await widget.openCodeEditor(nodeURI);
+                    await widget.openCodeEditor(nodeURI);
+
+                    // 코드 편집창에서 save 동작 시
+                    monacoEditor.document.onDidSaveModel(() => {
+                        this.readModel.readChangeFile(filePath).then((isChanged: boolean) => {
+                            if (isChanged) {
+                                this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[] | undefined) => {
+                                    if (!xmlNodes) {
+                                        return
+                                    }
+                                    const parentNode = node.parent as ExpandTypeNode
+                                    widget.getReadTree(xmlNodes, 'readXml', parentNode);
+                                });
+                            }
+                        });
+                    });
+                    return
+                default:
+                    super.doOpenNode(node);
+                    return
             }
         }
-
-        super.doOpenNode(node);
-
     }
 
 
