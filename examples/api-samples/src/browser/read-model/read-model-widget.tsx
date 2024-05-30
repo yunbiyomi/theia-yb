@@ -138,7 +138,6 @@ export class ReadModelWidget extends TreeWidget {
                 nodeChilds.push(childNode);
             }
         }
-
         parentNode.children = nodeChilds;
 
         return parentNode
@@ -228,10 +227,12 @@ export class ReadModelWidget extends TreeWidget {
     // 선택한 Node 삭제
     async deleteNode(selectNode: TypeNode, isUndoRedo?: boolean): Promise<void> {
         const parentsNode = selectNode.parent as CompositeTreeNode;
+        const currentNodeIndex = CompositeTreeNode.indexOf(parentsNode, selectNode);
+        selectNode.index = currentNodeIndex;
         CompositeTreeNode.removeChild(parentsNode, selectNode);
 
         if (!isUndoRedo) {
-            this.createUndoRedoStack(selectNode, UNDO_REDO_ACTION.delete, UNDO_REDO_AREA.contentsEditor);
+            this.createUndoRedoStack(selectNode, UNDO_REDO_ACTION.delete, UNDO_REDO_AREA.contentsEditor, currentNodeIndex);
         }
 
         const nextNode = selectNode.nextSibling as SelectableTreeNode;
@@ -253,9 +254,9 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // Node insert
-    insertChild(parent: CompositeTreeNode, currentNode: TreeNode, child: TreeNode): CompositeTreeNode {
+    insertChild(parent: CompositeTreeNode, currentNode: TreeNode, child: TreeNode, index?: number): CompositeTreeNode {
         const children = parent.children as TreeNode[];
-        const currentIndex = CompositeTreeNode.indexOf(parent, currentNode);
+        const currentIndex = index ? index : CompositeTreeNode.indexOf(parent, currentNode);
         if (currentIndex !== -1) {
             children.splice(currentIndex, 0, child);
             CompositeTreeNode.setParent(child, currentIndex, parent);
@@ -284,7 +285,7 @@ export class ReadModelWidget extends TreeWidget {
             case 'model':
                 if (isUndoRedo) {
                     root = selectNode.parent as ExpandTypeNode;
-                    newAddNode = this.createExpandTypeNode(newNodeinfo, modelIcon, root, nodeType);
+                    newAddNode = this.createExpandTypeNode(newNodeinfo, modelIcon, root, nodeType, nodeIndex);
                 } else {
                     newAddNode = this.createTypeNode(newNodeinfo, fieldIcon, root, fieldType, nodeIndex);
                 }
@@ -304,6 +305,8 @@ export class ReadModelWidget extends TreeWidget {
         if (newAddNode!) {
             if (type === 'field' && !isUndoRedo) {
                 this.insertChild(root, selectNode, newAddNode);
+            } else if (isUndoRedo) {
+                this.insertChild(root, selectNode, newAddNode, newAddNode.index);
             }
             else {
                 CompositeTreeNode.addChild(root, newAddNode);
@@ -311,7 +314,10 @@ export class ReadModelWidget extends TreeWidget {
             await this.model.refresh();
             this.selectNodeHandle(newAddNode);
             if (!isUndoRedo) {
-                this.createUndoRedoStack(newAddNode, UNDO_REDO_ACTION.create, UNDO_REDO_AREA.contentsEditor);
+                const parentNode = newAddNode.parent as CompositeTreeNode;
+                const currentNodeIndex = CompositeTreeNode.indexOf(parentNode, newAddNode);
+                newAddNode.index = currentNodeIndex;
+                this.createUndoRedoStack(newAddNode, UNDO_REDO_ACTION.create, UNDO_REDO_AREA.contentsEditor, currentNodeIndex);
             }
         }
 
@@ -370,15 +376,15 @@ export class ReadModelWidget extends TreeWidget {
     undoRedoStack: TiUndoRedoStack | undefined;
 
     // info 생성해서 stack, service에 push
-    createUndoRedoStack(node: TypeNode | ExpandTypeNode, action: UNDO_REDO_ACTION, area: UNDO_REDO_AREA): void {
-        this.undoRedoStack = new TiUndoRedoStack;
-
+    createUndoRedoStack(node: TypeNode | ExpandTypeNode, action: UNDO_REDO_ACTION, area: UNDO_REDO_AREA, index?: number): void {
         const newInfo: TiUndoRedoInfo = {
             action,
             area,
-            extraInfo: node
+            extraInfo: node,
+            index
         }
 
+        this.undoRedoStack = new TiUndoRedoStack;
         this.undoRedoStack.push(newInfo);
         this.undoRedoService.pushStack(this.undoRedoStack);
     }
@@ -424,7 +430,7 @@ export class ReadModelWidget extends TreeWidget {
         const currentItem = item.getInfoData(index);
         const undoAction = currentItem.action;
         const undoNode = currentItem.extraInfo;
-        let { id, type, parent, children } = undoNode;
+        let { id, type, parent } = undoNode;
         const undoNodePath = this.labelProvider.getLongName(undoNode);
 
         switch (undoAction) {
@@ -442,14 +448,6 @@ export class ReadModelWidget extends TreeWidget {
                     this.readModel.addNodeServer(id, undoNodePath, type, id, parent.id).then((result: boolean) => {
                         if (result) {
                             this.addNode(undoNode, type, id, true);
-                            if (type === 'model') {
-                                const modelChilds = children;
-                                if (modelChilds) {
-                                    for (const child of modelChilds) {
-                                        this.addNode(child, 'field', child.id, true);
-                                    }
-                                }
-                            }
                         } else {
                             console.log('addNodeServer fail');
                         }
