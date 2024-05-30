@@ -18,7 +18,7 @@ import * as React from '@theia/core/shared/react';
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
 // eslint-disable-next-line max-len
 import { codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, LabelProvider, NodeProps, open, OpenerService, SelectableTreeNode, TreeImpl, TreeModel, TreeNode, TreeProps, TreeWidget, URIIconReference } from '@theia/core/lib/browser';
-import { nodeType, ParseNode, parseType } from '../../common/read-model/read-model-service';
+import { nodeType, ParseNode, parseType, ReadModel } from '../../common/read-model/read-model-service';
 import { URI } from '@theia/core';
 import { ReadModelTreeModel } from './read-model-tree-model';
 import { TiUndoRedoService, TiUndoRedoStack } from './undo-redo/ti-undo-redo-service';
@@ -40,6 +40,7 @@ export class ReadModelWidget extends TreeWidget {
 
     @inject(LabelProvider) protected override readonly labelProvider: LabelProvider;
     @inject(OpenerService) protected readonly openerService: OpenerService;
+    @inject(ReadModel) protected readonly readModel: ReadModel;
 
     static createContainer(parent: interfaces.Container): Container {
         const child = createTreeContainer(parent, {
@@ -301,7 +302,7 @@ export class ReadModelWidget extends TreeWidget {
         }
 
         if (newAddNode!) {
-            if (type === 'field' && nodeIndex) {
+            if (type === 'field' && !isUndoRedo) {
                 this.insertChild(root, selectNode, newAddNode);
             }
             else {
@@ -368,6 +369,7 @@ export class ReadModelWidget extends TreeWidget {
     undoRedoService = new TiUndoRedoService;
     undoRedoStack: TiUndoRedoStack | undefined;
 
+    // info 생성해서 stack, service에 push
     createUndoRedoStack(node: TypeNode | ExpandTypeNode, action: UNDO_REDO_ACTION, area: UNDO_REDO_AREA): void {
         this.undoRedoStack = new TiUndoRedoStack;
 
@@ -381,45 +383,40 @@ export class ReadModelWidget extends TreeWidget {
         this.undoRedoService.pushStack(this.undoRedoStack);
     }
 
+    // undo 실행
     async runUndo(): Promise<void> {
         if (!this.undoRedoService) {
             return;
         }
 
-        // if (this.undoRedoService.isModified()) {
         const undoItem: TiUndoRedoStack | undefined = this.undoRedoService.undo();
 
         if (undoItem !== undefined) {
             const count = undoItem.count();
             for (let i = count - 1; i >= 0; i--) {
-                this.doUndo(undoItem, i, true);
+                this.doUndoRedo(undoItem, i, true);
             }
         }
-        // } else {
-        //     this.undoRedoService.clear();
-        //     console.log('undo/redo 불가능');
-
-        // }
     }
 
+    // redo 실행
     async runRedo(): Promise<void> {
         if (!this.undoRedoService) {
             return;
         }
 
-        // if (this.undoRedoService.isModified()) {
         const undoItem: TiUndoRedoStack | undefined = this.undoRedoService.redo();
 
         if (undoItem !== undefined) {
             const count = undoItem.count();
             for (let i = 0; i < count; i++) {
-                this.doUndo(undoItem, i, false);
+                this.doUndoRedo(undoItem, i, false);
             }
         }
-        // }
     }
 
-    async doUndo(item: TiUndoRedoStack, index: number, isUndo: Boolean): Promise<void> {
+    // undo/redo 공통 실행 함수
+    async doUndoRedo(item: TiUndoRedoStack, index: number, isUndo: Boolean): Promise<void> {
         if (!item) {
             return;
         }
@@ -427,31 +424,43 @@ export class ReadModelWidget extends TreeWidget {
         const currentItem = item.getInfoData(index);
         const undoAction = currentItem.action;
         const undoNode = currentItem.extraInfo;
+        const undoNodePath = this.labelProvider.getLongName(undoNode);
 
         switch (undoAction) {
             case 1:
             case 2:
                 if ((undoAction === 1 && isUndo === true) || (undoAction === 2 && isUndo === false)) {
-                    await this.deleteNode(undoNode, true);
-                } else {
-                    await this.addNode(undoNode, undoNode.type, undoNode.id, true);
-                    if (undoNode.type === 'model') {
-                        const modelChilds = undoNode.children;
-                        if (modelChilds) {
-                            for (const child of modelChilds) {
-                                this.addNode(child, 'field', child.id, true);
-                            }
+                    this.readModel.deleteNode(undoNode.id, undoNodePath, undoNode.type, undoNode.parent.id).then((result: boolean) => {
+                        if (result) {
+                            this.deleteNode(undoNode, true);
+                        } else {
+                            console.log('deleteNode fail');
                         }
-                    }
+                    })
+                } else {
+                    this.readModel.addNodeServer(undoNode.id, undoNodePath, undoNode.type, undoNode.id, undoNode.parent.id).then((result: boolean) => {
+                        if (result) {
+                            this.addNode(undoNode, undoNode.type, undoNode.id, true);
+                            if (undoNode.type === 'model') {
+                                const modelChilds = undoNode.children;
+                                if (modelChilds) {
+                                    for (const child of modelChilds) {
+                                        this.addNode(child, 'field', child.id, true);
+                                    }
+                                }
+                            }
+                        } else {
+                            console.log('addNodeServer fail');
+                        }
+                    })
                 }
                 break;
             default:
                 break;
         }
-
-        console.log('doUndo success');
     }
 
+    // undo 가능 여부 check
     canUndo(): boolean {
         if (!this.undoRedoService) {
             return false;
@@ -460,6 +469,7 @@ export class ReadModelWidget extends TreeWidget {
         return this.undoRedoService.canUndo();
     }
 
+    // redo 가능 여부 check
     canRedo(): boolean {
         if (!this.undoRedoService) {
             return false;

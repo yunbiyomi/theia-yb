@@ -59,6 +59,7 @@ export class ReadModelTreeModel extends TreeModelImpl {
                 case 'model':
                 case 'field':
                     const monacoEditor = await this.monacoEditorProvider.get(nodeURI);
+                    monacoEditor.document.autoSave = 'off';
 
                     await widget.openCodeEditor(nodeURI);
 
