@@ -225,10 +225,13 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // 선택한 Node 삭제
-    async deleteNode(selectNode: TypeNode): Promise<void> {
+    async deleteNode(selectNode: TypeNode, isUndoRedo?: boolean): Promise<void> {
         const parentsNode = selectNode.parent as CompositeTreeNode;
         CompositeTreeNode.removeChild(parentsNode, selectNode);
-        this.createUndoRedoStack(selectNode, UNDO_REDO_ACTION.delete, UNDO_REDO_AREA.contentsEditor);
+
+        if (!isUndoRedo) {
+            this.createUndoRedoStack(selectNode, UNDO_REDO_ACTION.delete, UNDO_REDO_AREA.contentsEditor);
+        }
 
         const nextNode = selectNode.nextSibling as SelectableTreeNode;
         if (nextNode) {
@@ -260,7 +263,7 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // 새로운 Node 추가
-    async addNode(selectNode: ExpandTypeNode | TypeNode, type: string, value: string): Promise<void> {
+    async addNode(selectNode: ExpandTypeNode | TypeNode, type: string, value: string, isUndoRedo?: boolean): Promise<void> {
         let root = selectNode;
         const path = this.labelProvider.getLongName(root);
         const newNodeinfo = { id: value, filePath: path } as ParseNode;
@@ -278,7 +281,12 @@ export class ReadModelWidget extends TreeWidget {
                 newAddNode = this.createExpandTypeNode(newNodeinfo, modelIcon, root, nodeType);
                 break;
             case 'model':
-                newAddNode = this.createTypeNode(newNodeinfo, fieldIcon, root, fieldType, nodeIndex);
+                if (isUndoRedo) {
+                    root = selectNode.parent as ExpandTypeNode;
+                    newAddNode = this.createExpandTypeNode(newNodeinfo, modelIcon, root, nodeType);
+                } else {
+                    newAddNode = this.createTypeNode(newNodeinfo, fieldIcon, root, fieldType, nodeIndex);
+                }
                 break;
             case 'field':
                 if (selectNode.parent) {
@@ -293,7 +301,7 @@ export class ReadModelWidget extends TreeWidget {
         }
 
         if (newAddNode!) {
-            if (type === 'field') {
+            if (type === 'field' && nodeIndex) {
                 this.insertChild(root, selectNode, newAddNode);
             }
             else {
@@ -301,7 +309,9 @@ export class ReadModelWidget extends TreeWidget {
             }
             await this.model.refresh();
             this.selectNodeHandle(newAddNode);
-            this.createUndoRedoStack(newAddNode, UNDO_REDO_ACTION.create, UNDO_REDO_AREA.contentsEditor);
+            if (!isUndoRedo) {
+                this.createUndoRedoStack(newAddNode, UNDO_REDO_ACTION.create, UNDO_REDO_AREA.contentsEditor);
+            }
         }
 
         // root가 접혀있을 때 node 추가시 expanded
@@ -356,9 +366,11 @@ export class ReadModelWidget extends TreeWidget {
 
     // UndoRedo
     undoRedoService = new TiUndoRedoService;
-    undoRedoStack = new TiUndoRedoStack;
+    undoRedoStack: TiUndoRedoStack | undefined;
 
     createUndoRedoStack(node: TypeNode | ExpandTypeNode, action: UNDO_REDO_ACTION, area: UNDO_REDO_AREA): void {
+        this.undoRedoStack = new TiUndoRedoStack;
+
         const newInfo: TiUndoRedoInfo = {
             action,
             area,
@@ -374,18 +386,19 @@ export class ReadModelWidget extends TreeWidget {
             return;
         }
 
+        // if (this.undoRedoService.isModified()) {
         const undoItem: TiUndoRedoStack | undefined = this.undoRedoService.undo();
 
         if (undoItem !== undefined) {
             const count = undoItem.count();
             for (let i = count - 1; i >= 0; i--) {
-                this.doUndo(undoItem, i);
+                this.doUndo(undoItem, i, true);
             }
         }
-        // if (this.undoRedoService.isModified()) {
-        //     const undoItem: 
         // } else {
+        //     this.undoRedoService.clear();
         //     console.log('undo/redo 불가능');
+
         // }
     }
 
@@ -394,23 +407,19 @@ export class ReadModelWidget extends TreeWidget {
             return;
         }
 
-        const undoItem: TiUndoRedoStack | undefined = this.undoRedoService.undo();
+        // if (this.undoRedoService.isModified()) {
+        const undoItem: TiUndoRedoStack | undefined = this.undoRedoService.redo();
 
         if (undoItem !== undefined) {
             const count = undoItem.count();
             for (let i = 0; i < count; i++) {
-                this.doUndo(undoItem, i);
+                this.doUndo(undoItem, i, false);
             }
         }
-
-        // if (this.undoRedoService.isModified()) {
-        //     this.undoRedoService.redo();
-        // } else {
-        //     console.log('undo/redo 불가능');
         // }
     }
 
-    async doUndo(item: TiUndoRedoStack, index: number): Promise<void> {
+    async doUndo(item: TiUndoRedoStack, index: number, isUndo: Boolean): Promise<void> {
         if (!item) {
             return;
         }
@@ -421,15 +430,41 @@ export class ReadModelWidget extends TreeWidget {
 
         switch (undoAction) {
             case 1:
-                await this.deleteNode(undoNode);
-                break;
             case 2:
-                await this.addNode(undoNode, undoNode.type, undoNode.id);
+                if ((undoAction === 1 && isUndo === true) || (undoAction === 2 && isUndo === false)) {
+                    await this.deleteNode(undoNode, true);
+                } else {
+                    await this.addNode(undoNode, undoNode.type, undoNode.id, true);
+                    if (undoNode.type === 'model') {
+                        const modelChilds = undoNode.children;
+                        if (modelChilds) {
+                            for (const child of modelChilds) {
+                                this.addNode(child, 'field', child.id, true);
+                            }
+                        }
+                    }
+                }
                 break;
             default:
                 break;
         }
 
         console.log('doUndo success');
+    }
+
+    canUndo(): boolean {
+        if (!this.undoRedoService) {
+            return false;
+        }
+
+        return this.undoRedoService.canUndo();
+    }
+
+    canRedo(): boolean {
+        if (!this.undoRedoService) {
+            return false;
+        }
+
+        return this.undoRedoService.canRedo();
     }
 }

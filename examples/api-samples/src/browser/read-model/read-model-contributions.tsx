@@ -148,7 +148,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                     console.log('Undo');
                 });
             },
-            isEnabled: () => this.readModelWidget.undoRedoService.canUndo()
+            isEnabled: () => this.readModelWidget.canUndo()
         })
 
         registry.registerCommand(TreeRedo, {
@@ -157,7 +157,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                     console.log('Redo');
                 });
             },
-            isEnabled: () => this.readModelWidget.undoRedoService.canRedo()
+            isEnabled: () => this.readModelWidget.canRedo()
         })
     }
 
