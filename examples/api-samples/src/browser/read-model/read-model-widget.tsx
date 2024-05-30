@@ -424,13 +424,14 @@ export class ReadModelWidget extends TreeWidget {
         const currentItem = item.getInfoData(index);
         const undoAction = currentItem.action;
         const undoNode = currentItem.extraInfo;
+        let { id, type, parent, children } = undoNode;
         const undoNodePath = this.labelProvider.getLongName(undoNode);
 
         switch (undoAction) {
             case 1:
             case 2:
                 if ((undoAction === 1 && isUndo === true) || (undoAction === 2 && isUndo === false)) {
-                    this.readModel.deleteNode(undoNode.id, undoNodePath, undoNode.type, undoNode.parent.id).then((result: boolean) => {
+                    this.readModel.deleteNode(id, undoNodePath, type, parent.id).then((result: boolean) => {
                         if (result) {
                             this.deleteNode(undoNode, true);
                         } else {
@@ -438,11 +439,11 @@ export class ReadModelWidget extends TreeWidget {
                         }
                     })
                 } else {
-                    this.readModel.addNodeServer(undoNode.id, undoNodePath, undoNode.type, undoNode.id, undoNode.parent.id).then((result: boolean) => {
+                    this.readModel.addNodeServer(id, undoNodePath, type, id, parent.id).then((result: boolean) => {
                         if (result) {
-                            this.addNode(undoNode, undoNode.type, undoNode.id, true);
-                            if (undoNode.type === 'model') {
-                                const modelChilds = undoNode.children;
+                            this.addNode(undoNode, type, id, true);
+                            if (type === 'model') {
+                                const modelChilds = children;
                                 if (modelChilds) {
                                     for (const child of modelChilds) {
                                         this.addNode(child, 'field', child.id, true);
