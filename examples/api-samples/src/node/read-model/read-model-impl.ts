@@ -277,7 +277,7 @@ export class ReadModelImpl implements ReadModel {
 
 
     // add tabbar 클릭 시
-    async addNodeServer(nodeName: string, filePath: string, type: string, nodeValue: string, parentName?: string): Promise<boolean> {
+    async addNodeServer(nodeName: string, filePath: string, type: string, nodeValue: string, parentName?: string, isUndoRedo?: boolean, insertIndex?: number): Promise<boolean> {
         const xmlDom = this.getFileDom(filePath);
 
         if (!xmlDom) {
@@ -297,8 +297,12 @@ export class ReadModelImpl implements ReadModel {
                 nodeToAdd = modelsNode.appendChild('Model');
                 break;
             case 'model':
-                if (nodeName === nodeValue) {
-                    nodeToAdd = modelsNode.appendChild('Model');
+                if (isUndoRedo) {
+                    if (insertIndex) {
+                        nodeToAdd = modelsNode.insertChild('Model', insertIndex);
+                    } else {
+                        nodeToAdd = modelsNode.appendChild('Model');
+                    }
                 }
                 else {
                     const parentModelNode = modelsChild.find(node => node.getAttribute('id') === nodeName) as NpXmlNode;
@@ -308,8 +312,12 @@ export class ReadModelImpl implements ReadModel {
             case 'field':
                 const parentNode = modelsChild.find(node => node.getAttribute('id') === parentName) as NpXmlNode;
                 const modelChild = parentNode.getChilds() as NpXmlNode[];
-                const currentNodeIndex = modelChild.find(node => node.getAttribute('id') === nodeName)?.getIndex() as number;
-                nodeToAdd = parentNode.insertChild('Field', currentNodeIndex);
+                if (isUndoRedo && insertIndex) {
+                    nodeToAdd = parentNode.insertChild('Field', insertIndex);
+                } else {
+                    const currentNodeIndex = modelChild.find(node => node.getAttribute('id') === nodeName)?.getIndex() as number;
+                    nodeToAdd = parentNode.insertChild('Field', currentNodeIndex);
+                }
                 break;
         }
 

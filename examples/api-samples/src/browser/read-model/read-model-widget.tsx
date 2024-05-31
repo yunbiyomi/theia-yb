@@ -428,10 +428,11 @@ export class ReadModelWidget extends TreeWidget {
         }
 
         const currentItem = item.getInfoData(index);
-        const undoAction = currentItem.action;
+        const undoAction: UNDO_REDO_ACTION = currentItem.action;
         const undoNode = currentItem.extraInfo;
         let { id, type, parent } = undoNode;
-        const undoNodePath = this.labelProvider.getLongName(undoNode);
+        const undoNodePath: string = this.labelProvider.getLongName(undoNode);
+        const undoNodeIndex: number = undoNode.index;
 
         switch (undoAction) {
             case 1:
@@ -445,7 +446,7 @@ export class ReadModelWidget extends TreeWidget {
                         }
                     })
                 } else {
-                    this.readModel.addNodeServer(id, undoNodePath, type, id, parent.id).then((result: boolean) => {
+                    this.readModel.addNodeServer(id, undoNodePath, type, id, parent.id, true, undoNodeIndex).then((result: boolean) => {
                         if (result) {
                             this.addNode(undoNode, type, id, true);
                         } else {
