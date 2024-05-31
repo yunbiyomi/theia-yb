@@ -377,6 +377,12 @@ export class ReadModelWidget extends TreeWidget {
 
     // info 생성해서 stack, service에 push
     createUndoRedoStack(node: TypeNode | ExpandTypeNode, action: UNDO_REDO_ACTION, area: UNDO_REDO_AREA, index?: number): void {
+        const isModify = this.undoRedoService.isModified();
+
+        if (!isModify) {
+            this.undoRedoService.clear();
+        }
+
         const newInfo: TiUndoRedoInfo = {
             action,
             area,
@@ -395,9 +401,10 @@ export class ReadModelWidget extends TreeWidget {
             return;
         }
 
+        const canUndo = this.canUndo();
         const undoItem: TiUndoRedoStack | undefined = this.undoRedoService.undo();
 
-        if (undoItem !== undefined) {
+        if (undoItem && canUndo) {
             const count = undoItem.count();
             for (let i = count - 1; i >= 0; i--) {
                 this.doUndoRedo(undoItem, i, true);
@@ -411,9 +418,10 @@ export class ReadModelWidget extends TreeWidget {
             return;
         }
 
+        const canRedo = this.canRedo();
         const undoItem: TiUndoRedoStack | undefined = this.undoRedoService.redo();
 
-        if (undoItem !== undefined) {
+        if (undoItem && canRedo) {
             const count = undoItem.count();
             for (let i = 0; i < count; i++) {
                 this.doUndoRedo(undoItem, i, false);

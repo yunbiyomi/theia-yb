@@ -65,6 +65,7 @@ export class ReadModelTreeModel extends TreeModelImpl {
 
                     // 코드 편집창에서 save 동작 시
                     monacoEditor.document.onDidSaveModel(() => {
+                        widget.undoRedoService.save();
                         this.readModel.readChangeFile(filePath).then((isChanged: boolean) => {
                             if (isChanged) {
                                 this.readModel.parseModel(filePath).then((xmlNodes: ParseNode[] | undefined) => {
