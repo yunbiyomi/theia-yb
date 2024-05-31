@@ -72,8 +72,7 @@ export class ReadModelTreeModel extends TreeModelImpl {
                                     if (!xmlNodes) {
                                         return
                                     }
-                                    const parentNode = node.parent as ExpandTypeNode
-                                    widget.getReadTree(xmlNodes, 'readXml', parentNode);
+                                    widget.resetFileNode(node, xmlNodes);
                                 });
                             }
                         });

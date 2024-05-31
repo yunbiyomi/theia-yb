@@ -265,7 +265,7 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // 새로운 Node 추가
-    async addNode(selectNode: ExpandTypeNode | TypeNode, type: string, value: string, isUndoRedo?: boolean): Promise<void> {
+    async addNode(selectNode: ExpandTypeNode | TypeNode, type: nodeType, value: string, isUndoRedo?: boolean): Promise<void> {
         let root = selectNode;
         const path = this.labelProvider.getLongName(root);
         const newNodeinfo = { id: value, filePath: path } as ParseNode;
@@ -305,7 +305,7 @@ export class ReadModelWidget extends TreeWidget {
         if (newAddNode!) {
             if (type === 'field' && !isUndoRedo) {
                 this.insertChild(root, selectNode, newAddNode);
-            } else if (isUndoRedo) {
+            } else if (isUndoRedo && newAddNode.index) {
                 this.insertChild(root, selectNode, newAddNode, newAddNode.index);
             }
             else {
@@ -354,6 +354,19 @@ export class ReadModelWidget extends TreeWidget {
         return super.renderExpansionToggle(node, props);
     }
 
+    // 코드 에디터에서 save시 다시 트리 생성
+    async resetFileNode(node: ExpandTypeNode, xmlNodes: ParseNode[]): Promise<void> {
+        const parentNode = node.parent as ExpandTypeNode;
+        // CompositeTreeNode.removeChild(parentNode, node);
+        this.getReadTree(xmlNodes, 'readXml', parentNode);
+
+        if (ExpandableTreeNode.is(node)) {
+            this.model.expandNode(node);
+        }
+
+        await this.model.refresh();
+    }
+
     // 트리 위젯 초기화
     override restoreState(oldState: object): void {
         super.restoreState(oldState);
@@ -365,6 +378,7 @@ export class ReadModelWidget extends TreeWidget {
         if (model) {
             this.model.clearSelection();
         }
+        CompositeTreeNode.removeChild
     }
 
     async openCodeEditor(filePath: URI): Promise<void> {
@@ -438,7 +452,13 @@ export class ReadModelWidget extends TreeWidget {
         const currentItem = item.getInfoData(index);
         const undoAction: UNDO_REDO_ACTION = currentItem.action;
         const undoNode = currentItem.extraInfo;
-        let { id, type, parent } = undoNode;
+
+        if (!undoNode) {
+            console.error('undoNode is undefined');
+            return;
+        }
+
+        let { id, type, parent, children } = undoNode;
         const undoNodePath: string = this.labelProvider.getLongName(undoNode);
         const undoNodeIndex: number = undoNode.index;
 
@@ -457,6 +477,11 @@ export class ReadModelWidget extends TreeWidget {
                     this.readModel.addNodeServer(id, undoNodePath, type, id, parent.id, true, undoNodeIndex).then((result: boolean) => {
                         if (result) {
                             this.addNode(undoNode, type, id, true);
+                            if (type === 'model') {
+                                for (const child of children) {
+                                    this.addNode(child, 'field', child.id, true);
+                                }
+                            }
                         } else {
                             console.log('addNodeServer fail');
                         }
