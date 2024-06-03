@@ -365,7 +365,6 @@ export class ReadModelWidget extends TreeWidget {
     // 코드 에디터에서 save시 다시 트리 생성
     async resetFileNode(node: ExpandTypeNode, xmlNodes: ParseNode[]): Promise<void> {
         const parentNode = node.parent as ExpandTypeNode;
-        // CompositeTreeNode.removeChild(parentNode, node);
         this.getReadTree(xmlNodes, 'readXml', parentNode);
 
         if (ExpandableTreeNode.is(node)) {
@@ -494,7 +493,8 @@ export class ReadModelWidget extends TreeWidget {
                             const rootNode = await this.addNode(undoNode, type, id, true);
                             if (type === 'model') {
                                 for (const child of children) {
-                                    this.addNode(child, 'field', child.id, true, rootNode);
+                                    this.readModel.addNodeServer(child.id, undoNodePath, 'field', child.id, parent.id, true, child.index);
+                                    await this.addNode(child, 'field', child.id, true, rootNode);
                                 }
                             }
                             if (addNodeReturn.xmlContent) {

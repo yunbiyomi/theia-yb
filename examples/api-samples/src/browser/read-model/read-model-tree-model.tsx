@@ -61,9 +61,10 @@ export class ReadModelTreeModel extends TreeModelImpl {
                     const monacoEditor = await this.monacoEditorProvider.get(nodeURI);
                     monacoEditor.document.autoSave = 'off';
 
+                    // 코드 에디터 창 열기
                     await widget.openCodeEditor(nodeURI);
 
-                    // 코드 편집창에서 save 동작 시
+                    // 코드 에디터에서 save 동작 시
                     monacoEditor.document.onDidSaveModel(() => {
                         widget.undoRedoService.save();
                         this.readModel.readChangeFile(filePath).then((isChanged: boolean) => {
