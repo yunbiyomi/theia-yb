@@ -23,6 +23,7 @@ import { URI } from '@theia/core';
 import { ReadModelTreeModel } from './read-model-tree-model';
 import { TiUndoRedoService, TiUndoRedoStack } from './undo-redo/ti-undo-redo-service';
 import { TiUndoRedoInfo, UNDO_REDO_ACTION, UNDO_REDO_AREA } from './undo-redo/ti-undo-redo-definition';
+import { MonacoEditorProvider } from '@theia/monaco/lib/browser/monaco-editor-provider';
 
 export interface TypeNode extends SelectableTreeNode, CompositeTreeNode {
     type: nodeType;
@@ -41,6 +42,7 @@ export class ReadModelWidget extends TreeWidget {
     @inject(LabelProvider) protected override readonly labelProvider: LabelProvider;
     @inject(OpenerService) protected readonly openerService: OpenerService;
     @inject(ReadModel) protected readonly readModel: ReadModel;
+    @inject(MonacoEditorProvider) protected readonly monacoEditorProvider: MonacoEditorProvider;
 
     static createContainer(parent: interfaces.Container): Container {
         const child = createTreeContainer(parent, {
@@ -468,25 +470,35 @@ export class ReadModelWidget extends TreeWidget {
         const undoNodePath: string = this.labelProvider.getLongName(undoNode);
         const undoNodeIndex: number = undoNode.index;
 
+        const nodeURI = URI.fromFilePath(undoNodePath);
+        const monacoEditor = await this.monacoEditorProvider.get(nodeURI);
+        const monacoModel = monacoEditor.getControl().getModel();
+
         switch (undoAction) {
             case 1:
             case 2:
                 if ((undoAction === 1 && isUndo === true) || (undoAction === 2 && isUndo === false)) {
-                    this.readModel.deleteNode(id, undoNodePath, type, parent.id).then((result: boolean) => {
-                        if (result) {
+                    this.readModel.deleteNode(id, undoNodePath, type, parent.id).then((deleteNodeResult) => {
+                        if (deleteNodeResult.result) {
                             this.deleteNode(undoNode, true);
+                            if (deleteNodeResult.xmlContent) {
+                                monacoModel?.setValue(deleteNodeResult.xmlContent);
+                            }
                         } else {
                             console.log('deleteNode fail');
                         }
                     })
                 } else {
-                    this.readModel.addNodeServer(id, undoNodePath, type, id, parent.id, true, undoNodeIndex).then(async (result: boolean) => {
-                        if (result) {
-                            const modelRootNode = await this.addNode(undoNode, type, id, true);
+                    this.readModel.addNodeServer(id, undoNodePath, type, id, parent.id, true, undoNodeIndex).then(async (addNodeReturn) => {
+                        if (addNodeReturn.result) {
+                            const rootNode = await this.addNode(undoNode, type, id, true);
                             if (type === 'model') {
                                 for (const child of children) {
-                                    this.addNode(child, 'field', child.id, true, modelRootNode);
+                                    this.addNode(child, 'field', child.id, true, rootNode);
                                 }
+                            }
+                            if (addNodeReturn.xmlContent) {
+                                monacoModel?.setValue(addNodeReturn.xmlContent);
                             }
                         } else {
                             console.log('addNodeServer fail');

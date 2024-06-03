@@ -14,7 +14,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR, QuickInputService, QuickPickItemOrSeparator, QuickPickItem } from '@theia/core';
+import { Command, CommandRegistry, MenuModelRegistry, MAIN_MENU_BAR, QuickInputService, QuickPickItemOrSeparator, QuickPickItem, URI } from '@theia/core';
 import { injectable, inject, interfaces } from '@theia/core/shared/inversify';
 // eslint-disable-next-line max-len
 import { AbstractViewContribution, ApplicationShell, bindViewContribution, codicon, CommonCommands, CommonMenus, FrontendApplicationContribution, Keybinding, KeybindingContext, KeybindingRegistry, LabelProvider, QuickViewService, Widget, WidgetFactory } from '@theia/core/lib/browser';
@@ -23,6 +23,7 @@ import { ReadModelWidget, TypeNode } from './read-model-widget';
 import { LocalConnectionProvider, ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { OutputChannelManager, OutputChannelSeverity } from '@theia/output/lib/browser/output-channel';
+import { MonacoEditorProvider } from '@theia/monaco/lib/browser/monaco-editor-provider';
 
 export const ReadModelCommand: Command = {
     id: ReadModelWidget.ID,
@@ -68,6 +69,7 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
     @inject(QuickInputService) protected readonly quickInputService: QuickInputService;
     @inject(LabelProvider) protected readonly labelProvider: LabelProvider;
     @inject(OutputChannelManager) protected readonly outputChannelManager: OutputChannelManager;
+    @inject(MonacoEditorProvider) protected readonly monacoEditorProvider: MonacoEditorProvider;
 
     constructor() {
         super({
@@ -238,6 +240,10 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
         const path = this.labelProvider.getLongName(selectNode);
         const type = selectNode.type;
 
+        const nodeURI = URI.fromFilePath(path);
+        const monacoEditor = await this.monacoEditorProvider.get(nodeURI);
+        const monacoModel = monacoEditor.getControl().getModel();
+
         if (selectNode.parent) {
             nodeParentName = selectNode.parent.id;
         }
@@ -289,9 +295,12 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
                             addNewNode.execute = async () => {
                                 const idValue = addNewNode.value as string;
                                 // 새로운 Node 추가
-                                this.readModel.addNodeServer(nodeName, path, type, idValue, nodeParentName).then((result: boolean) => {
-                                    if (result) {
+                                this.readModel.addNodeServer(nodeName, path, type, idValue, nodeParentName).then((addNodeReturn) => {
+                                    if (addNodeReturn.result) {
                                         this.readModelWidget.addNode(selectNode, type, idValue);
+                                        if (addNodeReturn.xmlContent) {
+                                            monacoModel?.setValue(addNodeReturn.xmlContent);
+                                        }
                                     }
                                 });
                             };
@@ -312,16 +321,23 @@ export class ReadModelContribution extends AbstractViewContribution<ReadModelWid
     }
 
     // delete tabbar execute 
-    protected deleteNodeHandler(): void {
+    protected async deleteNodeHandler(): Promise<void> {
         const selectNode = this.readModelWidget.model.selectedNodes[0] as TypeNode;
         const nodeName = selectNode.id;
         const path = this.labelProvider.getLongName(selectNode);
         const type = selectNode.type;
         const parentName = selectNode.parent?.id as string;
 
-        this.readModel.deleteNode(nodeName, path, type, parentName).then((result: boolean) => {
-            if (result) {
+        const nodeURI = URI.fromFilePath(path);
+        const monacoEditor = await this.monacoEditorProvider.get(nodeURI);
+        const monacoModel = monacoEditor.getControl().getModel();
+
+        this.readModel.deleteNode(nodeName, path, type, parentName).then((deleteNodeResult) => {
+            if (deleteNodeResult.result) {
                 this.readModelWidget.deleteNode(selectNode);
+                if (deleteNodeResult.xmlContent) {
+                    monacoModel?.setValue(deleteNodeResult.xmlContent);
+                }
             }
         });
     }

@@ -158,11 +158,11 @@ export class ReadModelImpl implements ReadModel {
     }
 
     // delete tabber 클릭 시
-    async deleteNode(nodeName: string, filePath: string, type: string, parentName: string): Promise<boolean> {
+    async deleteNode(nodeName: string, filePath: string, type: string, parentName: string): Promise<{ result: boolean; xmlContent?: string }> {
         const xmlDom = this.getFileDom(filePath);
 
         if (!xmlDom) {
-            return false
+            return { result: false };
         }
 
         const rootNode = xmlDom.getRootNode();
@@ -189,16 +189,15 @@ export class ReadModelImpl implements ReadModel {
                 }
                 break;
             default:
-                return false;
+                return { result: false };
         }
 
         if (nodeToRemove) {
             this.setFileDom(filePath, xmlDom);
             const xmlData = buildXML(xmlDom);
-            fs.writeFileSync(filePath, xmlData, 'utf-8');
-            return true;
+            return { result: true, xmlContent: xmlData };
         } else {
-            return false;
+            return { result: false };
         }
     }
 
@@ -274,14 +273,12 @@ export class ReadModelImpl implements ReadModel {
         return { isValid: true };
     }
 
-
-
     // add tabbar 클릭 시
-    async addNodeServer(nodeName: string, filePath: string, type: string, nodeValue: string, parentName?: string, isUndoRedo?: boolean, insertIndex?: number): Promise<boolean> {
+    async addNodeServer(nodeName: string, filePath: string, type: string, nodeValue: string, parentName?: string, isUndoRedo?: boolean, insertIndex?: number): Promise<{ result: boolean; xmlContent?: string }> {
         const xmlDom = this.getFileDom(filePath);
 
         if (!xmlDom) {
-            return false
+            return { result: false };
         }
 
         const rootNode = xmlDom.getRootNode();
@@ -325,10 +322,9 @@ export class ReadModelImpl implements ReadModel {
             nodeToAdd.setAttribute('id', nodeValue);
             this.setFileDom(filePath, xmlDom);
             const xmlData = buildXML(xmlDom);
-            fs.writeFileSync(filePath, xmlData, 'utf-8');
-            return true;
+            return { result: true, xmlContent: xmlData };
         } else {
-            return false;
+            return { result: false };
         }
     }
 
