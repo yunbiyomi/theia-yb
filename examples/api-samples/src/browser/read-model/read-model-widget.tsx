@@ -265,7 +265,7 @@ export class ReadModelWidget extends TreeWidget {
     }
 
     // 새로운 Node 추가
-    async addNode(selectNode: ExpandTypeNode | TypeNode, type: nodeType, value: string, isUndoRedo?: boolean): Promise<void> {
+    async addNode(selectNode: ExpandTypeNode | TypeNode, type: nodeType, value: string, isUndoRedo?: boolean, nodeParent?: ExpandTypeNode | TypeNode | undefined): Promise<ExpandTypeNode | TypeNode | undefined> {
         let root = selectNode;
         const path = this.labelProvider.getLongName(root);
         const newNodeinfo = { id: value, filePath: path } as ParseNode;
@@ -274,7 +274,7 @@ export class ReadModelWidget extends TreeWidget {
         const fieldIcon = codicon('circle-small');
         const fieldType = 'field';
         const nodeIndex = selectNode?.index;
-        let newAddNode: TypeNode | ExpandTypeNode;
+        let newAddNode: TypeNode | ExpandTypeNode | undefined = undefined;
 
         switch (type) {
             case 'folder':
@@ -307,6 +307,11 @@ export class ReadModelWidget extends TreeWidget {
                 this.insertChild(root, selectNode, newAddNode);
             } else if (isUndoRedo && newAddNode.index) {
                 this.insertChild(root, selectNode, newAddNode, newAddNode.index);
+            } else if (type === 'field' && isUndoRedo) {
+                if (nodeParent) {
+                    root = nodeParent;
+                    CompositeTreeNode.addChild(root, newAddNode);
+                }
             }
             else {
                 CompositeTreeNode.addChild(root, newAddNode);
@@ -330,6 +335,7 @@ export class ReadModelWidget extends TreeWidget {
         }
 
         await this.model.refresh();
+        return newAddNode;
     }
 
     // 각 Node에 알맞는 아이콘 render
@@ -474,12 +480,12 @@ export class ReadModelWidget extends TreeWidget {
                         }
                     })
                 } else {
-                    this.readModel.addNodeServer(id, undoNodePath, type, id, parent.id, true, undoNodeIndex).then((result: boolean) => {
+                    this.readModel.addNodeServer(id, undoNodePath, type, id, parent.id, true, undoNodeIndex).then(async (result: boolean) => {
                         if (result) {
-                            this.addNode(undoNode, type, id, true);
+                            const modelRootNode = await this.addNode(undoNode, type, id, true);
                             if (type === 'model') {
                                 for (const child of children) {
-                                    this.addNode(child, 'field', child.id, true);
+                                    this.addNode(child, 'field', child.id, true, modelRootNode);
                                 }
                             }
                         } else {
