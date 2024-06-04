@@ -18,7 +18,10 @@ import * as React from '@theia/core/shared/react';
 import { nls } from '@theia/core';
 import { injectable, postConstruct } from '@theia/core/shared/inversify';
 import { ReactWidget } from '@theia/core/lib/browser';
-import OpenStartWidgetComponent from './open-widget-component';
+import HeaderComponent from './component/Header';
+import AdditionalContainer from './component/Additional';
+import AdvertisementContainer from './component/Advertisement';
+import CurrentDesignContainer from './component/CurrentDesign';
 
 @injectable()
 export class OpenStartWidget extends ReactWidget {
@@ -43,7 +46,15 @@ export class OpenStartWidget extends ReactWidget {
     // 위젯 렌더링
     protected render(): React.ReactNode {
         return (
-            <OpenStartWidgetComponent />
+            <div className='widget-container'>
+                <HeaderComponent />
+                <AdditionalContainer />
+                <AdvertisementContainer />
+                <CurrentDesignContainer />
+                <button className='chat-button'>
+                    ?
+                </button>
+            </div>
         );
     }
 
