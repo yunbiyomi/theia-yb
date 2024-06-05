@@ -16,6 +16,7 @@
 
 import { Command, CommandContribution, CommandRegistry, MAIN_MENU_BAR, MenuContribution, MenuModelRegistry } from '@theia/core';
 import { injectable, interfaces } from '@theia/core/shared/inversify';
+// import { OptionsDialog } from './options-dialog';
 
 const OptionsCommand: Command = {
     id: 'options',
@@ -24,13 +25,22 @@ const OptionsCommand: Command = {
 
 @injectable()
 export class OptionsCommandContribution implements CommandContribution {
+
+    // @inject(AboutDialog) protected readonly aboutDialog: AboutDialog
+    // @inject(OptionsDialog) protected readonly optionsDialog: OptionsDialog
+
     registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(OptionsCommand, {
             execute: async () => {
-                alert('options');
+
             }
         });
     }
+
+    // protected async openOptions(): Promise<void> {
+    //     this.optionsDialog.open();
+    // }
+
 }
 
 @injectable()
