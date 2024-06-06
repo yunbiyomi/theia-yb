@@ -81,4 +81,4 @@ export const bindPrintOutput = (bind: interfaces.Bind) => {
         const client = ctx.container.get<PrintOutputClient>(PrintOutputClient);
         return connection.createProxy<PrintOutput>(PrintOutputPath, client);
     }).inSingletonScope();
-}
+};

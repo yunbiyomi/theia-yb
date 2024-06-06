@@ -1,3 +1,5 @@
+/* eslint-disable @theia/shared-dependencies */
+/* eslint-disable import/no-extraneous-dependencies */
 // *****************************************************************************
 // Copyright (C) 2024 TOBESOFT and others.
 //
@@ -15,40 +17,33 @@
 // *****************************************************************************
 
 import React from 'react';
-import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
-import { DialogProps } from '@theia/core/lib/browser';
+import { inject, injectable } from '@theia/core/shared/inversify';
 import { ReactDialog } from '@theia/core/lib/browser/dialogs/react-dialog';
+import { DialogProps } from '@theia/core/lib/browser';
 
 @injectable()
-export class OptionsDialogProps extends DialogProps {
-}
-
-@injectable()
-export class OptionsDialog extends ReactDialog<void> {
+export class NexaOptionsDialog extends ReactDialog<void> {
     get value(): void {
-        throw new Error('Method not implemented.');
+        return;
     }
+    readonly ID = 'nexa-options-dialog';
+    static readonly LABEL = 'Nexa Options Dialog';
 
     constructor(
-        @inject(OptionsDialogProps) protected override readonly props: OptionsDialogProps
+        @inject(DialogProps) props: DialogProps
     ) {
         super({
             title: 'Options',
         });
-    }
-
-    @postConstruct()
-    protected init(): void {
-        this.doInit();
-    }
-
-    protected async doInit(): Promise<void> {
-        this.update();
+        this.appendAcceptButton('Save');
     }
 
     protected render(): React.ReactNode {
-        return <div>
-            HelloWorld
-        </div>
+        return (
+            <div>
+                <h2>Your Dialog</h2>
+                <p>This is a sample dialog using React.</p>
+            </div>
+        );
     }
 }

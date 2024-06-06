@@ -34,7 +34,7 @@ import { bindSampleFileSystemCapabilitiesCommands } from './file-system/sample-f
 import { bindOpenStartWidget } from './open-start/open-start-contribution';
 import { bindReadModelWidget } from './read-model/read-model-contributions';
 import { bindPrintOutput } from './print-output/print-output-contribution';
-import { bindOptions } from './options/options-contribution';
+import { bindOptions } from './nexa-options/nexa-options-contribution';
 
 export default new ContainerModule((
     bind: interfaces.Bind,
