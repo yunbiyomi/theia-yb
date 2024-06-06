@@ -18,9 +18,37 @@ import { RpcServer } from '@theia/core/lib/common/messaging/proxy-factory';
 
 export const NexaOptionsPath = '/services/nexaOptions';
 export const NexaOptions = Symbol('NexaOptions');
+
+export interface OptionsData {
+    Configure: {
+        Environment: {
+            General: {
+                workFolder: string;
+                recentFileCount: number;
+                recentPrjCount: number;
+                commandType: number;
+                toolTheme: number;
+            }
+        },
+        FormDesign: {
+            General: {
+                undoMax: number;
+                defaultWidth: number;
+                defaultHeight: number;
+                selectType: number;
+            },
+            LayoutManager: {
+                displayEditStep: number;
+            }
+        }
+        setEnvironment: string;
+    }
+}
+
 export interface NexaOptions extends RpcServer<NexaOptionsClient> {
     setClient(client: NexaOptionsClient | undefined): void;
     getClient(): NexaOptionsClient | undefined;
+    readOptionsFile(): Promise<OptionsData>;
 }
 
 export const NexaOptionsClient = Symbol('NexaOptions');

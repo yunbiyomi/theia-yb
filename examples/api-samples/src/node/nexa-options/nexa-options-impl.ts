@@ -16,7 +16,9 @@
 
 import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
 import { injectable, interfaces } from '@theia/core/shared/inversify';
-import { NexaOptions, NexaOptionsClient, NexaOptionsPath } from '../../common/nexa-options/nexa-options-sevice';
+import { NexaOptions, NexaOptionsClient, NexaOptionsPath, OptionsData } from '../../common/nexa-options/nexa-options-sevice';
+import fs = require('fs');
+import path = require('path');
 
 @injectable()
 export class NexaOptionsImpl implements NexaOptions {
@@ -33,9 +35,19 @@ export class NexaOptionsImpl implements NexaOptions {
     dispose(): void {
         throw new Error('Method not implemented.');
     }
+
+    readOptionsFile(): Promise<OptionsData> {
+        const directoryPath = '../../../../nexa-options-data.json';
+        const filePath = path.join(__dirname, directoryPath);
+
+        const jsonData = fs.readFileSync(filePath, 'utf8');
+        const optionsData = JSON.parse(jsonData);
+
+        return optionsData;
+    }
 }
 
-export const bindPrintOutputBackend = (bind: interfaces.Bind) => {
+export const bindNexaOptionsBackend = (bind: interfaces.Bind) => {
     bind(NexaOptions).to(NexaOptionsImpl).inSingletonScope();
     bind(ConnectionHandler).toDynamicValue(ctx =>
         new RpcConnectionHandler<NexaOptionsClient>(NexaOptionsPath, client => {

@@ -1,3 +1,4 @@
+/* eslint-disable no-null/no-null */
 /* eslint-disable @theia/shared-dependencies */
 /* eslint-disable import/no-extraneous-dependencies */
 // *****************************************************************************
@@ -19,7 +20,10 @@
 import React from 'react';
 import { inject, injectable } from '@theia/core/shared/inversify';
 import { ReactDialog } from '@theia/core/lib/browser/dialogs/react-dialog';
-import { DialogProps } from '@theia/core/lib/browser';
+import { DialogProps, WidgetManager } from '@theia/core/lib/browser';
+import NexaOptionsEnvironmentWidget from './nexa-options-environment-widget';
+import NexaOptionsFormDesignWidget from './nexa-options-form-design-widget';
+import { OptionsData } from '../../common/nexa-options/nexa-options-sevice';
 
 @injectable()
 export class NexaOptionsDialog extends ReactDialog<void> {
@@ -28,21 +32,29 @@ export class NexaOptionsDialog extends ReactDialog<void> {
     }
     readonly ID = 'nexa-options-dialog';
     static readonly LABEL = 'Nexa Options Dialog';
+    optionsData: OptionsData;
+
+    @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
 
     constructor(
-        @inject(DialogProps) props: DialogProps
+        @inject(DialogProps) props: DialogProps,
+        data: OptionsData
     ) {
         super({
             title: 'Options',
         });
+        this.optionsData = data;
+        this.appendButton('Set Default', false);
+        this.appendCloseButton('cancle');
         this.appendAcceptButton('Save');
+        console.log(JSON.stringify(this.optionsData));
     }
 
     protected render(): React.ReactNode {
         return (
             <div>
-                <h2>Your Dialog</h2>
-                <p>This is a sample dialog using React.</p>
+                <NexaOptionsEnvironmentWidget optionsData={this.optionsData} />
+                <NexaOptionsFormDesignWidget optionsData={this.optionsData} />
             </div>
         );
     }

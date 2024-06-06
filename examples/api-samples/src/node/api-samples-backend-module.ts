@@ -23,6 +23,7 @@ import { SampleBackendAppInfo } from './sample-backend-app-info';
 import { rebindOVSXClientFactory } from '../common/vsx/sample-ovsx-client-factory';
 import { bindReadModelWidgetBackend } from './read-model/read-model-impl';
 import { bindPrintOutputBackend } from './print-output/print-output-impl';
+import { bindNexaOptionsBackend } from './nexa-options/nexa-options-impl';
 
 export default new ContainerModule((bind, unbind, isBound, rebind) => {
     rebindOVSXClientFactory(rebind);
@@ -36,4 +37,5 @@ export default new ContainerModule((bind, unbind, isBound, rebind) => {
     }
     bindPrintOutputBackend(bind);
     bindReadModelWidgetBackend(bind);
+    bindNexaOptionsBackend(bind);
 });

@@ -17,8 +17,7 @@
 import { Command, CommandContribution, CommandRegistry, MAIN_MENU_BAR, MenuContribution, MenuModelRegistry } from '@theia/core';
 import { inject, injectable, interfaces } from '@theia/core/shared/inversify';
 import { LocalConnectionProvider, ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
-import { OutputChannelManager } from '@theia/output/lib/browser/output-channel';
-import { NexaOptions, NexaOptionsClient, NexaOptionsPath } from '../../common/nexa-options/nexa-options-sevice';
+import { NexaOptions, NexaOptionsClient, NexaOptionsPath, OptionsData } from '../../common/nexa-options/nexa-options-sevice';
 import { DialogProps } from '@theia/core/lib/browser';
 import { NexaOptionsDialog } from './nexa-options-dialog';
 
@@ -29,31 +28,29 @@ const OptionsCommand: Command = {
 
 @injectable()
 export class NexaOptionsClientContribution implements NexaOptionsClient {
-
-    @inject(OutputChannelManager) protected readonly outputChannelManager: OutputChannelManager;
-
-    public printOutputChannelManager(message: string): void {
-        const channel = this.outputChannelManager.getChannel('Print Output');
-        channel.appendLine('Hello world!');
-        channel.appendLine(message);
-        channel.show();
-    }
 }
 
 @injectable()
 export class NexaOptionsContribution implements CommandContribution, MenuContribution {
 
-    @inject(DialogProps)
-    protected readonly dialogProps: DialogProps;
+    @inject(NexaOptions) protected readonly options: NexaOptions;
+    @inject(DialogProps) protected readonly dialogProps: DialogProps;
+
+    optionsData: OptionsData;
 
     registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(OptionsCommand, {
-            execute: async () => this.showDialog()
+            execute: async () => {
+                this.options.readOptionsFile().then((data: OptionsData) => {
+                    this.optionsData = data;
+                    this.showDialog();
+                });
+            }
         });
     }
 
     private showDialog(): void {
-        const dialog = new NexaOptionsDialog(this.dialogProps);
+        const dialog = new NexaOptionsDialog(this.dialogProps, this.optionsData);
         dialog.open();
     }
 
@@ -79,5 +76,5 @@ export const bindOptions = (bind: interfaces.Bind) => {
     bind(CommandContribution).to(NexaOptionsContribution);
     bind(MenuContribution).to(NexaOptionsContribution);
     bind(DialogProps).toSelf().inSingletonScope();
-    bind(NexaOptionsDialog).toSelf();
+    bind(NexaOptionsDialog).toSelf().inSingletonScope();
 };
