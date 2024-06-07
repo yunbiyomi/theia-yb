@@ -18,7 +18,7 @@ import { Command, CommandContribution, CommandRegistry, MAIN_MENU_BAR, MenuContr
 import { inject, injectable, interfaces } from '@theia/core/shared/inversify';
 import { LocalConnectionProvider, ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 import { NexaOptions, NexaOptionsClient, NexaOptionsPath, OptionsData } from '../../common/nexa-options/nexa-options-sevice';
-import { DialogProps } from '@theia/core/lib/browser';
+import { DialogProps, WidgetManager } from '@theia/core/lib/browser';
 import { NexaOptionsDialog } from './nexa-options-dialog';
 
 const OptionsCommand: Command = {
@@ -35,6 +35,7 @@ export class NexaOptionsContribution implements CommandContribution, MenuContrib
 
     @inject(NexaOptions) protected readonly options: NexaOptions;
     @inject(DialogProps) protected readonly dialogProps: DialogProps;
+    @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
 
     optionsData: OptionsData;
 
@@ -50,7 +51,7 @@ export class NexaOptionsContribution implements CommandContribution, MenuContrib
     }
 
     private showDialog(): void {
-        const dialog = new NexaOptionsDialog(this.dialogProps, this.optionsData);
+        const dialog = new NexaOptionsDialog(this.dialogProps, this.widgetManager, this.options, this.optionsData);
         dialog.open();
     }
 

@@ -45,6 +45,20 @@ export class NexaOptionsImpl implements NexaOptions {
 
         return optionsData;
     }
+
+    async saveOptionsFile(data: OptionsData): Promise<boolean> {
+        if (!data) {
+            return false;
+        }
+
+        const directoryPath = '../../../../nexa-options-data.json';
+        const filePath = path.join(__dirname, directoryPath);
+
+        const saveData = JSON.stringify(data);
+
+        fs.writeFileSync(filePath, saveData, 'utf-8');
+        return true;
+    }
 }
 
 export const bindNexaOptionsBackend = (bind: interfaces.Bind) => {

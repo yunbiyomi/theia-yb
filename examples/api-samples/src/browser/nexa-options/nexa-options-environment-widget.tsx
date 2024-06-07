@@ -24,29 +24,64 @@ interface NexaOptionsEnvironmentWidgetProps {
 export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironmentWidgetProps): React.JSX.Element {
     const data = props.optionsData.Configure;
     const environmentData = data.Environment.General;
-    const environment = {
+    const [environmentType, setEnvironmentType] = React.useState(data.setEnvironment);
+    const [environment, setEnvironment] = React.useState({
         workFolder: environmentData.workFolder,
         recentFileCount: environmentData.recentFileCount,
-        recnetPrjCount: environmentData.recentPrjCount,
-        setEnvironment: data.setEnvironment,
+        recentPrjCount: environmentData.recentPrjCount,
+        // setEnvironment: data.setEnvironment,
         commandType: environmentData.commandType,
         toolTheme: environmentData.toolTheme
-    };
-
-    const [theme, setTheme] = React.useState(environment.toolTheme);
+    });
 
     React.useEffect(() => {
-        if (environment.toolTheme === 0) {
-            setTheme(0);
-        } else if (environment.toolTheme === 1) {
-            setTheme(1);
-        }
-    }, [environment.toolTheme]);
+        props.optionsData.Configure.Environment.General = environment;
+    }, [environment]);
+
+    React.useEffect(() => {
+        props.optionsData.Configure.setEnvironment = environmentType;
+    }, [environmentType]);
 
     const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newTheme = parseInt(e.target.value);
-        setTheme(newTheme);
+        setEnvironment(prevData => ({
+            ...prevData,
+            toolTheme: newTheme
+        }))
     };
+
+    const handleInputChange = (type: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        switch (type) {
+            case 'workFolder':
+                setEnvironment(prevData => ({
+                    ...prevData,
+                    workFolder: value
+                }))
+                break;
+            case 'fileCount':
+                setEnvironment(prevData => ({
+                    ...prevData,
+                    recentFileCount: parseInt(value)
+                }))
+                break;
+            case 'prjCount':
+                setEnvironment(prevData => ({
+                    ...prevData,
+                    recnetPrjCount: parseInt(value)
+                }))
+                break;
+            case 'setEnvironment':
+                setEnvironmentType(value);
+                break;
+            case 'commandType':
+                setEnvironment(prevData => ({
+                    ...prevData,
+                    commandType: parseInt(value)
+                }))
+                break;
+        }
+    }
 
     return (
         <section className='environment-options'>
@@ -59,32 +94,32 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
                 <p className='recent-files-title'>Recent Files</p>
                 <div>
                     <p>Number of recent files displayed in the list</p>
-                    <input value={environment.recentFileCount} readOnly />
+                    <input value={environment.recentFileCount} onChange={handleInputChange('fileCount')} />
                 </div>
                 <div>
                     <p>Number of recent Projects displayed in the list</p>
-                    <input value={environment.recnetPrjCount} readOnly />
+                    <input value={environment.recentPrjCount} onChange={handleInputChange('prjCount')} />
                 </div>
             </div>
             <div className='development-tools'>
                 <p className='development-title'>Development Tools</p>
                 <div>
                     <p>Perspective</p>
-                    <input value={environment.setEnvironment} readOnly />
+                    <input value={environmentType} onChange={handleInputChange('setEnvironment')} />
                 </div>
                 <div>
                     <p>Command Type</p>
-                    <input value={environment.commandType} readOnly />
+                    <input value={environment.commandType} onChange={handleInputChange('commandType')} />
                 </div>
                 <div>
                     <p>Nexacro Studio Theme</p>
                     <div>
                         <label htmlFor='theme-default'>Default</label>
-                        <input id='theme-default' type="radio" name="chk-theme" value={0} checked={theme === 0} onChange={handleThemeChange} readOnly />
+                        <input id='theme-default' type="radio" name="chk-theme" value={0} checked={environment.toolTheme === 0} onChange={handleThemeChange} readOnly />
                     </div>
                     <div>
                         <label htmlFor='theme-black'>Black</label>
-                        <input id='theme-black' type="radio" name="chk-theme" value={1} checked={theme === 1} onChange={handleThemeChange} readOnly />
+                        <input id='theme-black' type="radio" name="chk-theme" value={1} checked={environment.toolTheme === 1} onChange={handleThemeChange} readOnly />
                     </div>
                 </div>
             </div>

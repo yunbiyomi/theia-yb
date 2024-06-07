@@ -23,21 +23,22 @@ import { ReactDialog } from '@theia/core/lib/browser/dialogs/react-dialog';
 import { DialogProps, WidgetManager } from '@theia/core/lib/browser';
 import NexaOptionsEnvironmentWidget from './nexa-options-environment-widget';
 import NexaOptionsFormDesignWidget from './nexa-options-form-design-widget';
-import { OptionsData } from '../../common/nexa-options/nexa-options-sevice';
+import { NexaOptions, OptionsData } from '../../common/nexa-options/nexa-options-sevice';
 
 @injectable()
 export class NexaOptionsDialog extends ReactDialog<void> {
     get value(): void {
         return;
     }
+
     readonly ID = 'nexa-options-dialog';
     static readonly LABEL = 'Nexa Options Dialog';
     optionsData: OptionsData;
 
-    @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
-
     constructor(
         @inject(DialogProps) props: DialogProps,
+        @inject(WidgetManager) protected readonly widgetManager: WidgetManager,
+        @inject(NexaOptions) protected readonly options: NexaOptions,
         data: OptionsData
     ) {
         super({
@@ -46,8 +47,15 @@ export class NexaOptionsDialog extends ReactDialog<void> {
         this.optionsData = data;
         this.appendButton('Set Default', false);
         this.appendCloseButton('cancle');
-        this.appendAcceptButton('Save');
-        console.log(JSON.stringify(this.optionsData));
+        const saveButton = this.appendAcceptButton('Save');
+
+        saveButton.addEventListener('click', () => {
+            this.options.saveOptionsFile(this.optionsData).then((result: boolean) => {
+                if (!result)
+                    throw new Error(`Options not saved`); {
+                }
+            });
+        })
     }
 
     protected render(): React.ReactNode {
