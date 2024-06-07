@@ -18,8 +18,10 @@ import { Command, CommandContribution, CommandRegistry, MAIN_MENU_BAR, MenuContr
 import { inject, injectable, interfaces } from '@theia/core/shared/inversify';
 import { LocalConnectionProvider, ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 import { NexaOptions, NexaOptionsClient, NexaOptionsPath, OptionsData } from '../../common/nexa-options/nexa-options-sevice';
-import { DialogProps, WidgetManager } from '@theia/core/lib/browser';
+import { WidgetManager } from '@theia/core/lib/browser';
 import { NexaOptionsDialog } from './nexa-options-dialog';
+import { WorkspaceService } from '@theia/workspace/lib/browser';
+import { FileDialogService } from '@theia/filesystem/lib/browser';
 
 const OptionsCommand: Command = {
     id: 'nexa-options',
@@ -34,8 +36,10 @@ export class NexaOptionsClientContribution implements NexaOptionsClient {
 export class NexaOptionsContribution implements CommandContribution, MenuContribution {
 
     @inject(NexaOptions) protected readonly options: NexaOptions;
-    @inject(DialogProps) protected readonly dialogProps: DialogProps;
     @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
+    @inject(CommandRegistry) protected readonly commandRegistry: CommandRegistry;
+    @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
+    @inject(FileDialogService) protected readonly fileDialogService: FileDialogService;
 
     optionsData: OptionsData;
 
@@ -51,7 +55,7 @@ export class NexaOptionsContribution implements CommandContribution, MenuContrib
     }
 
     private showDialog(): void {
-        const dialog = new NexaOptionsDialog(this.dialogProps, this.widgetManager, this.options, this.optionsData);
+        const dialog = new NexaOptionsDialog(this.commandRegistry, this.widgetManager, this.options, this.workspaceService, this.fileDialogService, this.optionsData);
         dialog.open();
     }
 
@@ -76,6 +80,5 @@ export const bindOptions = (bind: interfaces.Bind) => {
     }).inSingletonScope();
     bind(CommandContribution).to(NexaOptionsContribution);
     bind(MenuContribution).to(NexaOptionsContribution);
-    bind(DialogProps).toSelf().inSingletonScope();
     bind(NexaOptionsDialog).toSelf().inSingletonScope();
 };

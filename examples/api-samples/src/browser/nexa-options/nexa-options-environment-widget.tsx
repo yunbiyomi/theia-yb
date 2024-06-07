@@ -19,6 +19,7 @@ import { OptionsData } from '../../common/nexa-options/nexa-options-sevice';
 
 interface NexaOptionsEnvironmentWidgetProps {
     optionsData: OptionsData;
+    onFindClick: () => Promise<void>;
 }
 
 export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironmentWidgetProps): React.JSX.Element {
@@ -67,7 +68,7 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
             case 'prjCount':
                 setEnvironment(prevData => ({
                     ...prevData,
-                    recnetPrjCount: parseInt(value)
+                    recentPrjCount: parseInt(value)
                 }))
                 break;
             case 'setEnvironment':
@@ -87,7 +88,7 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
             <div className='working-folder'>
                 <p className='working-folder-title'>Working Folder</p>
                 <input value={environment.workFolder} readOnly />
-                <button>find</button>
+                <button onClick={props.onFindClick}>find</button>
             </div>
             <div className='recent-files'>
                 <p className='recent-files-title'>Recent Files</p>

@@ -80,7 +80,7 @@ export class NexaOptionsImpl implements NexaOptions {
                         selectType: 0
                     },
                     LayoutManager: {
-                        displayEditStep: 0
+                        displayEditStep: 1
                     }
                 },
                 setEnvironment: 'developer'

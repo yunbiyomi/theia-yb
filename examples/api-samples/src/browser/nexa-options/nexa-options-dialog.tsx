@@ -20,10 +20,13 @@
 import React from 'react';
 import { inject, injectable } from '@theia/core/shared/inversify';
 import { ReactDialog } from '@theia/core/lib/browser/dialogs/react-dialog';
-import { DialogProps, WidgetManager } from '@theia/core/lib/browser';
+import { WidgetManager } from '@theia/core/lib/browser';
 import NexaOptionsEnvironmentWidget from './nexa-options-environment-widget';
 import NexaOptionsFormDesignWidget from './nexa-options-form-design-widget';
 import { NexaOptions, OptionsData } from '../../common/nexa-options/nexa-options-sevice';
+import { WorkspaceCommands, WorkspaceService } from '@theia/workspace/lib/browser';
+import { CommandRegistry } from '@theia/core';
+import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 
 @injectable()
 export class NexaOptionsDialog extends ReactDialog<void> {
@@ -37,9 +40,11 @@ export class NexaOptionsDialog extends ReactDialog<void> {
     optionsData: OptionsData;
 
     constructor(
-        @inject(DialogProps) props: DialogProps,
+        @inject(CommandRegistry) protected readonly commandRegistry: CommandRegistry,
         @inject(WidgetManager) protected readonly widgetManager: WidgetManager,
         @inject(NexaOptions) protected readonly options: NexaOptions,
+        @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService,
+        @inject(FileDialogService) protected readonly fileDialogService: FileDialogService,
         data: OptionsData
     ) {
         super({
@@ -68,10 +73,28 @@ export class NexaOptionsDialog extends ReactDialog<void> {
         })
     }
 
+    async doOpenFolder(): Promise<string | undefined> {
+        const props: OpenFileDialogProps = {
+            title: WorkspaceCommands.OPEN_FOLDER.dialogLabel,
+            canSelectFolders: true,
+            canSelectFiles: false,
+            canSelectMany: true,
+        };
+        const [rootStat] = await this.workspaceService.roots;
+        const targetFolders = await this.fileDialogService.showOpenDialog(props, rootStat);
+        if (targetFolders) {
+            const path = targetFolders.path.toString();
+            this.optionsData.Configure.Environment.General.workFolder = path;
+            return path
+        }
+        return undefined;
+    }
+
+
     protected render(): React.ReactNode {
         return (
             <div>
-                <NexaOptionsEnvironmentWidget optionsData={this.optionsData} />
+                <NexaOptionsEnvironmentWidget optionsData={this.optionsData} onFindClick={this.doOpenFolder.bind(this)} />
                 <NexaOptionsFormDesignWidget optionsData={this.optionsData} />
             </div>
         );

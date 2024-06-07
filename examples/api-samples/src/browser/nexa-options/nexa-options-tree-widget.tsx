@@ -16,7 +16,6 @@
 
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
 import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, TreeImpl, TreeModel, TreeModelImpl, TreeProps, TreeWidget } from '@theia/core/lib/browser';
-// import NexaOptionsData from './data/nexa-options-data.json';
 
 @injectable()
 export class NexaOptionsTreeWidget extends TreeWidget {
