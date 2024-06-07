@@ -29,7 +29,6 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
         workFolder: environmentData.workFolder,
         recentFileCount: environmentData.recentFileCount,
         recentPrjCount: environmentData.recentPrjCount,
-        // setEnvironment: data.setEnvironment,
         commandType: environmentData.commandType,
         toolTheme: environmentData.toolTheme
     });

@@ -59,6 +59,38 @@ export class NexaOptionsImpl implements NexaOptions {
         fs.writeFileSync(filePath, saveData, 'utf-8');
         return true;
     }
+
+    async resetOptionsFile(): Promise<boolean> {
+        const defaultOptionsData: OptionsData = {
+            Configure: {
+                Environment: {
+                    General: {
+                        workFolder: '',
+                        recentFileCount: 4,
+                        recentPrjCount: 4,
+                        commandType: 0,
+                        toolTheme: 0
+                    }
+                },
+                FormDesign: {
+                    General: {
+                        undoMax: 1024,
+                        defaultWidth: 1280,
+                        defaultHeight: 720,
+                        selectType: 0
+                    },
+                    LayoutManager: {
+                        displayEditStep: 0
+                    }
+                },
+                setEnvironment: 'developer'
+            }
+        };
+
+        const result = await this.saveOptionsFile(defaultOptionsData);
+
+        return result ? true : false;
+    }
 }
 
 export const bindNexaOptionsBackend = (bind: interfaces.Bind) => {

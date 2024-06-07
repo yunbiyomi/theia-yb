@@ -33,6 +33,7 @@ export class NexaOptionsDialog extends ReactDialog<void> {
 
     readonly ID = 'nexa-options-dialog';
     static readonly LABEL = 'Nexa Options Dialog';
+
     optionsData: OptionsData;
 
     constructor(
@@ -44,10 +45,19 @@ export class NexaOptionsDialog extends ReactDialog<void> {
         super({
             title: 'Options',
         });
+
         this.optionsData = data;
-        this.appendButton('Set Default', false);
+        const defaultButton = this.appendButton('Set Default', false);
         this.appendCloseButton('cancle');
         const saveButton = this.appendAcceptButton('Save');
+
+        defaultButton.addEventListener('click', () => {
+            this.options.resetOptionsFile().then((result: boolean) => {
+                if (!result)
+                    throw new Error(`Options not reset`); {
+                }
+            });
+        });
 
         saveButton.addEventListener('click', () => {
             this.options.saveOptionsFile(this.optionsData).then((result: boolean) => {
