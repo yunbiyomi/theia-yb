@@ -26,6 +26,7 @@ import { bindSampleToolbarContribution } from './toolbar/sample-toolbar-contribu
 
 import '../../src/browser/style/branding.css';
 import '../../src/browser/style/open-start-widget.css';
+import '../../src/browser/style/nexa-options-dialog.css';
 import { bindMonacoPreferenceExtractor } from './monaco-editor-preferences/monaco-editor-preference-extractor';
 import { rebindOVSXClientFactory } from '../common/vsx/sample-ovsx-client-factory';
 import { bindSampleAppInfo } from './vsx/sample-frontend-app-info';

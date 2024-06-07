@@ -18,10 +18,11 @@ import { Command, CommandContribution, CommandRegistry, MAIN_MENU_BAR, MenuContr
 import { inject, injectable, interfaces } from '@theia/core/shared/inversify';
 import { LocalConnectionProvider, ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 import { NexaOptions, NexaOptionsClient, NexaOptionsPath, OptionsData } from '../../common/nexa-options/nexa-options-sevice';
-import { WidgetManager } from '@theia/core/lib/browser';
+import { WidgetFactory, WidgetManager } from '@theia/core/lib/browser';
 import { NexaOptionsDialog } from './nexa-options-dialog';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
 import { FileDialogService } from '@theia/filesystem/lib/browser';
+import { NexaOptionsTreeWidget } from './nexa-options-tree-widget';
 
 const OptionsCommand: Command = {
     id: 'nexa-options',
@@ -81,4 +82,9 @@ export const bindOptions = (bind: interfaces.Bind) => {
     bind(CommandContribution).to(NexaOptionsContribution);
     bind(MenuContribution).to(NexaOptionsContribution);
     bind(NexaOptionsDialog).toSelf().inSingletonScope();
+    bind(NexaOptionsTreeWidget).toDynamicValue(ctx => NexaOptionsTreeWidget.createWidget(ctx.container)).inSingletonScope();
+    bind(WidgetFactory).toDynamicValue(ctx => ({
+        id: NexaOptionsTreeWidget.ID,
+        createWidget: () => ctx.container.get<NexaOptionsTreeWidget>(NexaOptionsTreeWidget)
+    })).inSingletonScope();
 };

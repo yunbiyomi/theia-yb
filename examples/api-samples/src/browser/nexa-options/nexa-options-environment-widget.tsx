@@ -86,32 +86,34 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
     return (
         <section className='environment-options'>
             <div className='working-folder'>
-                <p className='working-folder-title'>Working Folder</p>
-                <input value={environment.workFolder} readOnly />
-                <button onClick={props.onFindClick}>find</button>
+                <p className='working-folder title'>Working Folder</p>
+                <div className='options-input-wrap'>
+                    <input className='options-input-wrap work' value={environment.workFolder} readOnly />
+                    <button className='path-button' onClick={props.onFindClick}>find</button>
+                </div>
             </div>
             <div className='recent-files'>
-                <p className='recent-files-title'>Recent Files</p>
-                <div>
-                    <p>Number of recent files displayed in the list</p>
-                    <input value={environment.recentFileCount} onChange={handleInputChange('fileCount')} />
+                <p className='recent-files title'>Recent Files</p>
+                <div className='options-input-wrap long'>
+                    <p className='input-label'>Number of recent files displayed in the list</p>
+                    <input className='options-input' value={environment.recentFileCount} onChange={handleInputChange('fileCount')} />
                 </div>
-                <div>
-                    <p>Number of recent Projects displayed in the list</p>
-                    <input value={environment.recentPrjCount} onChange={handleInputChange('prjCount')} />
+                <div className='options-input-wrap'>
+                    <p className='input-label'>Number of recent Projects displayed in the list</p>
+                    <input className='options-input' value={environment.recentPrjCount} onChange={handleInputChange('prjCount')} />
                 </div>
             </div>
             <div className='development-tools'>
-                <p className='development-title'>Development Tools</p>
-                <div>
-                    <p>Perspective</p>
-                    <input value={environmentType} onChange={handleInputChange('setEnvironment')} />
+                <p className='development title'>Development Tools</p>
+                <div className='options-input-wrap'>
+                    <p className='input-label'>Perspective</p>
+                    <input className='options-input' value={environmentType} onChange={handleInputChange('setEnvironment')} />
                 </div>
-                <div>
-                    <p>Command Type</p>
-                    <input value={environment.commandType} onChange={handleInputChange('commandType')} />
+                <div className='options-input-wrap'>
+                    <p className='input-label'>Command Type</p>
+                    <input className='options-input' value={environment.commandType} onChange={handleInputChange('commandType')} />
                 </div>
-                <div>
+                <div className='options-input-wrap'>
                     <p>Nexacro Studio Theme</p>
                     <div>
                         <label htmlFor='theme-default'>Default</label>
