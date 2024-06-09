@@ -51,7 +51,7 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
     const handleDisplayEditStepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newDisplayEditStep = e.target.checked ? 1 : 0;
         setDisplayEditStep(newDisplayEditStep);
-    }
+    };
 
     const handleInputChange = (type: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = parseInt(e.target.value);
@@ -75,7 +75,7 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                 }));
                 break;
         }
-    }
+    };
 
     return (
         <section className='form-design-options'>

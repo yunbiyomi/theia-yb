@@ -58,19 +58,19 @@ export class NexaOptionsDialog extends ReactDialog<void> {
 
         defaultButton.addEventListener('click', () => {
             this.options.resetOptionsFile().then((result: boolean) => {
-                if (!result)
-                    throw new Error(`Options not reset`); {
+                if (!result) {
+                    throw new Error('Options not reset');
                 }
             });
         });
 
         saveButton.addEventListener('click', () => {
             this.options.saveOptionsFile(this.optionsData).then((result: boolean) => {
-                if (!result)
-                    throw new Error(`Options not saved`); {
+                if (!result) {
+                    throw new Error('Options not saved');
                 }
             });
-        })
+        });
     }
 
     async doOpenFolder(): Promise<string | undefined> {
@@ -85,11 +85,10 @@ export class NexaOptionsDialog extends ReactDialog<void> {
         if (targetFolders) {
             const path = targetFolders.path.toString();
             this.optionsData.Configure.Environment.General.workFolder = path;
-            return path
+            return path;
         }
         return undefined;
     }
-
 
     protected render(): React.ReactNode {
         return (

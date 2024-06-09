@@ -47,7 +47,7 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
         setEnvironment(prevData => ({
             ...prevData,
             toolTheme: newTheme
-        }))
+        }));
     };
 
     const handleInputChange = (type: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,19 +57,19 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
                 setEnvironment(prevData => ({
                     ...prevData,
                     workFolder: value
-                }))
+                }));
                 break;
             case 'fileCount':
                 setEnvironment(prevData => ({
                     ...prevData,
                     recentFileCount: parseInt(value)
-                }))
+                }));
                 break;
             case 'prjCount':
                 setEnvironment(prevData => ({
                     ...prevData,
                     recentPrjCount: parseInt(value)
-                }))
+                }));
                 break;
             case 'setEnvironment':
                 setEnvironmentType(value);
@@ -78,10 +78,10 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
                 setEnvironment(prevData => ({
                     ...prevData,
                     commandType: parseInt(value)
-                }))
+                }));
                 break;
         }
-    }
+    };
 
     return (
         <section className='environment-options'>
