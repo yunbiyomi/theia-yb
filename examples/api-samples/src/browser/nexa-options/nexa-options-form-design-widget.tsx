@@ -95,7 +95,7 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
     };
 
     return (
-        <section className='form-design-options'>
+        <section className='options-container'>
             <div className='design-basic-wrap'>
                 <p className='development-title'>Design Basic</p>
                 <div className='options-input-wrap'>
