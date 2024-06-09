@@ -93,6 +93,10 @@ export class NexaOptionsDialog extends ReactDialog<void> {
     protected render(): React.ReactNode {
         return (
             <div>
+                <div>
+                    <button>Environment</button>
+                    <button>Form Design</button>
+                </div>
                 <NexaOptionsEnvironmentWidget optionsData={this.optionsData} onFindClick={this.doOpenFolder.bind(this)} />
                 <NexaOptionsFormDesignWidget optionsData={this.optionsData} />
             </div>

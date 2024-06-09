@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 // *****************************************************************************
 // Copyright (C) 2024 TOBESOFT and others.
 //
@@ -24,6 +25,8 @@ interface NexaOptionsFormDesignWidgetProps {
 export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesignWidgetProps): React.JSX.Element {
     const data = props.optionsData.Configure.FormDesign;
     const formDesignData = data.General;
+    const [widthError, setWidthError] = React.useState(false);
+    const [heightError, setHeightError] = React.useState(false);
     const [displayEditStep, setDisplayEditStep] = React.useState(data.LayoutManager.displayEditStep);
     const [formDesign, setformDesign] = React.useState({
         undoMax: formDesignData.undoMax,
@@ -40,7 +43,21 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
         props.optionsData.Configure.FormDesign.LayoutManager.displayEditStep = displayEditStep;
     }, [displayEditStep]);
 
-    const handleSelectTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    React.useEffect(() => {
+        const isMaxWidth = formDesign.defaultWidth > 12000;
+
+        isMaxWidth ? setWidthError(true) : setWidthError(false);
+
+    }, [formDesign.defaultWidth]);
+
+    React.useEffect(() => {
+        const isMaxHeight = formDesign.defaultHeight > 12000;
+
+        isMaxHeight ? setHeightError(true) : setHeightError(false);
+
+    }, [formDesign.defaultHeight]);
+
+    const handleSelectTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newSelectType = parseInt(e.target.value);
         setformDesign(prevData => ({
             ...prevData,
@@ -79,34 +96,32 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
 
     return (
         <section className='form-design-options'>
-            <div>
-                <p>Design Basic</p>
-                <div>
-                    <p>Max Undo</p>
-                    <input value={formDesign.undoMax} onChange={handleInputChange('maxUndo')} />
+            <div className='design-basic-wrap'>
+                <p className='development-title'>Design Basic</p>
+                <div className='options-input-wrap'>
+                    <p className='input-label'>Max Undo</p>
+                    <input className='options-input' value={formDesign.undoMax} onChange={handleInputChange('maxUndo')} />
                 </div>
-                <div>
-                    <p>Default Width</p>
-                    <input value={formDesign.defaultWidth} onChange={handleInputChange('defaultWidth')} />
+                <div className='options-input-wrap'>
+                    <p className='input-label'>Default Width (px)</p>
+                    <input className={`options-input ${widthError ? 'error-border' : ''}`} value={formDesign.defaultWidth} onChange={handleInputChange('defaultWidth')} />
+                    {widthError && <span className='error-message'>Only up to 12000 can be entered</span>}
                 </div>
-                <div>
-                    <p>Default Height</p>
-                    <input value={formDesign.defaultHeight} onChange={handleInputChange('defaultHeight')} />
-                </div>
-            </div>
-            <div>
-                <p>Select Type</p>
-                <div>
-                    <label htmlFor='select-type-all'>Select All</label>
-                    <input id='select-type-all' type='radio' name='check-select-type' value={0} checked={formDesign.selectType === 0} onChange={handleSelectTypeChange} />
-                </div>
-                <div>
-                    <label htmlFor='select-type-part'>Select Part</label>
-                    <input id='select-type-part' type='radio' name='check-select-type' value={1} checked={formDesign.selectType === 1} onChange={handleSelectTypeChange} />
+                <div className='options-input-wrap'>
+                    <p className='input-label'>Default Height (px)</p>
+                    <input className={`options-input ${heightError ? 'error-border' : ''}`} value={formDesign.defaultHeight} onChange={handleInputChange('defaultHeight')} />
+                    {heightError && <span className='error-message'>Only up to 12000 can be entered</span>}
                 </div>
             </div>
+            <div className='select-type options-input-wrap'>
+                <p className='title'>Select Type</p>
+                <select className='select-input' value={formDesign.selectType} onChange={handleSelectTypeChange}>
+                    <option value="0">All</option>
+                    <option value="1">Part</option>
+                </select>
+            </div>
             <div>
-                <p>Layout</p>
+                <p className='title'>Layout</p>
                 <input id='overline-layout' type='checkbox' checked={displayEditStep === 1} onChange={handleDisplayEditStepChange} />
                 <label htmlFor='overline-layout'>Outline a step when you mouse over it.</label>
             </div>
