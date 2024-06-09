@@ -20,7 +20,7 @@ import { OptionsData } from '../../common/nexa-options/nexa-options-sevice';
 
 interface NexaOptionsEnvironmentWidgetProps {
     optionsData: OptionsData;
-    onFindClick: () => Promise<void>;
+    onFindClick: () => Promise<string | undefined>;
 }
 
 export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironmentWidgetProps): React.JSX.Element {
@@ -134,14 +134,25 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
         }
     };
 
+    const handleFindClick = async () => {
+        const originalPath = await props.onFindClick();
+        if (originalPath) {
+            const modifiedPath = originalPath.startsWith('/') ? originalPath.slice(1) : originalPath;
+            setEnvironment(prevData => ({
+                ...prevData,
+                workFolder: modifiedPath
+            }));
+        }
+    };
+
     return (
-        <section className='environment-options'>
+        <section className='options-container'>
             <div className='working-folder'>
                 <p className='title'>Working Folder</p>
                 <div className='options-input-wrap'>
                     <div className='folder-wrap'>
                         <input className='options-input' value={environment.workFolder} readOnly />
-                        <button className='find-button' onClick={props.onFindClick}>find</button>
+                        <button className='find-button' onClick={handleFindClick}>find</button>
                     </div>
                 </div>
             </div>

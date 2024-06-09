@@ -14,8 +14,27 @@ https://www.gnu.org/software/classpath/license.html.
 SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 ***************************************************************************** */
 
-.environment-options {
-    width: 40rem;
+.button-container {
+    margin-bottom: 20px;
+}
+
+.button-container button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.button-container button:hover {
+    background-color: #0056b3;
+}
+
+
+.options-container {
+    width: 30rem;
     margin: 1rem;
     font-family: 'Arial', sans-serif;
 }
