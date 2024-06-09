@@ -17,7 +17,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import React from 'react';
+import React, { useState } from 'react';
 import { inject, injectable } from '@theia/core/shared/inversify';
 import { ReactDialog } from '@theia/core/lib/browser/dialogs/react-dialog';
 import { WidgetManager } from '@theia/core/lib/browser';
@@ -53,7 +53,7 @@ export class NexaOptionsDialog extends ReactDialog<void> {
 
         this.optionsData = data;
         const defaultButton = this.appendButton('Set Default', false);
-        this.appendCloseButton('cancle');
+        this.appendCloseButton('Cancel');
         const saveButton = this.appendAcceptButton('Save');
 
         defaultButton.addEventListener('click', () => {
@@ -61,6 +61,7 @@ export class NexaOptionsDialog extends ReactDialog<void> {
                 if (!result) {
                     throw new Error('Options not reset');
                 }
+                this.accept();
             });
         });
 
@@ -83,23 +84,36 @@ export class NexaOptionsDialog extends ReactDialog<void> {
         const [rootStat] = await this.workspaceService.roots;
         const targetFolders = await this.fileDialogService.showOpenDialog(props, rootStat);
         if (targetFolders) {
-            const path = targetFolders.path.toString();
-            this.optionsData.Configure.Environment.General.workFolder = path;
-            return path;
+            return targetFolders.path.toString();
         }
         return undefined;
     }
 
     protected render(): React.ReactNode {
-        return (
-            <div>
-                <div>
-                    <button>Environment</button>
-                    <button>Form Design</button>
-                </div>
-                <NexaOptionsEnvironmentWidget optionsData={this.optionsData} onFindClick={this.doOpenFolder.bind(this)} />
-                <NexaOptionsFormDesignWidget optionsData={this.optionsData} />
-            </div>
-        );
+        return <NexaOptionsDialogContent optionsData={this.optionsData} onFindClick={this.doOpenFolder.bind(this)} />;
     }
 }
+
+interface NexaOptionsDialogContentProps {
+    optionsData: OptionsData;
+    onFindClick: () => Promise<string | undefined>;
+}
+
+const NexaOptionsDialogContent: React.FC<NexaOptionsDialogContentProps> = ({ optionsData, onFindClick }) => {
+    const [activeTab, setActiveTab] = useState<'environment' | 'formDesign'>('environment');
+
+    return (
+        <div>
+            <div className='button-container'>
+                <button onClick={() => setActiveTab('environment')}>Environment</button>
+                <button onClick={() => setActiveTab('formDesign')}>Form Design</button>
+            </div>
+            {activeTab === 'environment' && (
+                <NexaOptionsEnvironmentWidget optionsData={optionsData} onFindClick={onFindClick} />
+            )}
+            {activeTab === 'formDesign' && (
+                <NexaOptionsFormDesignWidget optionsData={optionsData} />
+            )}
+        </div>
+    );
+};
