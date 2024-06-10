@@ -29,8 +29,6 @@ export class NexaOptionsTreeWidget extends TreeWidget {
             model: TreeModelImpl
         });
 
-        child.unbind(TreeWidget);
-
         return child;
     }
 
@@ -78,6 +76,8 @@ export class NexaOptionsTreeWidget extends TreeWidget {
         this.id = NexaOptionsTreeWidget.ID;
         this.title.label = NexaOptionsTreeWidget.LABEL;
         this.title.caption = NexaOptionsTreeWidget.LABEL;
+        this.node.style.width = '50%';
+        this.node.style.height = '100%';
     }
 
     protected createRootNode(): CompositeTreeNode {

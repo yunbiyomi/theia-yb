@@ -14,15 +14,13 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { Command, CommandContribution, CommandRegistry, MAIN_MENU_BAR, MenuContribution, MenuModelRegistry } from '@theia/core';
-import { inject, injectable, interfaces } from '@theia/core/shared/inversify';
-import { LocalConnectionProvider, ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
-import { NexaOptions, NexaOptionsClient, NexaOptionsPath, OptionsData } from '../../common/nexa-options/nexa-options-sevice';
-import { WidgetFactory, WidgetManager } from '@theia/core/lib/browser';
-import { NexaOptionsDialog } from './nexa-options-dialog';
-import { WorkspaceService } from '@theia/workspace/lib/browser';
-import { FileDialogService } from '@theia/filesystem/lib/browser';
+import { Command, CommandRegistry, MAIN_MENU_BAR, MenuModelRegistry } from '@theia/core';
+import { injectable, interfaces } from '@theia/core/shared/inversify';
+import { NexaOptionsClient } from '../../common/nexa-options/nexa-options-sevice';
+import { AbstractViewContribution, bindViewContribution, FrontendApplicationContribution, WidgetFactory } from '@theia/core/lib/browser';
+import { NexaOptionsMainWidget } from './nexa-options-main-widget';
 import { NexaOptionsTreeWidget } from './nexa-options-tree-widget';
+import { NexaOptionsWidget } from './nexa-options-widget';
 
 const OptionsCommand: Command = {
     id: 'nexa-options',
@@ -34,33 +32,33 @@ export class NexaOptionsClientContribution implements NexaOptionsClient {
 }
 
 @injectable()
-export class NexaOptionsContribution implements CommandContribution, MenuContribution {
+export class NexaOptionsContribution extends AbstractViewContribution<NexaOptionsMainWidget> {
 
-    @inject(NexaOptions) protected readonly options: NexaOptions;
-    @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
-    @inject(CommandRegistry) protected readonly commandRegistry: CommandRegistry;
-    @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
-    @inject(FileDialogService) protected readonly fileDialogService: FileDialogService;
+    // @inject(NexaOptions) protected readonly nexaOptions: NexaOptions;
 
-    optionsData: OptionsData;
-
-    registerCommands(registry: CommandRegistry): void {
-        registry.registerCommand(OptionsCommand, {
-            execute: async () => {
-                this.options.readOptionsFile().then((data: OptionsData) => {
-                    this.optionsData = data;
-                    this.showDialog();
-                });
+    constructor() {
+        super({
+            widgetId: NexaOptionsMainWidget.ID,
+            widgetName: NexaOptionsMainWidget.LABEL,
+            defaultWidgetOptions: {
+                area: 'main',
             }
+        })
+    }
+
+    override registerCommands(registry: CommandRegistry): void {
+        registry.registerCommand(OptionsCommand, {
+            execute: async () => this.openView({ reveal: true, activate: true })
+            // execute: async () => {
+            //     this.openView({ reveal: true, activate: true });
+            //     // this.nexaOptions.readOptionsFile().then((data: OptionsData) => {
+            //     //     console.log(JSON.stringify(data));
+            //     // })
+            // }
         });
     }
 
-    private showDialog(): void {
-        const dialog = new NexaOptionsDialog(this.commandRegistry, this.widgetManager, this.options, this.workspaceService, this.fileDialogService, this.optionsData);
-        dialog.open();
-    }
-
-    registerMenus(menus: MenuModelRegistry): void {
+    override registerMenus(menus: MenuModelRegistry): void {
         const subMenuPath = [...MAIN_MENU_BAR, 'Options'];
         menus.registerSubmenu(subMenuPath, 'Options', {
             order: '9999999'
@@ -72,19 +70,18 @@ export class NexaOptionsContribution implements CommandContribution, MenuContrib
     };
 }
 
-export const bindOptions = (bind: interfaces.Bind) => {
-    bind(NexaOptionsClient).to(NexaOptionsClientContribution).inSingletonScope();
-    bind(NexaOptions).toDynamicValue(ctx => {
-        const connection = ctx.container.get<ServiceConnectionProvider>(LocalConnectionProvider);
-        const client = ctx.container.get<NexaOptionsClient>(NexaOptionsClient);
-        return connection.createProxy<NexaOptions>(NexaOptionsPath, client);
-    }).inSingletonScope();
-    bind(CommandContribution).to(NexaOptionsContribution).inSingletonScope();
-    bind(MenuContribution).to(NexaOptionsContribution).inSingletonScope();
+export const bindOptionsMain = (bind: interfaces.Bind) => {
+    bindViewContribution(bind, NexaOptionsContribution);
+    bind(FrontendApplicationContribution).toService(NexaOptionsContribution);
     bind(NexaOptionsTreeWidget).toSelf().inSingletonScope();
-    bind(NexaOptionsDialog).toSelf().inSingletonScope();
+    bind(NexaOptionsMainWidget).toSelf().inSingletonScope();
     bind(WidgetFactory).toDynamicValue(ctx => ({
-        id: NexaOptionsTreeWidget.ID,
-        createWidget: () => ctx.container.get<NexaOptionsTreeWidget>(NexaOptionsTreeWidget)
+        id: NexaOptionsMainWidget.ID,
+        createWidget: () => NexaOptionsMainWidget.createWidget(ctx.container)
+    })).inSingletonScope();
+    bind(NexaOptionsWidget).toSelf();
+    bind(WidgetFactory).toDynamicValue(context => ({
+        id: NexaOptionsWidget.ID,
+        createWidget: () => context.container.get<NexaOptionsWidget>(NexaOptionsWidget)
     })).inSingletonScope();
 };
