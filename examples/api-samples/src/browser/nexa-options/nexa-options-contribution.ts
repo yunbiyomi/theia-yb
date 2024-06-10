@@ -82,7 +82,6 @@ export const bindOptions = (bind: interfaces.Bind) => {
     bind(CommandContribution).to(NexaOptionsContribution);
     bind(MenuContribution).to(NexaOptionsContribution);
     bind(NexaOptionsDialog).toSelf().inSingletonScope();
-    bind(NexaOptionsTreeWidget).toDynamicValue(ctx => NexaOptionsTreeWidget.createWidget(ctx.container)).inSingletonScope();
     bind(WidgetFactory).toDynamicValue(ctx => ({
         id: NexaOptionsTreeWidget.ID,
         createWidget: () => ctx.container.get<NexaOptionsTreeWidget>(NexaOptionsTreeWidget)

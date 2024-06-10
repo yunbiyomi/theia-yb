@@ -18,7 +18,7 @@
 // *****************************************************************************
 
 import React, { useState } from 'react';
-import { inject, injectable } from '@theia/core/shared/inversify';
+import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
 import { ReactDialog } from '@theia/core/lib/browser/dialogs/react-dialog';
 import { WidgetManager } from '@theia/core/lib/browser';
 import NexaOptionsEnvironmentWidget from './nexa-options-environment-widget';
@@ -27,6 +27,7 @@ import { NexaOptions, OptionsData } from '../../common/nexa-options/nexa-options
 import { WorkspaceCommands, WorkspaceService } from '@theia/workspace/lib/browser';
 import { CommandRegistry } from '@theia/core';
 import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
+import { NexaOptionsTreeWidget } from './nexa-options-tree-widget';
 
 @injectable()
 export class NexaOptionsDialog extends ReactDialog<void> {
@@ -38,6 +39,8 @@ export class NexaOptionsDialog extends ReactDialog<void> {
     static readonly LABEL = 'Nexa Options Dialog';
 
     optionsData: OptionsData;
+
+    @inject(NexaOptionsTreeWidget) treeWidget: NexaOptionsTreeWidget;
 
     constructor(
         @inject(CommandRegistry) protected readonly commandRegistry: CommandRegistry,
@@ -72,6 +75,17 @@ export class NexaOptionsDialog extends ReactDialog<void> {
                 }
             });
         });
+    }
+
+    @postConstruct()
+    protected init(): void {
+        this.id = NexaOptionsTreeWidget.ID;
+        this.title.label = NexaOptionsTreeWidget.LABEL;
+
+        this.treeWidget.addClass('nexa-options-tree-widget');
+        // this.addWidget(this.treeWidget);
+
+        this.update();
     }
 
     async doOpenFolder(): Promise<string | undefined> {

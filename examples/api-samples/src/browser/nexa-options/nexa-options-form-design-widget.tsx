@@ -25,6 +25,7 @@ interface NexaOptionsFormDesignWidgetProps {
 export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesignWidgetProps): React.JSX.Element {
     const data = props.optionsData.Configure.FormDesign;
     const formDesignData = data.General;
+    const [selectTypeImg, setSelectTypeImg] = React.useState('select-all');
     const [widthError, setWidthError] = React.useState(false);
     const [heightError, setHeightError] = React.useState(false);
     const [displayEditStep, setDisplayEditStep] = React.useState(data.LayoutManager.displayEditStep);
@@ -56,6 +57,14 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
         isMaxHeight ? setHeightError(true) : setHeightError(false);
 
     }, [formDesign.defaultHeight]);
+
+    React.useEffect(() => {
+        if (formDesign.selectType === 0) {
+            setSelectTypeImg('select-all');
+        } else if (formDesign.selectType === 1) {
+            setSelectTypeImg('select-part');
+        }
+    }, [formDesign.selectType]);
 
     const handleSelectTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newSelectType = parseInt(e.target.value);
@@ -119,6 +128,7 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                     <option value="0">All</option>
                     <option value="1">Part</option>
                 </select>
+                <div className={`ex-select-image ${selectTypeImg}`} />
             </div>
             <div>
                 <p className='title'>Layout</p>

@@ -65,7 +65,7 @@ export class NexaOptionsImpl implements NexaOptions {
             Configure: {
                 Environment: {
                     General: {
-                        workFolder: '',
+                        workFolder: 'C://Users//tobesoft//Documents//tobesoft//nexacro N//settings',
                         recentFileCount: 4,
                         recentPrjCount: 4,
                         commandType: 0,

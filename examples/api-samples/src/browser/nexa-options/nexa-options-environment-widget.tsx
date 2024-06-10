@@ -1,22 +1,7 @@
-/* eslint-disable no-unused-expressions */
-// *****************************************************************************
-// Copyright (C) 2024 TOBESOFT and others.
-//
-// This program and the accompanying materials are made available under the
-// terms of the Eclipse Public License v. 2.0 which is available at
-// http://www.eclipse.org/legal/epl-2.0.
-//
-// This Source Code may also be made available under the following Secondary
-// Licenses when the conditions for such availability set forth in the Eclipse
-// Public License v. 2.0 are satisfied: GNU General Public License, version 2
-// with the GNU Classpath Exception which is available at
-// https://www.gnu.org/software/classpath/license.html.
-//
-// SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
-// *****************************************************************************
-
 import React, { useEffect } from '@theia/core/shared/react';
 import { OptionsData } from '../../common/nexa-options/nexa-options-sevice';
+import { FaFolder } from "react-icons/fa";
+import { BsQuestionCircle } from "react-icons/bs";
 
 interface NexaOptionsEnvironmentWidgetProps {
     optionsData: OptionsData;
@@ -26,6 +11,8 @@ interface NexaOptionsEnvironmentWidgetProps {
 export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironmentWidgetProps): React.JSX.Element {
     const data = props.optionsData.Configure;
     const environmentData = data.Environment.General;
+    const [fileMouseOver, setFileMouseOver] = React.useState(false);
+    const [folderMouseOver, setFolderMouseOver] = React.useState(false);
     const [prjError, setPrjError] = React.useState(false);
     const [fileError, setFileError] = React.useState(false);
     const [exImageType, setExImageType] = React.useState('developer-default');
@@ -152,21 +139,33 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
                 <div className='options-input-wrap'>
                     <div className='folder-wrap'>
                         <input className='options-input' value={environment.workFolder} readOnly />
-                        <button className='find-button' onClick={handleFindClick}>find</button>
+                        <button className='find-button' onClick={handleFindClick} >
+                            <FaFolder size='1.2rem' />
+                        </button>
                     </div>
                 </div>
             </div>
             <div className='recent-files'>
-                <p className='title'>Recent Files</p>
+                <p className='title'>Recent Files Count</p>
                 <div className='options-input-wrap long'>
-                    {/* <p className='input-label'>File</p> */}
-                    <p className='input-label'>Number of recent files displayed in the list</p>
+                    <div className='label-wrap'>
+                        <p className='input-label'>File</p>
+                        <button className='explanation-button' onMouseOver={() => setFileMouseOver(true)} onMouseOut={() => setFileMouseOver(false)}>
+                            <BsQuestionCircle size='1rem' color='#CCC' />
+                        </button>
+                        {fileMouseOver && <p className='explanation'>Number of recent files displayed in the list</p>}
+                    </div>
                     <input className={`options-input ${fileError ? 'error-border' : ''}`} value={environment.recentFileCount} onChange={handleInputChange('fileCount')} />
                     {fileError && <span className='error-message'>Only up to 16 can be entered</span>}
                 </div>
                 <div className='options-input-wrap'>
-                    {/* <p className='input-label'>Folder</p> */}
-                    <p className='input-label'>Number of recent Projects displayed in the list</p>
+                    <div className='label-wrap'>
+                        <p className='input-label'>Folder</p>
+                        <button className='explanation-button' onMouseOver={() => setFolderMouseOver(true)} onMouseOut={() => setFolderMouseOver(false)}>
+                            <BsQuestionCircle size='1rem' color='#CCC' />
+                        </button>
+                        {folderMouseOver && <p className='explanation'>Number of recent Projects displayed in the list</p>}
+                    </div>
                     <input className={`options-input ${prjError ? 'error-border' : ''}`} value={environment.recentPrjCount} onChange={handleInputChange('prjCount')} />
                     {prjError && <span className='error-message'>Only up to 16 can be entered</span>}
                 </div>
@@ -195,8 +194,7 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
                     </select>
                 </div>
             </div>
-            <div className={`ex-image ${exImageType}`}>
-            </div>
+            <div className={`ex-image ${exImageType}`} />
         </section>
     );
 }

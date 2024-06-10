@@ -14,14 +14,11 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
+import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
 import { CompositeTreeNode, ContextMenuRenderer, TreeModel, TreeProps, TreeWidget } from '@theia/core/lib/browser';
 
 @injectable()
 export class NexaOptionsTreeWidget extends TreeWidget {
-    static createWidget(container: interfaces.Container): NexaOptionsTreeWidget | Promise<NexaOptionsTreeWidget> {
-        throw new Error('Method not implemented.');
-    }
     static readonly ID = 'nexa-options-tree-widget';
     static readonly LABEL = 'Nexa Options Tree Widget';
 

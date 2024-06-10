@@ -22,16 +22,39 @@ SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
     padding: 10px 20px;
     margin-right: 10px;
     border: none;
-    border-radius: 5px;
-    background-color: #007bff;
+    border-radius: 10rem;
+    background-color: transparent;
     color: white;
     cursor: pointer;
+    border: 2px solid #CCC;
+    outline: none;
 }
 
 .button-container button:hover {
-    background-color: #0056b3;
+    background-color: hsla(211, 100%, 35%, 0.4);
 }
 
+.label-wrap {
+    display: flex;
+    align-items: start;
+}
+
+.explanation-button {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    margin-bottom: .5rem;
+}
+
+.explanation {
+    background-color: rgba(204, 204, 204, 0.2);
+    margin-left: .4rem;
+    border-radius: .2rem;
+    margin-bottom: 1rem;
+    margin: 0;
+    padding: .2rem;
+}
 
 .options-container {
     width: 30rem;
@@ -62,7 +85,7 @@ SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
     font-size: 0.5rem;
     box-sizing: border-box;
     background-color: rgba(124, 124, 124, 0.2);
-    color: white;
+    color: #ccc;
     outline: none;
 }
 
@@ -108,7 +131,7 @@ SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
     font-size: 1rem;
     cursor: pointer;
     background-color: rgba(124, 124, 124, 0.2);
-    color: white;
+    color: #ccc;
 }
 
 .development-tools,
@@ -146,16 +169,16 @@ SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
     position: relative;
 }
 
-.select-wrap::after {
-    content: '\25BC';
-    position: absolute;
-    top: 50%;
-    right: 0.5rem;
-    transform: translateY(-50%);
+.ex-image {
+    object-fit: cover;
+    background-repeat: no-repeat;
+    width: 15rem;
+    height: 10rem;
 }
 
-.ex-image {
-    object-fit: contain;
+.ex-select-image {
+    object-fit: cover;
+    background-repeat: no-repeat;
     width: 30rem;
     height: 20rem;
 }
@@ -191,4 +214,12 @@ SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 
 .ribbon-black {
     background-image: url('../style/assets/options/ribbon-black.jpg');
+}
+
+.select-all {
+    background-image: url('../style/assets/options/select-all.jpg');
+}
+
+.select-part {
+    background-image: url('../style/assets/options/select-part.jpg');
 }
