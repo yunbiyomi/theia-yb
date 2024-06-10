@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
-import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, TreeImpl, TreeModel, TreeModelImpl, TreeProps, TreeWidget } from '@theia/core/lib/browser';
+import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget } from '@theia/core/lib/browser';
 
 @injectable()
 export class NexaOptionsTreeWidget extends TreeWidget {
@@ -51,21 +51,11 @@ export class NexaOptionsTreeWidget extends TreeWidget {
 
         const root = this.createRootNode();
 
-        CompositeTreeNode.addChild(root, {
-            id: '1',
-            name: 'view 1',
-            parent: root
-        });
-        CompositeTreeNode.addChild(root, {
-            id: '2',
-            name: 'view 2',
-            parent: root
-        });
-        CompositeTreeNode.addChild(root, {
-            id: '3',
-            name: 'view 3',
-            parent: root
-        });
+
+        const environmentRoot = this.createNodes('environment', 'Environment', root, 'environment-general', 'General');
+        CompositeTreeNode.addChild(root, environmentRoot);
+        const formDesignRoot = this.createNodes('form-design', 'FormDesign', root, 'form-design-general', 'General');
+        CompositeTreeNode.addChild(root, formDesignRoot);
 
         this.model.root = root;
         this.model.refresh(root);
@@ -88,6 +78,45 @@ export class NexaOptionsTreeWidget extends TreeWidget {
             visible: true,
             children: []
         };
+    }
+
+    protected createExpandebleNode(id: string, name: string, parent: CompositeTreeNode): ExpandableTreeNode {
+        const newChildren: TreeNode[] = [];
+
+        const node: ExpandableTreeNode = {
+            id,
+            name,
+            parent: parent,
+            children: newChildren,
+            expanded: false
+        }
+
+        return node
+    }
+
+    protected createTreeNode(id: string, name: string, parent: CompositeTreeNode): TreeNode {
+        const newChildren: TreeNode[] = [];
+
+        const node: CompositeTreeNode = {
+            id,
+            name,
+            parent: parent,
+            children: newChildren
+        }
+
+        return node
+    }
+
+    protected createNodes(id: string, name: string, parent: CompositeTreeNode, childId: string, childName: string) {
+        const nodeChilds: TreeNode[] = [];
+        const parentNode = this.createExpandebleNode(id, name, parent);
+
+        const childNode = this.createTreeNode(childId, childName, parentNode);
+        nodeChilds.push(childNode);
+
+        parentNode.children = nodeChilds;
+
+        return parentNode
     }
 }
 
