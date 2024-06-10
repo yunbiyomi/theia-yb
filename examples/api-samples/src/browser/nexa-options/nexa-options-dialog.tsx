@@ -1,6 +1,3 @@
-/* eslint-disable no-null/no-null */
-/* eslint-disable @theia/shared-dependencies */
-/* eslint-disable import/no-extraneous-dependencies */
 // *****************************************************************************
 // Copyright (C) 2024 TOBESOFT and others.
 //
@@ -17,17 +14,18 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import React, { useState } from 'react';
+import React from 'react';
 import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
 import { ReactDialog } from '@theia/core/lib/browser/dialogs/react-dialog';
-import { WidgetManager } from '@theia/core/lib/browser';
+import { Panel, WidgetManager } from '@theia/core/lib/browser';
 import NexaOptionsEnvironmentWidget from './nexa-options-environment-widget';
 import NexaOptionsFormDesignWidget from './nexa-options-form-design-widget';
 import { NexaOptions, OptionsData } from '../../common/nexa-options/nexa-options-sevice';
 import { WorkspaceCommands, WorkspaceService } from '@theia/workspace/lib/browser';
 import { CommandRegistry } from '@theia/core';
-import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
+import { FileDialogService, LocationListRenderer, LocationListRendererFactory, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 import { NexaOptionsTreeWidget } from './nexa-options-tree-widget';
+// import { Container } from '@theia/core/shared/inversify';
 
 @injectable()
 export class NexaOptionsDialog extends ReactDialog<void> {
@@ -35,12 +33,16 @@ export class NexaOptionsDialog extends ReactDialog<void> {
         return;
     }
 
-    readonly ID = 'nexa-options-dialog';
+    static readonly ID = 'nexa-options-dialog';
     static readonly LABEL = 'Nexa Options Dialog';
 
-    optionsData: OptionsData;
+    protected optionsData: OptionsData;
+    protected locationListRenderer: LocationListRenderer;
+    protected treePanel: Panel;
 
-    @inject(NexaOptionsTreeWidget) treeWidget: NexaOptionsTreeWidget;
+    protected treeWidget: NexaOptionsTreeWidget;
+
+    @inject(LocationListRendererFactory) readonly locationListFactory: LocationListRendererFactory;
 
     constructor(
         @inject(CommandRegistry) protected readonly commandRegistry: CommandRegistry,
@@ -48,7 +50,7 @@ export class NexaOptionsDialog extends ReactDialog<void> {
         @inject(NexaOptions) protected readonly options: NexaOptions,
         @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService,
         @inject(FileDialogService) protected readonly fileDialogService: FileDialogService,
-        data: OptionsData
+        data: OptionsData,
     ) {
         super({
             title: 'Options',
@@ -75,16 +77,24 @@ export class NexaOptionsDialog extends ReactDialog<void> {
                 }
             });
         });
+
+        // this.treeWidget = NexaOptionsTreeWidget.createWidget(__parent);
+        // this.treePanel = new Panel();
+        // this.treePanel.addWidget(this.treeWidget);
+        // this.toDispose.push(this.treePanel);
+
     }
+
+    // static createContainer(parent: interfaces.Container): Container {
+    //     const child = NexaOptionsTreeWidget.createContainer(parent);
+    //     child.bind(NexaOptionsTreeWidget).toSelf();
+    //     return child;
+    // }
 
     @postConstruct()
     protected init(): void {
-        this.id = NexaOptionsTreeWidget.ID;
-        this.title.label = NexaOptionsTreeWidget.LABEL;
-
-        this.treeWidget.addClass('nexa-options-tree-widget');
-        // this.addWidget(this.treeWidget);
-
+        this.id = NexaOptionsDialog.ID;
+        this.title.label = NexaOptionsDialog.LABEL;
         this.update();
     }
 
@@ -104,7 +114,12 @@ export class NexaOptionsDialog extends ReactDialog<void> {
     }
 
     protected render(): React.ReactNode {
-        return <NexaOptionsDialogContent optionsData={this.optionsData} onFindClick={this.doOpenFolder.bind(this)} />;
+        return (
+            <>
+                <NexaOptionsDialogContent optionsData={this.optionsData} onFindClick={this.doOpenFolder.bind(this)} />
+                {this.treePanel}
+            </>
+        );
     }
 }
 
@@ -114,7 +129,7 @@ interface NexaOptionsDialogContentProps {
 }
 
 const NexaOptionsDialogContent: React.FC<NexaOptionsDialogContentProps> = ({ optionsData, onFindClick }) => {
-    const [activeTab, setActiveTab] = useState<'environment' | 'formDesign'>('environment');
+    const [activeTab, setActiveTab] = React.useState<'environment' | 'formDesign'>('environment');
 
     return (
         <div>

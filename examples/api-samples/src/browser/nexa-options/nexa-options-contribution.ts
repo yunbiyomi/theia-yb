@@ -79,8 +79,9 @@ export const bindOptions = (bind: interfaces.Bind) => {
         const client = ctx.container.get<NexaOptionsClient>(NexaOptionsClient);
         return connection.createProxy<NexaOptions>(NexaOptionsPath, client);
     }).inSingletonScope();
-    bind(CommandContribution).to(NexaOptionsContribution);
-    bind(MenuContribution).to(NexaOptionsContribution);
+    bind(CommandContribution).to(NexaOptionsContribution).inSingletonScope();
+    bind(MenuContribution).to(NexaOptionsContribution).inSingletonScope();
+    bind(NexaOptionsTreeWidget).toSelf().inSingletonScope();
     bind(NexaOptionsDialog).toSelf().inSingletonScope();
     bind(WidgetFactory).toDynamicValue(ctx => ({
         id: NexaOptionsTreeWidget.ID,

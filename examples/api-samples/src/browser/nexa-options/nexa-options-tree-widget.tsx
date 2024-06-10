@@ -14,13 +14,29 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
-import { CompositeTreeNode, ContextMenuRenderer, TreeModel, TreeProps, TreeWidget } from '@theia/core/lib/browser';
+import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
+import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, TreeImpl, TreeModel, TreeModelImpl, TreeProps, TreeWidget } from '@theia/core/lib/browser';
 
 @injectable()
 export class NexaOptionsTreeWidget extends TreeWidget {
     static readonly ID = 'nexa-options-tree-widget';
     static readonly LABEL = 'Nexa Options Tree Widget';
+
+    static createContainer(parent: interfaces.Container): Container {
+        const child = createTreeContainer(parent, {
+            tree: TreeImpl,
+            widget: NexaOptionsTreeWidget,
+            model: TreeModelImpl
+        });
+
+        child.unbind(TreeWidget);
+
+        return child;
+    }
+
+    static createWidget(parent: interfaces.Container): NexaOptionsTreeWidget {
+        return NexaOptionsTreeWidget.createContainer(parent).get(NexaOptionsTreeWidget);
+    }
 
     constructor(
         @inject(TreeProps) props: TreeProps,
@@ -66,8 +82,8 @@ export class NexaOptionsTreeWidget extends TreeWidget {
 
     protected createRootNode(): CompositeTreeNode {
         return {
-            id: 'model-tree',
-            name: '_model_',
+            id: 'options-tree',
+            name: 'Options',
             parent: undefined,
             visible: true,
             children: []
