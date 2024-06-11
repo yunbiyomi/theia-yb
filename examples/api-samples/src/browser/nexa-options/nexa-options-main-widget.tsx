@@ -29,11 +29,12 @@ export class NexaOptionsMainWidget extends BaseWidget {
 
     @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
     @inject(NexaOptionsTreeWidget) protected treeWidget: NexaOptionsTreeWidget;
-    @inject(NexaOptionsWidget) protected optionsWidget: NexaOptionsWidget;
+    @inject(NexaOptionsWidget) public optionsWidget: NexaOptionsWidget;
 
     static createWidget(parent: interfaces.Container): NexaOptionsMainWidget {
         const child = NexaOptionsTreeWidget.createContainer(parent);
         child.bind(NexaOptionsMainWidget).toSelf().inSingletonScope();
+        child.bind(NexaOptionsWidget).toSelf().inSingletonScope();
         return child.get(NexaOptionsMainWidget);
     }
 

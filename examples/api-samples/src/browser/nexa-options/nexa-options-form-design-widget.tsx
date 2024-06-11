@@ -21,20 +21,69 @@ import { BsQuestionCircle } from "react-icons/bs";
 
 interface NexaOptionsFormDesignWidgetProps {
     optionsData: OptionsData;
+    updateFormDesignOptions: (newData: any) => void;
+    updateDisplayEditOptions: (newData: any) => void;
 }
 
 export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesignWidgetProps): React.JSX.Element {
+    const data = props.optionsData.Configure.FormDesign;
     const initialFormDesignState = {
-        undoMax: 1024,
-        defaultWidth: 1280,
-        defaultHeight: 720,
-        selectType: 0
+        undoMax: data.General.undoMax,
+        defaultWidth: data.General.defaultWidth,
+        defaultHeight: data.General.defaultHeight,
+        selectType: data.General.selectType
     }
-    const [formDesign] = React.useState(initialFormDesignState);
+    const [formDesign, setformDesign] = React.useState(initialFormDesignState);
+    const [displayEditStep, setDisplayEditStep] = React.useState(data.LayoutManager.displayEditStep);
     const [undoMouseOver, setUndoMouseOver] = React.useState(false);
     const [widthMouseOver, setWidthMouseOver] = React.useState(false);
     const [heightMouseOver, setHeightMouseOver] = React.useState(false);
     const [perspectiveMouseOver, setPrespectiveMouseOver] = React.useState(false);
+
+    React.useEffect(() => {
+        props.updateFormDesignOptions(formDesign);
+    }, [formDesign]);
+
+    React.useEffect(() => {
+        props.updateDisplayEditOptions(displayEditStep);
+    }, [displayEditStep]);
+
+
+    const handleInputChange = (type: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = parseInt(e.target.value);
+
+        switch (type) {
+            case 'maxUndo':
+                setformDesign(prevData => ({
+                    ...prevData,
+                    undoMax: value
+                }));
+                break;
+            case 'defaultWidth':
+                setformDesign(prevData => ({
+                    ...prevData,
+                    defaultWidth: value
+                }));
+                break;
+            case 'defaultHeight':
+                setformDesign(prevData => ({
+                    ...prevData,
+                    defaultHeight: value
+                }));
+                break;
+            case 'selectType':
+                setformDesign(prevData => ({
+                    ...prevData,
+                    selectType: value
+                }));
+                break;
+        }
+    };
+
+    const handleDisplayEditStepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newDisplayEditStep = e.target.checked ? 1 : 0;
+        setDisplayEditStep(newDisplayEditStep);
+    };
 
     return (
         <section className='options-container'>
@@ -56,7 +105,7 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
 
                     </div>
                     <div className="textInputWrapper">
-                        <input placeholder="Max Undo" value={formDesign.undoMax} className="textInput" />
+                        <input placeholder="Max Undo" value={formDesign.undoMax} className="textInput" onChange={handleInputChange('maxUndo')} />
                     </div>
                 </div>
                 <div className='options-input-wrap'>
@@ -74,7 +123,7 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                         </button>
                     </div>
                     <div className="textInputWrapper">
-                        <input placeholder="Width" value={formDesign.defaultWidth} className="textInput" />
+                        <input placeholder="Width" value={formDesign.defaultWidth} className="textInput" onChange={handleInputChange('defaultWidth')} />
                     </div>
                 </div>
                 <div className='options-input-wrap'>
@@ -92,7 +141,7 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                         </button>
                     </div>
                     <div className="textInputWrapper">
-                        <input placeholder="Height" value={formDesign.defaultHeight} className="textInput" />
+                        <input placeholder="Height" value={formDesign.defaultHeight} className="textInput" onChange={handleInputChange('defaultHeight')} />
                     </div>
                 </div>
             </div>
@@ -113,9 +162,9 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                         </button>
                     </div>
                     <div className='tabs'>
-                        <input type="radio" id="radio-1" name="tabs-perspective" checked />
+                        <input type="radio" id="radio-1" name="tabs-perspective" value={0} checked={formDesign.selectType === 0} onChange={handleInputChange('selectType')} />
                         <label className="tab" htmlFor="radio-1">All</label>
-                        <input type="radio" id="radio-2" name="tabs-perspective" />
+                        <input type="radio" id="radio-2" name="tabs-perspective" value={1} checked={formDesign.selectType === 1} onChange={handleInputChange('selectType')} />
                         <label className="tab" htmlFor="radio-2">Part</label>
                         <span className="glider1"></span>
                     </div>
@@ -124,7 +173,7 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
             <div className='layout-wrap options-wrap'>
                 <p className='title'>Layout</p>
                 <label htmlFor='overline-layout' className="checkbox-container">
-                    <input id='overline-layout' className="custom-checkbox" type="checkbox" checked />
+                    <input id='overline-layout' className="custom-checkbox" type="checkbox" checked={displayEditStep === 1} onChange={handleDisplayEditStepChange} />
                     <span className="checkmark"></span>
                     Outline a step when you mouse over it.
                 </label>

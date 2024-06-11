@@ -33,6 +33,15 @@ SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
     border: none;
 }
 
+.development-tools {
+    display: flex;
+    width: 100%;
+}
+
+.development {
+    width: 60%;
+}
+
 .title {
     margin: 0;
     font-size: 1.7rem;

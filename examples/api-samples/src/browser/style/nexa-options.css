@@ -27,3 +27,65 @@ SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
     margin-top: 1rem;
     margin-bottom: 1rem;
 }
+
+.main-button-wrap {
+    display: flex;
+    justify-content: end;
+    margin: 3rem 2rem;
+    gap: 1rem;
+}
+
+.options-button {
+    background-color: #68217a;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: #ccc;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 1rem 2rem;
+    border-radius: 5px;
+}
+
+.options-button:hover {
+    background-color: #353535;
+}
+
+.ex-image {
+    object-fit: cover;
+    background-repeat: no-repeat;
+    width: 15rem;
+    height: 10rem;
+}
+
+.developer-default {
+    background-image: url('../style/assets/options/developer-default.jpg');
+}
+
+.developer-black {
+    background-image: url('../style/assets/options/developer-balck.jpg');
+}
+
+.designer-default {
+    background-image: url('../style/assets/options/designer-default.jpg');
+}
+
+.designer-black {
+    background-image: url('../style/assets/options/designer-black.jpg');
+}
+
+.ribbon-default {
+    background-image: url('../style/assets/options/ribbon-default.jpg');
+}
+
+.ribbon-black {
+    background-image: url('../style/assets/options/ribbon-black.jpg');
+}
+
+.select-all {
+    background-image: url('../style/assets/options/select-all.jpg');
+}
+
+.select-part {
+    background-image: url('../style/assets/options/select-part.jpg');
+}

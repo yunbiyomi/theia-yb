@@ -19,8 +19,7 @@ import { inject, injectable, interfaces } from '@theia/core/shared/inversify';
 import { NexaOptions, NexaOptionsClient, NexaOptionsPath } from '../../common/nexa-options/nexa-options-sevice';
 import { AbstractViewContribution, bindViewContribution, FrontendApplicationContribution, WidgetFactory } from '@theia/core/lib/browser';
 import { NexaOptionsMainWidget } from './nexa-options-main-widget';
-import { NexaOptionsTreeWidget } from './nexa-options-tree-widget';
-import { NexaOptionsWidget } from './nexa-options-widget';
+// import { NexaOptionsTreeWidget } from './nexa-options-tree-widget';
 import { LocalConnectionProvider, ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 
 const OptionsCommand: Command = {
@@ -37,7 +36,6 @@ export class NexaOptionsClientContribution implements NexaOptionsClient {
 export class NexaOptionsContribution extends AbstractViewContribution<NexaOptionsMainWidget> {
 
     @inject(NexaOptions) protected readonly nexaOptions: NexaOptions;
-    @inject(NexaOptionsWidget) protected readonly nexaOptionsWidget: NexaOptionsWidget;
 
     constructor() {
         super({
@@ -52,8 +50,8 @@ export class NexaOptionsContribution extends AbstractViewContribution<NexaOption
     override registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(OptionsCommand, {
             execute: async () => {
-                this.openView({ reveal: true, activate: true });
-                this.nexaOptionsWidget.setOptionsData();
+                const mainWidget = await this.openView({ reveal: true, activate: true });
+                mainWidget.optionsWidget.setOptionsData();
             }
         });
     }
@@ -79,15 +77,8 @@ export const bindOptionsMain = (bind: interfaces.Bind) => {
     }).inSingletonScope();
     bindViewContribution(bind, NexaOptionsContribution);
     bind(FrontendApplicationContribution).toService(NexaOptionsContribution);
-    bind(NexaOptionsTreeWidget).toSelf().inSingletonScope();
-    bind(NexaOptionsMainWidget).toSelf().inSingletonScope();
     bind(WidgetFactory).toDynamicValue(ctx => ({
         id: NexaOptionsMainWidget.ID,
         createWidget: () => NexaOptionsMainWidget.createWidget(ctx.container)
-    })).inSingletonScope();
-    bind(NexaOptionsWidget).toSelf();
-    bind(WidgetFactory).toDynamicValue(context => ({
-        id: NexaOptionsWidget.ID,
-        createWidget: () => context.container.get<NexaOptionsWidget>(NexaOptionsWidget)
     })).inSingletonScope();
 };
