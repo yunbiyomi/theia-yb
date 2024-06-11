@@ -19,8 +19,8 @@ import { inject, injectable, postConstruct } from '@theia/core/shared/inversify'
 import { ReactWidget } from '@theia/core/lib/browser';
 import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 import { WorkspaceCommands, WorkspaceService } from '@theia/workspace/lib/browser';
-import NexaOptionsEnvironmentWidget from './nexa-options-environment-widget';
-// import NexaOptionsFormDesignWidget from './nexa-options-form-design-widget';
+// import NexaOptionsEnvironmentWidget from './nexa-options-environment-widget';
+import NexaOptionsFormDesignWidget from './nexa-options-form-design-widget';
 import { NexaOptions, OptionsData } from '../../common/nexa-options/nexa-options-sevice';
 
 @injectable()
@@ -94,8 +94,8 @@ export class NexaOptionsWidget extends ReactWidget {
                         </div>
                     )
                 } */}
-                <NexaOptionsEnvironmentWidget optionsData={this.optionsData} onFindClick={this.doOpenFolder.bind(this)} />
-                {/* <NexaOptionsFormDesignWidget optionsData={this.optionsData} /> */}
+                {/* <NexaOptionsEnvironmentWidget optionsData={this.optionsData} onFindClick={this.doOpenFolder.bind(this)} /> */}
+                <NexaOptionsFormDesignWidget optionsData={this.optionsData} />
             </div>
         );
     }

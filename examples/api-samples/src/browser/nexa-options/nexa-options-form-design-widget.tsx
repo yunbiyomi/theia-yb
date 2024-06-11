@@ -17,45 +17,117 @@
 
 import React from '@theia/core/shared/react';
 import { OptionsData } from '../../common/nexa-options/nexa-options-sevice';
+import { BsQuestionCircle } from "react-icons/bs";
 
 interface NexaOptionsFormDesignWidgetProps {
     optionsData: OptionsData;
 }
 
 export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesignWidgetProps): React.JSX.Element {
-    const optionData = props.optionsData;
-    console.log(JSON.stringify(optionData));
-
+    const initialFormDesignState = {
+        undoMax: 1024,
+        defaultWidth: 1280,
+        defaultHeight: 720,
+        selectType: 0
+    }
+    const [formDesign] = React.useState(initialFormDesignState);
+    const [undoMouseOver, setUndoMouseOver] = React.useState(false);
+    const [widthMouseOver, setWidthMouseOver] = React.useState(false);
+    const [heightMouseOver, setHeightMouseOver] = React.useState(false);
+    const [perspectiveMouseOver, setPrespectiveMouseOver] = React.useState(false);
 
     return (
         <section className='options-container'>
-            <div className='design-basic-wrap'>
-                <p className='development-title'>Design Basic</p>
+            <div className='design-basic-wrap options-wrap'>
+                <p className='title'>Design Basic</p>
                 <div className='options-input-wrap'>
-                    <p className='input-label'>Max Undo</p>
-                    <input className='options-input' />
+                    <div className='label-wrap'>
+                        <p className='count-input-label'>Max Undo</p>
+                        <button className='explanation-button' onMouseOver={() => setUndoMouseOver(true)} onMouseOut={() => setUndoMouseOver(false)}>
+                            <BsQuestionCircle size='1rem' color='#CCC' />
+                            {undoMouseOver && (
+                                <span className="tooltip">
+                                    <span className="text">
+                                        Maximum number of times you can recover to Undo
+                                    </span>
+                                </span>
+                            )}
+                        </button>
+
+                    </div>
+                    <div className="textInputWrapper">
+                        <input placeholder="Max Undo" value={formDesign.undoMax} className="textInput" />
+                    </div>
                 </div>
                 <div className='options-input-wrap'>
-                    <p className='input-label'>Default Width (px)</p>
-                    <input />
+                    <div className='label-wrap'>
+                        <p className='count-input-label'>Default Width (px)</p>
+                        <button className='explanation-button' onMouseOver={() => setWidthMouseOver(true)} onMouseOut={() => setWidthMouseOver(false)}>
+                            <BsQuestionCircle size='1rem' color='#CCC' />
+                            {widthMouseOver && (
+                                <span className="tooltip">
+                                    <span className="text">
+                                        Set the default width when creating a new form
+                                    </span>
+                                </span>
+                            )}
+                        </button>
+                    </div>
+                    <div className="textInputWrapper">
+                        <input placeholder="Width" value={formDesign.defaultWidth} className="textInput" />
+                    </div>
                 </div>
                 <div className='options-input-wrap'>
-                    <p className='input-label'>Default Height (px)</p>
-                    <input />
+                    <div className='label-wrap'>
+                        <p className='count-input-label'>Default Height (px)</p>
+                        <button className='explanation-button' onMouseOver={() => setHeightMouseOver(true)} onMouseOut={() => setHeightMouseOver(false)}>
+                            <BsQuestionCircle size='1rem' color='#CCC' />
+                            {heightMouseOver && (
+                                <span className="tooltip">
+                                    <span className="text">
+                                        Set the default height when creating a new form
+                                    </span>
+                                </span>
+                            )}
+                        </button>
+                    </div>
+                    <div className="textInputWrapper">
+                        <input placeholder="Height" value={formDesign.defaultHeight} className="textInput" />
+                    </div>
                 </div>
             </div>
-            <div className='select-type options-input-wrap'>
+            <div className='select-type options-wrap'>
                 <p className='title'>Select Type</p>
-                <select className='select-input'>
-                    <option value="0">All</option>
-                    <option value="1">Part</option>
-                </select>
-                <div />
+                <div className='container' id='perspective'>
+                    <div className='label-wrap tabs-input'>
+                        <p className='count-input-label'>Perspective</p>
+                        <button className='explanation-button' onMouseOver={() => setPrespectiveMouseOver(true)} onMouseOut={() => setPrespectiveMouseOver(false)}>
+                            <BsQuestionCircle size='1rem' color='#CCC' />
+                            {perspectiveMouseOver && (
+                                <span className="tooltip">
+                                    <span className="text">
+                                        Set a decision point when selecting a component with the mouse
+                                    </span>
+                                </span>
+                            )}
+                        </button>
+                    </div>
+                    <div className='tabs'>
+                        <input type="radio" id="radio-1" name="tabs-perspective" checked />
+                        <label className="tab" htmlFor="radio-1">All</label>
+                        <input type="radio" id="radio-2" name="tabs-perspective" />
+                        <label className="tab" htmlFor="radio-2">Part</label>
+                        <span className="glider1"></span>
+                    </div>
+                </div>
             </div>
-            <div>
+            <div className='layout-wrap options-wrap'>
                 <p className='title'>Layout</p>
-                <input id='overline-layout' type='checkbox' />
-                <label htmlFor='overline-layout'>Outline a step when you mouse over it.</label>
+                <label htmlFor='overline-layout' className="checkbox-container">
+                    <input id='overline-layout' className="custom-checkbox" type="checkbox" checked />
+                    <span className="checkmark"></span>
+                    Outline a step when you mouse over it.
+                </label>
             </div>
         </section>
     );

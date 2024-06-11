@@ -18,6 +18,7 @@ import React from '@theia/core/shared/react';
 import { OptionsData } from '../../common/nexa-options/nexa-options-sevice';
 import { FaFolder } from "react-icons/fa";
 import { BsQuestionCircle } from "react-icons/bs";
+
 interface NexaOptionsEnvironmentWidgetProps {
     optionsData: OptionsData;
     onFindClick: () => Promise<string | undefined>;
@@ -32,6 +33,11 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
         toolTheme: 0
     }
     const [environment] = React.useState(initialEnvironmentState);
+    const [fileMouseOver, setFileMouseOver] = React.useState(false);
+    const [prjMouseOver, setPrjMouseOver] = React.useState(false);
+    const [perspectiveMouseOver, setPerspectiveMouseOver] = React.useState(false);
+    const [commandMouseOver, setCommandMouseOver] = React.useState(false);
+    const [themeMouseOver, setThemeMouseOver] = React.useState(false);
 
     // React.useEffect(() => {
     //     if (props.optionsData.Configure) {
@@ -68,11 +74,18 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
             </div>
             <div className='recent-files options-wrap'>
                 <p className='title'>Recent Files Count</p>
-                <div className='options-input-wrap long'>
+                <div className='options-input-wrap'>
                     <div className='label-wrap'>
                         <p className='count-input-label'>File</p>
-                        <button className='explanation-button' >
+                        <button className='explanation-button' onMouseOver={() => setFileMouseOver(true)} onMouseOut={() => setFileMouseOver(false)} >
                             <BsQuestionCircle size='1rem' color='#CCC' />
+                            {fileMouseOver && (
+                                <span className="tooltip">
+                                    <span className="text">
+                                        Set the number of file lists that appear in the most recent list
+                                    </span>
+                                </span>
+                            )}
                         </button>
                     </div>
                     <div className="textInputWrapper">
@@ -81,9 +94,16 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
                 </div>
                 <div className='options-input-wrap'>
                     <div className='label-wrap'>
-                        <p className='count-input-label'>Folder</p>
-                        <button className='explanation-button'>
+                        <p className='count-input-label'>Project</p>
+                        <button className='explanation-button' onMouseOver={() => setPrjMouseOver(true)} onMouseOut={() => setPrjMouseOver(false)} >
                             <BsQuestionCircle size='1rem' color='#CCC' />
+                            {prjMouseOver && (
+                                <span className="tooltip">
+                                    <span className="text">
+                                        Set the number of project lists that appear in the most recent list
+                                    </span>
+                                </span>
+                            )}
                         </button>
                     </div>
                     <div className="textInputWrapper">
@@ -94,7 +114,19 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
             <div className='development-tools options-wrap'>
                 <p className='title'>Development Tools</p>
                 <div className='container' id='perspective'>
-                    <p className='input-label'>Perspective</p>
+                    <div className='label-wrap tabs-input'>
+                        <p className='count-input-label'>Perspective</p>
+                        <button className='explanation-button' onMouseOver={() => setPerspectiveMouseOver(true)} onMouseOut={() => setPerspectiveMouseOver(false)} >
+                            <BsQuestionCircle size='1rem' color='#CCC' />
+                            {perspectiveMouseOver && (
+                                <span className="tooltip">
+                                    <span className="text">
+                                        Set the screen placement mode to use
+                                    </span>
+                                </span>
+                            )}
+                        </button>
+                    </div>
                     <div className='tabs'>
                         <input type="radio" id="radio-1" name="tabs-perspective" checked />
                         <label className="tab" htmlFor="radio-1">Developer</label>
@@ -104,7 +136,19 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
                     </div>
                 </div>
                 <div className='container' id='command'>
-                    <p className='input-label'>Command Type</p>
+                    <div className='label-wrap tabs-input'>
+                        <p className='count-input-label'>Command Type</p>
+                        <button className='explanation-button' onMouseOver={() => setCommandMouseOver(true)} onMouseOut={() => setCommandMouseOver(false)} >
+                            <BsQuestionCircle size='1rem' color='#CCC' />
+                            {commandMouseOver && (
+                                <span className="tooltip">
+                                    <span className="text">
+                                        Set the menu type to use
+                                    </span>
+                                </span>
+                            )}
+                        </button>
+                    </div>
                     <div className='tabs'>
                         <input type="radio" id="radio-3" name="tabs-command" checked />
                         <label className="tab" htmlFor="radio-3">Default</label>
@@ -114,7 +158,19 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
                     </div>
                 </div>
                 <div className='container' id='theme'>
-                    <p className='input-label'>Nexacro Studio Theme</p>
+                    <div className='label-wrap tabs-input'>
+                        <p className='count-input-label'>Nexacro Studio Theme</p>
+                        <button className='explanation-button' onMouseOver={() => setThemeMouseOver(true)} onMouseOut={() => setThemeMouseOver(false)} >
+                            <BsQuestionCircle size='1rem' color='#CCC' />
+                            {themeMouseOver && (
+                                <span className="tooltip">
+                                    <span className="text">
+                                        Set theme with Nexacro Studio to use
+                                    </span>
+                                </span>
+                            )}
+                        </button>
+                    </div>
                     <div className='tabs'>
                         <input type="radio" id="radio-5" name="tabs-theme" checked />
                         <label className="tab" htmlFor="radio-5">Default</label>
