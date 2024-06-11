@@ -1,5 +1,5 @@
 // *****************************************************************************
-// Copyright (C) 2020 Ericsson and others.
+// Copyright (C) 2024 TOBESOFT and others.
 //
 // This program and the accompanying materials are made available under the
 // terms of the Eclipse Public License v. 2.0 which is available at
@@ -17,11 +17,11 @@
 import React from 'react';
 import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
 import { ReactWidget } from '@theia/core/lib/browser';
-import { OptionsData } from '../../common/nexa-options/nexa-options-sevice';
 import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 import { WorkspaceCommands, WorkspaceService } from '@theia/workspace/lib/browser';
 import NexaOptionsEnvironmentWidget from './nexa-options-environment-widget';
-import NexaOptionsFormDesignWidget from './nexa-options-form-design-widget';
+// import NexaOptionsFormDesignWidget from './nexa-options-form-design-widget';
+import { NexaOptions, OptionsData } from '../../common/nexa-options/nexa-options-sevice';
 
 @injectable()
 export class NexaOptionsWidget extends ReactWidget {
@@ -30,7 +30,9 @@ export class NexaOptionsWidget extends ReactWidget {
     static readonly LABEL = 'Nexa Options Widget';
 
     protected optionsData: OptionsData;
+    optionsType: string = 'environment';
 
+    @inject(NexaOptions) protected readonly nexaOptions: NexaOptions;
     @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
     @inject(FileDialogService) protected readonly fileDialogService: FileDialogService;
 
@@ -43,13 +45,20 @@ export class NexaOptionsWidget extends ReactWidget {
         this.id = NexaOptionsWidget.ID;
         this.title.label = NexaOptionsWidget.LABEL;
         this.title.caption = NexaOptionsWidget.LABEL;
-        this.node.style.height = '100%';
         this.node.tabIndex = 0;
         this.update();
     }
 
-    public setOptionsData(optionsData: OptionsData) {
-        this.optionsData = optionsData;
+    public setOptionsData() {
+        this.nexaOptions.readOptionsFile().then((data: OptionsData) => {
+            this.optionsData = data;
+        })
+        this.update();
+    }
+
+    public setOptionsType(type: string) {
+        this.optionsType = type;
+        this.update();
     }
 
     async doOpenFolder(): Promise<string | undefined> {
@@ -70,8 +79,23 @@ export class NexaOptionsWidget extends ReactWidget {
     protected render(): React.ReactNode {
         return (
             <div>
+                {/* {this.optionsData &&
+                    this.optionsType === 'environment' ? (
+                    <NexaOptionsEnvironmentWidget optionsData={this.optionsData} onFindClick={this.doOpenFolder.bind(this)} />
+                ) : (
+                    <NexaOptionsFormDesignWidget optionsData={this.optionsData} />
+                )
+                } */}
+                {/* {
+                    this.optionsData && (
+                        <div>
+                            <NexaOptionsEnvironmentWidget optionsData={this.optionsData} onFindClick={this.doOpenFolder.bind(this)} />
+                            <NexaOptionsFormDesignWidget optionsData={this.optionsData} />
+                        </div>
+                    )
+                } */}
                 <NexaOptionsEnvironmentWidget optionsData={this.optionsData} onFindClick={this.doOpenFolder.bind(this)} />
-                <NexaOptionsFormDesignWidget optionsData={this.optionsData} />
+                {/* <NexaOptionsFormDesignWidget optionsData={this.optionsData} /> */}
             </div>
         );
     }

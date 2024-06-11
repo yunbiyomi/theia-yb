@@ -15,7 +15,17 @@
 // *****************************************************************************
 
 import { Container, inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
-import { CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, TreeImpl, TreeModel, TreeModelImpl, TreeNode, TreeProps, TreeWidget } from '@theia/core/lib/browser';
+import { codicon, CompositeTreeNode, ContextMenuRenderer, createTreeContainer, ExpandableTreeNode, NodeProps, SelectableTreeNode, TreeImpl, TreeModel, TreeNode, TreeProps, TreeWidget } from '@theia/core/lib/browser';
+import { NexaOptionsTreeModel } from './nexa-options-tree-model';
+import React from 'react';
+
+export interface OptionsNode extends SelectableTreeNode, CompositeTreeNode {
+
+}
+
+export interface ExpandOptionsNode extends OptionsNode, ExpandableTreeNode {
+
+}
 
 @injectable()
 export class NexaOptionsTreeWidget extends TreeWidget {
@@ -26,7 +36,7 @@ export class NexaOptionsTreeWidget extends TreeWidget {
         const child = createTreeContainer(parent, {
             tree: TreeImpl,
             widget: NexaOptionsTreeWidget,
-            model: TreeModelImpl
+            model: NexaOptionsTreeModel
         });
 
         return child;
@@ -52,9 +62,9 @@ export class NexaOptionsTreeWidget extends TreeWidget {
         const root = this.createRootNode();
 
 
-        const environmentRoot = this.createNodes('environment', 'Environment', root, 'environment-general', 'General');
+        const environmentRoot = this.createNodes('environment', 'Environment', codicon('globe'), root, 'environment-general', 'General');
         CompositeTreeNode.addChild(root, environmentRoot);
-        const formDesignRoot = this.createNodes('form-design', 'FormDesign', root, 'form-design-general', 'General');
+        const formDesignRoot = this.createNodes('form-design', 'FormDesign', codicon('symbol-color'), root, 'form-design-general', 'General');
         CompositeTreeNode.addChild(root, formDesignRoot);
 
         this.model.root = root;
@@ -66,50 +76,55 @@ export class NexaOptionsTreeWidget extends TreeWidget {
         this.id = NexaOptionsTreeWidget.ID;
         this.title.label = NexaOptionsTreeWidget.LABEL;
         this.title.caption = NexaOptionsTreeWidget.LABEL;
-        this.node.style.width = '50%';
-        this.node.style.height = '100%';
     }
 
-    protected createRootNode(): CompositeTreeNode {
+    protected createRootNode(): ExpandOptionsNode {
         return {
             id: 'options-tree',
             name: 'Options',
+            icon: codicon('settings-gear'),
             parent: undefined,
             visible: true,
-            children: []
+            children: [],
+            expanded: true,
+            selected: false
         };
     }
 
-    protected createExpandebleNode(id: string, name: string, parent: CompositeTreeNode): ExpandableTreeNode {
+    protected createExpandebleNode(id: string, name: string, icon: string, parent: CompositeTreeNode): ExpandOptionsNode {
         const newChildren: TreeNode[] = [];
 
-        const node: ExpandableTreeNode = {
+        const node: ExpandOptionsNode = {
             id,
             name,
+            icon,
             parent: parent,
             children: newChildren,
-            expanded: false
+            expanded: false,
+            selected: false
         }
 
         return node
     }
 
-    protected createTreeNode(id: string, name: string, parent: CompositeTreeNode): TreeNode {
+    protected createTreeNode(id: string, name: string, parent: CompositeTreeNode): OptionsNode {
         const newChildren: TreeNode[] = [];
 
-        const node: CompositeTreeNode = {
+        const node: OptionsNode = {
             id,
             name,
+            icon: codicon('circle-small-filled'),
             parent: parent,
-            children: newChildren
+            children: newChildren,
+            selected: false
         }
 
         return node
     }
 
-    protected createNodes(id: string, name: string, parent: CompositeTreeNode, childId: string, childName: string) {
+    protected createNodes(id: string, name: string, icon: string, parent: CompositeTreeNode, childId: string, childName: string): ExpandOptionsNode {
         const nodeChilds: TreeNode[] = [];
-        const parentNode = this.createExpandebleNode(id, name, parent);
+        const parentNode = this.createExpandebleNode(id, name, icon, parent);
 
         const childNode = this.createTreeNode(childId, childName, parentNode);
         nodeChilds.push(childNode);
@@ -118,5 +133,13 @@ export class NexaOptionsTreeWidget extends TreeWidget {
 
         return parentNode
     }
+
+    protected override renderIcon(node: TreeNode, props: NodeProps): React.ReactNode {
+        if ((node as OptionsNode).icon) {
+            return <span className={`${node.icon}`} style={{ marginRight: '5px' }} />;
+        }
+        return super.renderIcon(node, props);
+    }
+
 }
 

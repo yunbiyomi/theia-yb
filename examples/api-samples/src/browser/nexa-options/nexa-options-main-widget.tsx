@@ -54,7 +54,11 @@ export class NexaOptionsMainWidget extends BaseWidget {
             layout: new PanelLayout()
         });
 
+        this.node.style.height = '100%';
+
+        this.treeWidget.addClass('options-tree');
         this.treePanel.addWidget(this.treeWidget);
+        this.optionsWidget.addClass('options-wiget');
         this.treePanel.addWidget(this.optionsWidget);
         this.toDispose.push(this.treePanel);
 
@@ -75,4 +79,5 @@ export class NexaOptionsMainWidget extends BaseWidget {
         MessageLoop.sendMessage(this.optionsWidget, msg);
         super.onUpdateRequest(msg);
     }
+
 }

@@ -15,12 +15,13 @@
 // *****************************************************************************
 
 import { Command, CommandRegistry, MAIN_MENU_BAR, MenuModelRegistry } from '@theia/core';
-import { injectable, interfaces } from '@theia/core/shared/inversify';
-import { NexaOptionsClient } from '../../common/nexa-options/nexa-options-sevice';
+import { inject, injectable, interfaces } from '@theia/core/shared/inversify';
+import { NexaOptions, NexaOptionsClient, NexaOptionsPath } from '../../common/nexa-options/nexa-options-sevice';
 import { AbstractViewContribution, bindViewContribution, FrontendApplicationContribution, WidgetFactory } from '@theia/core/lib/browser';
 import { NexaOptionsMainWidget } from './nexa-options-main-widget';
 import { NexaOptionsTreeWidget } from './nexa-options-tree-widget';
 import { NexaOptionsWidget } from './nexa-options-widget';
+import { LocalConnectionProvider, ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
 
 const OptionsCommand: Command = {
     id: 'nexa-options',
@@ -29,12 +30,14 @@ const OptionsCommand: Command = {
 
 @injectable()
 export class NexaOptionsClientContribution implements NexaOptionsClient {
+
 }
 
 @injectable()
 export class NexaOptionsContribution extends AbstractViewContribution<NexaOptionsMainWidget> {
 
-    // @inject(NexaOptions) protected readonly nexaOptions: NexaOptions;
+    @inject(NexaOptions) protected readonly nexaOptions: NexaOptions;
+    @inject(NexaOptionsWidget) protected readonly nexaOptionsWidget: NexaOptionsWidget;
 
     constructor() {
         super({
@@ -48,13 +51,10 @@ export class NexaOptionsContribution extends AbstractViewContribution<NexaOption
 
     override registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(OptionsCommand, {
-            execute: async () => this.openView({ reveal: true, activate: true })
-            // execute: async () => {
-            //     this.openView({ reveal: true, activate: true });
-            //     // this.nexaOptions.readOptionsFile().then((data: OptionsData) => {
-            //     //     console.log(JSON.stringify(data));
-            //     // })
-            // }
+            execute: async () => {
+                this.openView({ reveal: true, activate: true });
+                this.nexaOptionsWidget.setOptionsData();
+            }
         });
     }
 
@@ -71,6 +71,12 @@ export class NexaOptionsContribution extends AbstractViewContribution<NexaOption
 }
 
 export const bindOptionsMain = (bind: interfaces.Bind) => {
+    bind(NexaOptionsClient).to(NexaOptionsClientContribution).inSingletonScope();
+    bind(NexaOptions).toDynamicValue(ctx => {
+        const connection = ctx.container.get<ServiceConnectionProvider>(LocalConnectionProvider);
+        const client = ctx.container.get<NexaOptionsClient>(NexaOptionsClient);
+        return connection.createProxy<NexaOptions>(NexaOptionsPath, client);
+    }).inSingletonScope();
     bindViewContribution(bind, NexaOptionsContribution);
     bind(FrontendApplicationContribution).toService(NexaOptionsContribution);
     bind(NexaOptionsTreeWidget).toSelf().inSingletonScope();
