@@ -85,6 +85,7 @@ export class NexaOptionsWidget extends ReactWidget {
                 throw new Error('Options not saved');
             }
             this.update();
+            alert('Options has been modified.');
         })
     }
 
@@ -93,7 +94,7 @@ export class NexaOptionsWidget extends ReactWidget {
             if (!result) {
                 throw new Error('Options not reset');
             }
-            this.update();
+            alert('Changed to default set');
         })
     }
 
@@ -126,27 +127,43 @@ export class NexaOptionsWidget extends ReactWidget {
     protected render(): React.ReactNode {
         return (
             <div>
-                {this.optionsData &&
+                {this.optionsData ?
                     this.optionsType === 'environment' ? (
-                    <NexaOptionsEnvironmentWidget
-                        optionsData={this.optionsData}
-                        onFindClick={this.doOpenFolder}
-                        updateEnvironmentOptions={this.updateEnvironmentOptions}
-                        updateEnvironmentTypeOptions={this.updateEnvironmentTypeOptions}
-                    />
-                ) : (
-                    <NexaOptionsFormDesignWidget
-                        optionsData={this.optionsData}
-                        updateFormDesignOptions={this.updateFormDesignOptions}
-                        updateDisplayEditOptions={this.updateDisplayEditOptions}
-                    />
-                )
+                        <>
+                            <NexaOptionsEnvironmentWidget
+                                optionsData={this.optionsData}
+                                onFindClick={this.doOpenFolder}
+                                updateEnvironmentOptions={this.updateEnvironmentOptions}
+                                updateEnvironmentTypeOptions={this.updateEnvironmentTypeOptions}
+                            />
+                            <div className='main-button-wrap'>
+                                <button className='options-button default' onClick={() => this.resetOptionsFile('all')}>Set default</button>
+                                <button className='options-button default' onClick={() => this.resetOptionsFile(this.optionsType)}>Set default current</button>
+                                <button className='options-button' onClick={this.saveOptionsData}>Save</button>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <NexaOptionsFormDesignWidget
+                                optionsData={this.optionsData}
+                                updateFormDesignOptions={this.updateFormDesignOptions}
+                                updateDisplayEditOptions={this.updateDisplayEditOptions}
+                            />
+                            <div className='main-button-wrap'>
+                                <button className='options-button default' onClick={() => this.resetOptionsFile('all')}>Set default</button>
+                                <button className='options-button default' onClick={() => this.resetOptionsFile(this.optionsType)}>Set default current</button>
+                                <button className='options-button' onClick={this.saveOptionsData}>Save</button>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="loader">
+                            <div className="box"></div>
+                            <div className="box"></div>
+                            <div className="box"></div>
+                            <div className="box"></div>
+                        </div>
+                    )
                 }
-                <div className='main-button-wrap'>
-                    <button className='options-button default' onClick={() => this.resetOptionsFile('all')}>Set default</button>
-                    <button className='options-button default' onClick={() => this.resetOptionsFile(this.optionsType)}>Set default current</button>
-                    <button className='options-button' onClick={this.saveOptionsData}>Save</button>
-                </div>
             </div>
         );
     }

@@ -162,30 +162,37 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                     {heightError && <span className='error-message'>Only up to 12000 can be entered</span>}
                 </div>
             </div>
-            <div className='select-type options-wrap'>
-                <p className='title'>Select Type</p>
-                <div className='container' id='perspective'>
-                    <div className='label-wrap tabs-input'>
-                        <p className='count-input-label'>Perspective</p>
-                        <button className='explanation-button' onMouseOver={() => setPrespectiveMouseOver(true)} onMouseOut={() => setPrespectiveMouseOver(false)}>
-                            <BsQuestionCircle size='1rem' color='#CCC' />
-                            {perspectiveMouseOver && (
-                                <span className="tooltip">
-                                    <span className="text">
-                                        Set a decision point when selecting a component with the mouse
+            <div className='development-tools options-wrap'>
+                <div className='select-type'>
+                    <p className='title'>Select Type</p>
+                    <div className='container' id='perspective'>
+                        <div className='label-wrap tabs-input'>
+                            <p className='count-input-label'>Perspective</p>
+                            <button className='explanation-button' onMouseOver={() => setPrespectiveMouseOver(true)} onMouseOut={() => setPrespectiveMouseOver(false)}>
+                                <BsQuestionCircle size='1rem' color='#CCC' />
+                                {perspectiveMouseOver && (
+                                    <span className="tooltip">
+                                        <span className="text">
+                                            Set a decision point when selecting a component with the mouse
+                                        </span>
                                     </span>
-                                </span>
-                            )}
-                        </button>
-                    </div>
-                    <div className='tabs'>
-                        <input type="radio" id="radio-1" name="tabs-perspective" value={0} checked={formDesign.selectType === 0} onChange={handleInputChange('selectType')} />
-                        <label className="tab" htmlFor="radio-1">All</label>
-                        <input type="radio" id="radio-2" name="tabs-perspective" value={1} checked={formDesign.selectType === 1} onChange={handleInputChange('selectType')} />
-                        <label className="tab" htmlFor="radio-2">Part</label>
-                        <span className="glider1"></span>
+                                )}
+                            </button>
+                        </div>
+                        <div className='tabs'>
+                            <input type="radio" id="radio-1" name="tabs-perspective" value={1} checked={formDesign.selectType === 1} onChange={handleInputChange('selectType')} />
+                            <label className="tab" htmlFor="radio-1">All</label>
+                            <input type="radio" id="radio-2" name="tabs-perspective" value={0} checked={formDesign.selectType === 0} onChange={handleInputChange('selectType')} />
+                            <label className="tab" htmlFor="radio-2">Part</label>
+                            <span className="glider1"></span>
+                        </div>
+                        {formDesign.selectType === 1 ?
+                            <p className='select-type-content'>Options that are selected only when the selection includes the entire component.</p> :
+                            <p className='select-type-content'>Options that are selected even if the selection includes some of the components.</p>
+                        }
                     </div>
                 </div>
+                <div className={`ex-image select-type-imgae ${formDesign.selectType === 1 ? 'select-all' : 'select-part'}`} />
             </div>
             <div className='layout-wrap options-wrap'>
                 <p className='title'>Layout</p>
