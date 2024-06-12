@@ -49,8 +49,9 @@ export class NexaOptionsContribution extends AbstractViewContribution<NexaOption
     override registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(OptionsCommand, {
             execute: async () => {
-                const mainWidget = await this.openView({ reveal: true, activate: true });
+                const mainWidget = await this.openView({ reveal: true });
                 mainWidget.optionsWidget.setOptionsData();
+                this.shell.activateWidget(this.viewId);
             }
         });
     }
