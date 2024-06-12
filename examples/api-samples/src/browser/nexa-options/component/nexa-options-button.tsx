@@ -18,6 +18,7 @@ import React from '@theia/core/shared/react';
 
 interface NexaOptionsButtonProps {
     optionsType: string;
+    result: boolean;
     resetOptionsFile: (type: string) => Promise<void>;
     saveOptionsData: () => Promise<void>;
 }
@@ -27,7 +28,7 @@ export default function NexaOptionsButton(props: NexaOptionsButtonProps): React.
         <div className='main-button-wrap'>
             <button className='options-button default' onClick={() => props.resetOptionsFile('all')}>Set default</button>
             <button className='options-button default' onClick={() => props.resetOptionsFile(props.optionsType)}>Set default current</button>
-            <button className='options-button' onClick={props.saveOptionsData}>Save</button>
+            <button className='options-button' onClick={props.saveOptionsData} disabled={props.result}>Save</button>
         </div>
     )
 }

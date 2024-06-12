@@ -23,7 +23,6 @@ import { NexaOptions } from '../../common/nexa-options/nexa-options-sevice';
 import { OptionsData } from './nexa-options-definitions';
 import NexaOptionsEnvironment from './component/nexa-options-environment';
 import NexaOptionsFormDesign from './component/nexa-options-form-design';
-import NexaOptionsButton from './component/nexa-options-button';
 import NexaOptionsLoading from './component/nexa-options-loading';
 
 @injectable()
@@ -93,7 +92,7 @@ export class NexaOptionsWidget extends ReactWidget {
             if (!result) {
                 throw new Error('Options not saved');
             }
-            this.update();
+
             alert('Options has been modified.');
         })
     }
@@ -105,6 +104,7 @@ export class NexaOptionsWidget extends ReactWidget {
                 throw new Error('Options not reset');
             }
             alert('Changed to default set');
+            this.update();
         })
     }
 
@@ -146,8 +146,6 @@ export class NexaOptionsWidget extends ReactWidget {
                                 onFindClick={this.doOpenFolder}
                                 updateEnvironmentOptions={this.updateEnvironmentOptions}
                                 updateEnvironmentTypeOptions={this.updateEnvironmentTypeOptions}
-                            />
-                            <NexaOptionsButton
                                 optionsType={this.optionsType}
                                 resetOptionsFile={this.resetOptionsFile}
                                 saveOptionsData={this.saveOptionsData}
@@ -159,8 +157,6 @@ export class NexaOptionsWidget extends ReactWidget {
                                 optionsData={this.optionsData}
                                 updateFormDesignOptions={this.updateFormDesignOptions}
                                 updateDisplayEditOptions={this.updateDisplayEditOptions}
-                            />
-                            <NexaOptionsButton
                                 optionsType={this.optionsType}
                                 resetOptionsFile={this.resetOptionsFile}
                                 saveOptionsData={this.saveOptionsData}

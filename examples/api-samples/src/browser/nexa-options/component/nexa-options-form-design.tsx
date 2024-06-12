@@ -18,11 +18,15 @@
 import React from '@theia/core/shared/react';
 import { BsQuestionCircle } from 'react-icons/bs';
 import { OptionsData, SELECT_TYPE } from '../nexa-options-definitions';
+import NexaOptionsButton from './nexa-options-button';
 
 interface NexaOptionsFormDesignProps {
     optionsData: OptionsData;
     updateFormDesignOptions: (newData: any) => void;
     updateDisplayEditOptions: (newData: any) => void;
+    optionsType: string;
+    resetOptionsFile: (type: string) => Promise<void>;
+    saveOptionsData: () => Promise<void>;
 }
 
 export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps): React.JSX.Element {
@@ -96,7 +100,7 @@ export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps)
         setDisplayEditStep(newDisplayEditStep);
     };
 
-    return (
+    return (<>
         <section className='options-container'>
             <div className='design-basic-wrap options-wrap'>
                 <p className='title'>Design Basic</p>
@@ -199,5 +203,12 @@ export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps)
                 </label>
             </div>
         </section>
+        <NexaOptionsButton
+            optionsType={props.optionsType}
+            resetOptionsFile={props.resetOptionsFile}
+            saveOptionsData={props.saveOptionsData}
+            result={error.width || error.height}
+        />
+    </>
     );
 }
