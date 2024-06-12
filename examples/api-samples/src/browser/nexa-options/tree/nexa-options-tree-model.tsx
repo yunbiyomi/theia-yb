@@ -17,13 +17,14 @@
 import { inject, injectable } from '@theia/core/shared/inversify';
 import { SelectableTreeNode, TreeModelImpl } from '@theia/core/lib/browser';
 import { OptionsNode } from './nexa-options-tree-widget';
-import { NexaOptionsWidget } from './nexa-options-widget';
+import { NexaOptionsWidget } from '../nexa-options-widget';
 
 @injectable()
 export class NexaOptionsTreeModel extends TreeModelImpl {
 
     @inject(NexaOptionsWidget) protected readonly optionsWidget: NexaOptionsWidget;
 
+    // 카테고리 별 알맞은 options 창 열기
     override selectNode(node: OptionsNode): void {
         super.selectNode(node);
 
@@ -31,10 +32,8 @@ export class NexaOptionsTreeModel extends TreeModelImpl {
             if (node.parent) {
                 if (node.parent.id === 'environment') {
                     this.optionsWidget.setOptionsType('environment');
-                    console.log(this.optionsWidget.optionsType);
                 } else if (node.parent.id === 'form-design') {
                     this.optionsWidget.setOptionsType('formDesign');
-                    console.log(this.optionsWidget.optionsType);
                 }
             }
         }

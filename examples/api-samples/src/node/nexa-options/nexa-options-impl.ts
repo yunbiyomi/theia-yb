@@ -17,9 +17,9 @@
 import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
 import { injectable, interfaces } from '@theia/core/shared/inversify';
 import { NexaOptions, NexaOptionsClient, NexaOptionsPath } from '../../common/nexa-options/nexa-options-sevice';
+import { OptionsData } from '../../browser/nexa-options/nexa-options-definitions';
 import fs = require('fs');
 import path = require('path');
-import { OptionsData } from '../../browser/nexa-options/nexa-options-definitions';
 
 @injectable()
 export class NexaOptionsImpl implements NexaOptions {
@@ -37,6 +37,7 @@ export class NexaOptionsImpl implements NexaOptions {
         throw new Error('Method not implemented.');
     }
 
+    // options JSON 파일 읽고 데이터에 저장
     readOptionsFile(): Promise<OptionsData> {
         const directoryPath = '../../../../nexa-options-data.json';
         const filePath = path.join(__dirname, directoryPath);
@@ -47,6 +48,7 @@ export class NexaOptionsImpl implements NexaOptions {
         return optionsData;
     }
 
+    // 변경된 data options에 저장
     async saveOptionsFile(data: OptionsData): Promise<boolean> {
         if (!data) {
             return false;
@@ -61,6 +63,7 @@ export class NexaOptionsImpl implements NexaOptions {
         return true;
     }
 
+    // options 초기화
     async resetOptionsFile(data: OptionsData, type: string): Promise<boolean> {
         const initialData: OptionsData = {
             Configure: {

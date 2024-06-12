@@ -17,7 +17,7 @@
 
 import { BaseWidget, Message, MessageLoop, Panel, PanelLayout, WidgetManager } from '@theia/core/lib/browser';
 import { inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
-import { NexaOptionsTreeWidget } from './nexa-options-tree-widget';
+import { NexaOptionsTreeWidget } from './tree/nexa-options-tree-widget';
 import { NexaOptionsWidget } from './nexa-options-widget';
 
 @injectable()

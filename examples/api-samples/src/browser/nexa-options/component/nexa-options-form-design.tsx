@@ -16,16 +16,16 @@
 // *****************************************************************************
 
 import React from '@theia/core/shared/react';
-import { BsQuestionCircle } from "react-icons/bs";
-import { OptionsData, SELECT_TYPE } from './nexa-options-definitions';
+import { BsQuestionCircle } from 'react-icons/bs';
+import { OptionsData, SELECT_TYPE } from '../nexa-options-definitions';
 
-interface NexaOptionsFormDesignWidgetProps {
+interface NexaOptionsFormDesignProps {
     optionsData: OptionsData;
     updateFormDesignOptions: (newData: any) => void;
     updateDisplayEditOptions: (newData: any) => void;
 }
 
-export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesignWidgetProps): React.JSX.Element {
+export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps): React.JSX.Element {
     const data = props.optionsData.Configure.FormDesign;
 
     const initialFormDesignState = {
@@ -106,8 +106,8 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                         <button className='explanation-button' onMouseOver={() => handleMouseOver('undo', true)} onMouseOut={() => handleMouseOver('undo', false)}>
                             <BsQuestionCircle size='1rem' color='#CCC' />
                             {mouseOver.undo && (
-                                <span className="tooltip">
-                                    <span className="text">
+                                <span className='tooltip'>
+                                    <span className='text'>
                                         Maximum number of times you can recover to Undo
                                     </span>
                                 </span>
@@ -115,8 +115,8 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                         </button>
 
                     </div>
-                    <div className="textInputWrapper">
-                        <input placeholder="Max Undo" value={formDesign.undoMax} className="textInput" onChange={handleInputChange('undoMax')} />
+                    <div className='textInputWrapper'>
+                        <input placeholder='Max Undo' value={formDesign.undoMax} className='textInput' onChange={handleInputChange('undoMax')} />
                     </div>
                 </div>
                 <div className='options-input-wrap'>
@@ -125,8 +125,8 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                         <button className='explanation-button' onMouseOver={() => handleMouseOver('width', true)} onMouseOut={() => handleMouseOver('width', false)}>
                             <BsQuestionCircle size='1rem' color='#CCC' />
                             {mouseOver.width && (
-                                <span className="tooltip">
-                                    <span className="text">
+                                <span className='tooltip'>
+                                    <span className='text'>
                                         Set the default width when creating a new form
                                     </span>
                                 </span>
@@ -134,7 +134,7 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                         </button>
                     </div>
                     <div className={`textInputWrapper ${error.width && 'error-line'}`}>
-                        <input placeholder="Width" value={formDesign.defaultWidth} className="textInput" onChange={handleInputChange('defaultWidth')} />
+                        <input placeholder='Width' value={formDesign.defaultWidth} className='textInput' onChange={handleInputChange('defaultWidth')} />
                     </div>
                     {error.width && <span className='error-message'>Only up to 12000 can be entered</span>}
                 </div>
@@ -144,8 +144,8 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                         <button className='explanation-button' onMouseOver={() => handleMouseOver('height', true)} onMouseOut={() => handleMouseOver('height', false)}>
                             <BsQuestionCircle size='1rem' color='#CCC' />
                             {mouseOver.height && (
-                                <span className="tooltip">
-                                    <span className="text">
+                                <span className='tooltip'>
+                                    <span className='text'>
                                         Set the default height when creating a new form
                                     </span>
                                 </span>
@@ -153,7 +153,7 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                         </button>
                     </div>
                     <div className={`textInputWrapper ${error.height && 'error-line'}`}>
-                        <input placeholder="Height" value={formDesign.defaultHeight} className="textInput" onChange={handleInputChange('defaultHeight')} />
+                        <input placeholder='Height' value={formDesign.defaultHeight} className='textInput' onChange={handleInputChange('defaultHeight')} />
                     </div>
                     {error.height && <span className='error-message'>Only up to 12000 can be entered</span>}
                 </div>
@@ -167,8 +167,8 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                             <button className='explanation-button' onMouseOver={() => handleMouseOver('prepective', true)} onMouseOut={() => handleMouseOver('prepective', false)}>
                                 <BsQuestionCircle size='1rem' color='#CCC' />
                                 {mouseOver.prepective && (
-                                    <span className="tooltip">
-                                        <span className="text">
+                                    <span className='tooltip'>
+                                        <span className='text'>
                                             Set a decision point when selecting a component with the mouse
                                         </span>
                                     </span>
@@ -176,11 +176,11 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                             </button>
                         </div>
                         <div className='tabs'>
-                            <input type="radio" id="radio-1" name="tabs-perspective" value={SELECT_TYPE.all} checked={formDesign.selectType === SELECT_TYPE.all} onChange={handleInputChange('selectType')} />
-                            <label className="tab" htmlFor="radio-1">All</label>
-                            <input type="radio" id="radio-2" name="tabs-perspective" value={SELECT_TYPE.part} checked={formDesign.selectType === SELECT_TYPE.part} onChange={handleInputChange('selectType')} />
-                            <label className="tab" htmlFor="radio-2">Part</label>
-                            <span className="glider1"></span>
+                            <input type='radio' id='radio-1' name='tabs-perspective' value={SELECT_TYPE.all} checked={formDesign.selectType === SELECT_TYPE.all} onChange={handleInputChange('selectType')} />
+                            <label className='tab' htmlFor='radio-1'>All</label>
+                            <input type='radio' id='radio-2' name='tabs-perspective' value={SELECT_TYPE.part} checked={formDesign.selectType === SELECT_TYPE.part} onChange={handleInputChange('selectType')} />
+                            <label className='tab' htmlFor='radio-2'>Part</label>
+                            <span className='glider1'></span>
                         </div>
                         {formDesign.selectType === SELECT_TYPE.all ?
                             <p className='select-type-content'>Options that are selected only when the selection includes the entire component.</p> :
@@ -192,9 +192,9 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
             </div>
             <div className='layout-wrap options-wrap'>
                 <p className='title'>Layout</p>
-                <label htmlFor='overline-layout' className="checkbox-container">
-                    <input id='overline-layout' className="custom-checkbox" type="checkbox" checked={displayEditStep === 1} onChange={handleDisplayEditStepChange} />
-                    <span className="checkmark"></span>
+                <label htmlFor='overline-layout' className='checkbox-container'>
+                    <input id='overline-layout' className='custom-checkbox' type='checkbox' checked={displayEditStep === 1} onChange={handleDisplayEditStepChange} />
+                    <span className='checkmark'></span>
                     Outline a step when you mouse over it.
                 </label>
             </div>

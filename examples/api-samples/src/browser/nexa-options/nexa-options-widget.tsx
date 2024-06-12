@@ -19,10 +19,12 @@ import { inject, injectable, postConstruct } from '@theia/core/shared/inversify'
 import { ReactWidget } from '@theia/core/lib/browser';
 import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 import { WorkspaceCommands, WorkspaceService } from '@theia/workspace/lib/browser';
-import NexaOptionsEnvironmentWidget from './nexa-options-environment-widget';
-import NexaOptionsFormDesignWidget from './nexa-options-form-design-widget';
 import { NexaOptions } from '../../common/nexa-options/nexa-options-sevice';
 import { OptionsData } from './nexa-options-definitions';
+import NexaOptionsEnvironment from './component/nexa-options-environment';
+import NexaOptionsFormDesign from './component/nexa-options-form-design';
+import NexaOptionsButton from './component/nexa-options-button';
+import NexaOptionsLoading from './component/nexa-options-loading';
 
 @injectable()
 export class NexaOptionsWidget extends ReactWidget {
@@ -31,7 +33,7 @@ export class NexaOptionsWidget extends ReactWidget {
     static readonly LABEL = 'Nexa Options Widget';
 
     protected optionsData: OptionsData;
-    optionsType: string = 'environment';
+    protected optionsType: string = 'environment';
 
     @inject(NexaOptions) protected readonly nexaOptions: NexaOptions;
     @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
@@ -47,12 +49,15 @@ export class NexaOptionsWidget extends ReactWidget {
         this.title.label = NexaOptionsWidget.LABEL;
         this.title.caption = NexaOptionsWidget.LABEL;
         this.node.tabIndex = 0;
+
         this.saveOptionsData = this.saveOptionsData.bind(this);
         this.resetOptionsFile = this.resetOptionsFile.bind(this);
         this.doOpenFolder = this.doOpenFolder.bind(this);
+
         this.update();
     }
 
+    // Options JSON 파일 저장
     public setOptionsData() {
         this.nexaOptions.readOptionsFile().then((data: OptionsData) => {
             this.optionsData = { ...data };
@@ -60,11 +65,13 @@ export class NexaOptionsWidget extends ReactWidget {
         })
     }
 
+    // 현재 Options 창 모드 선택
     public setOptionsType(type: string) {
         this.optionsType = type;
         this.update();
     }
 
+    // 선택한 폴더 path 가져오기
     async doOpenFolder(): Promise<string | undefined> {
         const props: OpenFileDialogProps = {
             title: WorkspaceCommands.OPEN_FOLDER.dialogLabel,
@@ -80,8 +87,8 @@ export class NexaOptionsWidget extends ReactWidget {
         return undefined;
     }
 
+    // options 저장
     protected async saveOptionsData(): Promise<void> {
-
         this.nexaOptions.saveOptionsFile(this.optionsData).then((result: boolean) => {
             if (!result) {
                 throw new Error('Options not saved');
@@ -91,6 +98,7 @@ export class NexaOptionsWidget extends ReactWidget {
         })
     }
 
+    // options 초기화
     protected async resetOptionsFile(type: string): Promise<void> {
         this.nexaOptions.resetOptionsFile(this.optionsData, type).then((result: boolean) => {
             if (!result) {
@@ -100,6 +108,7 @@ export class NexaOptionsWidget extends ReactWidget {
         })
     }
 
+    // component에서 수정한 데이터 저장
     protected updateEnvironmentOptions = (newData: any) => {
         this.optionsData.Configure.Environment.General = {
             ...this.optionsData.Configure.Environment.General,
@@ -132,38 +141,33 @@ export class NexaOptionsWidget extends ReactWidget {
                 {this.optionsData ?
                     this.optionsType === 'environment' ? (
                         <>
-                            <NexaOptionsEnvironmentWidget
+                            <NexaOptionsEnvironment
                                 optionsData={this.optionsData}
                                 onFindClick={this.doOpenFolder}
                                 updateEnvironmentOptions={this.updateEnvironmentOptions}
                                 updateEnvironmentTypeOptions={this.updateEnvironmentTypeOptions}
                             />
-                            <div className='main-button-wrap'>
-                                <button className='options-button default' onClick={() => this.resetOptionsFile('all')}>Set default</button>
-                                <button className='options-button default' onClick={() => this.resetOptionsFile(this.optionsType)}>Set default current</button>
-                                <button className='options-button' onClick={this.saveOptionsData}>Save</button>
-                            </div>
+                            <NexaOptionsButton
+                                optionsType={this.optionsType}
+                                resetOptionsFile={this.resetOptionsFile}
+                                saveOptionsData={this.saveOptionsData}
+                            />
                         </>
                     ) : (
                         <>
-                            <NexaOptionsFormDesignWidget
+                            <NexaOptionsFormDesign
                                 optionsData={this.optionsData}
                                 updateFormDesignOptions={this.updateFormDesignOptions}
                                 updateDisplayEditOptions={this.updateDisplayEditOptions}
                             />
-                            <div className='main-button-wrap'>
-                                <button className='options-button default' onClick={() => this.resetOptionsFile('all')}>Set default</button>
-                                <button className='options-button default' onClick={() => this.resetOptionsFile(this.optionsType)}>Set default current</button>
-                                <button className='options-button' onClick={this.saveOptionsData}>Save</button>
-                            </div>
+                            <NexaOptionsButton
+                                optionsType={this.optionsType}
+                                resetOptionsFile={this.resetOptionsFile}
+                                saveOptionsData={this.saveOptionsData}
+                            />
                         </>
                     ) : (
-                        <div className="loader">
-                            <div className="box"></div>
-                            <div className="box"></div>
-                            <div className="box"></div>
-                            <div className="box"></div>
-                        </div>
+                        <NexaOptionsLoading />
                     )
                 }
             </div>

@@ -81,6 +81,7 @@ export class NexaOptionsTreeWidget extends TreeWidget {
         this.title.caption = NexaOptionsTreeWidget.LABEL;
     }
 
+    // 위젯 처음 렌더 시 environment-general select
     protected async startFocus(): Promise<void> {
         const root = this.model.root as CompositeTreeNode;
         const environmentTree = CompositeTreeNode.getFirstChild(root) as CompositeTreeNode;
