@@ -88,8 +88,8 @@ export class NexaOptionsWidget extends ReactWidget {
         })
     }
 
-    protected async resetOptionsFile(): Promise<void> {
-        this.nexaOptions.resetOptionsFile().then((result: boolean) => {
+    protected async resetOptionsFile(type: string): Promise<void> {
+        this.nexaOptions.resetOptionsFile(this.optionsData, type).then((result: boolean) => {
             if (!result) {
                 throw new Error('Options not reset');
             }
@@ -143,7 +143,8 @@ export class NexaOptionsWidget extends ReactWidget {
                 )
                 }
                 <div className='main-button-wrap'>
-                    <button className='options-button' onClick={this.resetOptionsFile}>Set default</button>
+                    <button className='options-button default' onClick={() => this.resetOptionsFile('all')}>Set default</button>
+                    <button className='options-button default' onClick={() => this.resetOptionsFile(this.optionsType)}>Set default current</button>
                     <button className='options-button' onClick={this.saveOptionsData}>Save</button>
                 </div>
             </div>
