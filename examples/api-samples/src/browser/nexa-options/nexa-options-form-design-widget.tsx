@@ -16,8 +16,8 @@
 // *****************************************************************************
 
 import React from '@theia/core/shared/react';
-import { OptionsData } from '../../common/nexa-options/nexa-options-sevice';
 import { BsQuestionCircle } from "react-icons/bs";
+import { OptionsData } from './nexa-options-definitions';
 
 interface NexaOptionsFormDesignWidgetProps {
     optionsData: OptionsData;
@@ -33,15 +33,22 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
         defaultHeight: data.General.defaultHeight,
         selectType: data.General.selectType
     }
-    const [formDesign, setformDesign] = React.useState(initialFormDesignState);
+
+    const initialErrorState = {
+        width: false,
+        height: false
+    }
+
+    const [formDesign, setFormDesign] = React.useState(initialFormDesignState);
     const [displayEditStep, setDisplayEditStep] = React.useState(data.LayoutManager.displayEditStep);
-    const [widthError, setWidthError] = React.useState(false);
-    const [heightError, setHeightError] = React.useState(false);
+
+    const [error, setError] = React.useState(initialErrorState);
     const [undoMouseOver, setUndoMouseOver] = React.useState(false);
     const [widthMouseOver, setWidthMouseOver] = React.useState(false);
     const [heightMouseOver, setHeightMouseOver] = React.useState(false);
     const [perspectiveMouseOver, setPrespectiveMouseOver] = React.useState(false);
 
+    // 변경된 Options Data 저장
     React.useEffect(() => {
         props.updateFormDesignOptions(formDesign);
     }, [formDesign]);
@@ -50,50 +57,29 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
         props.updateDisplayEditOptions(displayEditStep);
     }, [displayEditStep]);
 
+    // width, height 유효성 검사
     React.useEffect(() => {
-        const isMaxWidth = formDesign.defaultWidth > 12000;
+        const isMaxWidth: boolean = formDesign.defaultWidth > 12000;
+        const isMaxHeight: boolean = formDesign.defaultHeight > 12000;
 
-        isMaxWidth ? setWidthError(true) : setWidthError(false);
+        setError(prev => ({
+            ...prev,
+            width: isMaxWidth,
+            height: isMaxHeight
+        }));
 
-    }, [formDesign.defaultWidth]);
-
-    React.useEffect(() => {
-        const isMaxHeight = formDesign.defaultHeight > 12000;
-
-        isMaxHeight ? setHeightError(true) : setHeightError(false);
-
-    }, [formDesign.defaultHeight]);
+    }, [formDesign.defaultWidth, formDesign.defaultHeight]);
 
     const handleInputChange = (type: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
+        const parsedValue = value === '' ? 0 : parseInt(value);
 
-        switch (type) {
-            case 'maxUndo':
-                setformDesign(prevData => ({
-                    ...prevData,
-                    undoMax: value === '' ? 0 : parseInt(value)
-                }));
-                break;
-            case 'defaultWidth':
-                setformDesign(prevData => ({
-                    ...prevData,
-                    defaultWidth: value === '' ? 0 : parseInt(value)
-                }));
-                break;
-            case 'defaultHeight':
-                setformDesign(prevData => ({
-                    ...prevData,
-                    defaultHeight: value === '' ? 0 : parseInt(value)
-                }));
-                break;
-            case 'selectType':
-                setformDesign(prevData => ({
-                    ...prevData,
-                    selectType: parseInt(value)
-                }));
-                break;
-        }
+        setFormDesign(prevData => ({
+            ...prevData,
+            [type]: parsedValue
+        }));
     };
+
 
     const handleDisplayEditStepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newDisplayEditStep = e.target.checked ? 1 : 0;
@@ -120,7 +106,7 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
 
                     </div>
                     <div className="textInputWrapper">
-                        <input placeholder="Max Undo" value={formDesign.undoMax} className="textInput" onChange={handleInputChange('maxUndo')} />
+                        <input placeholder="Max Undo" value={formDesign.undoMax} className="textInput" onChange={handleInputChange('undoMax')} />
                     </div>
                 </div>
                 <div className='options-input-wrap'>
@@ -137,10 +123,10 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                             )}
                         </button>
                     </div>
-                    <div className={`textInputWrapper ${widthError && 'error-line'}`}>
+                    <div className={`textInputWrapper ${error.width && 'error-line'}`}>
                         <input placeholder="Width" value={formDesign.defaultWidth} className="textInput" onChange={handleInputChange('defaultWidth')} />
                     </div>
-                    {widthError && <span className='error-message'>Only up to 12000 can be entered</span>}
+                    {error.width && <span className='error-message'>Only up to 12000 can be entered</span>}
                 </div>
                 <div className='options-input-wrap'>
                     <div className='label-wrap'>
@@ -156,10 +142,10 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                             )}
                         </button>
                     </div>
-                    <div className={`textInputWrapper ${heightError && 'error-line'}`}>
+                    <div className={`textInputWrapper ${error.height && 'error-line'}`}>
                         <input placeholder="Height" value={formDesign.defaultHeight} className="textInput" onChange={handleInputChange('defaultHeight')} />
                     </div>
-                    {heightError && <span className='error-message'>Only up to 12000 can be entered</span>}
+                    {error.height && <span className='error-message'>Only up to 12000 can be entered</span>}
                 </div>
             </div>
             <div className='development-tools options-wrap'>
