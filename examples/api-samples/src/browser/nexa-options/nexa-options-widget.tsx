@@ -80,6 +80,7 @@ export class NexaOptionsWidget extends ReactWidget {
     }
 
     protected async saveOptionsData(): Promise<void> {
+
         this.nexaOptions.saveOptionsFile(this.optionsData).then((result: boolean) => {
             if (!result) {
                 throw new Error('Options not saved');
