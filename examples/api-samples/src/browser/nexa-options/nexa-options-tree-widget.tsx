@@ -62,13 +62,16 @@ export class NexaOptionsTreeWidget extends TreeWidget {
         const root = this.createRootNode();
 
 
-        const environmentRoot = this.createNodes('environment', 'Environment', codicon('globe'), root, 'environment-general', 'General');
+        const environmentRoot = this.createNodes('environment', 'Environment', codicon('globe'), root, true, 'environment-general', 'General');
         CompositeTreeNode.addChild(root, environmentRoot);
-        const formDesignRoot = this.createNodes('form-design', 'FormDesign', codicon('symbol-color'), root, 'form-design-general', 'General');
+        const formDesignRoot = this.createNodes('form-design', 'FormDesign', codicon('symbol-color'), root, false, 'form-design-general', 'General');
         CompositeTreeNode.addChild(root, formDesignRoot);
 
         this.model.root = root;
         this.model.refresh(root);
+
+        this.startFocus();
+
         this.update();
     }
 
@@ -76,6 +79,14 @@ export class NexaOptionsTreeWidget extends TreeWidget {
         this.id = NexaOptionsTreeWidget.ID;
         this.title.label = NexaOptionsTreeWidget.LABEL;
         this.title.caption = NexaOptionsTreeWidget.LABEL;
+    }
+
+    protected async startFocus(): Promise<void> {
+        const root = this.model.root as CompositeTreeNode;
+        const environmentTree = CompositeTreeNode.getFirstChild(root) as CompositeTreeNode;
+        const environmentNode = CompositeTreeNode.getFirstChild(environmentTree) as SelectableTreeNode;
+        this.model.selectNode(environmentNode);
+        await this.model.refresh();
     }
 
     protected createRootNode(): ExpandOptionsNode {
@@ -91,7 +102,7 @@ export class NexaOptionsTreeWidget extends TreeWidget {
         };
     }
 
-    protected createExpandebleNode(id: string, name: string, icon: string, parent: CompositeTreeNode): ExpandOptionsNode {
+    protected createExpandebleNode(id: string, name: string, icon: string, parent: CompositeTreeNode, expanded: boolean): ExpandOptionsNode {
         const newChildren: TreeNode[] = [];
 
         const node: ExpandOptionsNode = {
@@ -100,7 +111,7 @@ export class NexaOptionsTreeWidget extends TreeWidget {
             icon,
             parent: parent,
             children: newChildren,
-            expanded: false,
+            expanded: expanded,
             selected: false
         }
 
@@ -122,11 +133,13 @@ export class NexaOptionsTreeWidget extends TreeWidget {
         return node
     }
 
-    protected createNodes(id: string, name: string, icon: string, parent: CompositeTreeNode, childId: string, childName: string): ExpandOptionsNode {
+    protected createNodes(id: string, name: string, icon: string, parent: CompositeTreeNode, exapnd: boolean, childId: string, childName: string): ExpandOptionsNode {
         const nodeChilds: TreeNode[] = [];
-        const parentNode = this.createExpandebleNode(id, name, icon, parent);
+        const parentNode = this.createExpandebleNode(id, name, icon, parent, exapnd);
 
         const childNode = this.createTreeNode(childId, childName, parentNode);
+
+        this.node.focus();
         nodeChilds.push(childNode);
 
         parentNode.children = nodeChilds;
