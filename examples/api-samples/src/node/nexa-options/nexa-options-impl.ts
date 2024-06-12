@@ -16,9 +16,10 @@
 
 import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
 import { injectable, interfaces } from '@theia/core/shared/inversify';
-import { NexaOptions, NexaOptionsClient, NexaOptionsPath, OptionsData } from '../../common/nexa-options/nexa-options-sevice';
+import { NexaOptions, NexaOptionsClient, NexaOptionsPath } from '../../common/nexa-options/nexa-options-sevice';
 import fs = require('fs');
 import path = require('path');
+import { OptionsData } from '../../browser/nexa-options/nexa-options-definitions';
 
 @injectable()
 export class NexaOptionsImpl implements NexaOptions {
@@ -105,7 +106,7 @@ export class NexaOptionsImpl implements NexaOptions {
                 defaultData.Configure.FormDesign.General.undoMax = 1024;
                 defaultData.Configure.FormDesign.General.defaultWidth = 1280;
                 defaultData.Configure.FormDesign.General.defaultHeight = 720;
-                defaultData.Configure.FormDesign.General.selectType = 0;
+                defaultData.Configure.FormDesign.General.selectType = 1;
                 defaultData.Configure.FormDesign.LayoutManager.displayEditStep = 1;
                 break;
         }

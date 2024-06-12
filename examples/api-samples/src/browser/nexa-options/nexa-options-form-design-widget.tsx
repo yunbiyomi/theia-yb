@@ -17,7 +17,7 @@
 
 import React from '@theia/core/shared/react';
 import { BsQuestionCircle } from "react-icons/bs";
-import { OptionsData } from './nexa-options-definitions';
+import { OptionsData, SELECT_TYPE } from './nexa-options-definitions';
 
 interface NexaOptionsFormDesignWidgetProps {
     optionsData: OptionsData;
@@ -27,6 +27,7 @@ interface NexaOptionsFormDesignWidgetProps {
 
 export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesignWidgetProps): React.JSX.Element {
     const data = props.optionsData.Configure.FormDesign;
+
     const initialFormDesignState = {
         undoMax: data.General.undoMax,
         defaultWidth: data.General.defaultWidth,
@@ -39,23 +40,24 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
         height: false
     }
 
+    const initialMouseOver = {
+        undo: false,
+        width: false,
+        height: false,
+        prepective: false
+    }
+
     const [formDesign, setFormDesign] = React.useState(initialFormDesignState);
     const [displayEditStep, setDisplayEditStep] = React.useState(data.LayoutManager.displayEditStep);
 
     const [error, setError] = React.useState(initialErrorState);
-    const [undoMouseOver, setUndoMouseOver] = React.useState(false);
-    const [widthMouseOver, setWidthMouseOver] = React.useState(false);
-    const [heightMouseOver, setHeightMouseOver] = React.useState(false);
-    const [perspectiveMouseOver, setPrespectiveMouseOver] = React.useState(false);
+    const [mouseOver, setMouseOver] = React.useState(initialMouseOver);
 
     // 변경된 Options Data 저장
     React.useEffect(() => {
         props.updateFormDesignOptions(formDesign);
-    }, [formDesign]);
-
-    React.useEffect(() => {
         props.updateDisplayEditOptions(displayEditStep);
-    }, [displayEditStep]);
+    }, [formDesign, displayEditStep]);
 
     // width, height 유효성 검사
     React.useEffect(() => {
@@ -70,6 +72,15 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
 
     }, [formDesign.defaultWidth, formDesign.defaultHeight]);
 
+    // tooltip 표시 유무
+    const handleMouseOver = (type: string, data: boolean) => {
+        setMouseOver(prevData => ({
+            ...prevData,
+            [type]: data
+        }));
+    };
+
+    // input 변경 내용 저장
     const handleInputChange = (type: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         const parsedValue = value === '' ? 0 : parseInt(value);
@@ -79,7 +90,6 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
             [type]: parsedValue
         }));
     };
-
 
     const handleDisplayEditStepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newDisplayEditStep = e.target.checked ? 1 : 0;
@@ -93,9 +103,9 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                 <div className='options-input-wrap'>
                     <div className='label-wrap'>
                         <p className='count-input-label'>Max Undo</p>
-                        <button className='explanation-button' onMouseOver={() => setUndoMouseOver(true)} onMouseOut={() => setUndoMouseOver(false)}>
+                        <button className='explanation-button' onMouseOver={() => handleMouseOver('undo', true)} onMouseOut={() => handleMouseOver('undo', false)}>
                             <BsQuestionCircle size='1rem' color='#CCC' />
-                            {undoMouseOver && (
+                            {mouseOver.undo && (
                                 <span className="tooltip">
                                     <span className="text">
                                         Maximum number of times you can recover to Undo
@@ -112,9 +122,9 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                 <div className='options-input-wrap'>
                     <div className='label-wrap'>
                         <p className='count-input-label'>Default Width (px)</p>
-                        <button className='explanation-button' onMouseOver={() => setWidthMouseOver(true)} onMouseOut={() => setWidthMouseOver(false)}>
+                        <button className='explanation-button' onMouseOver={() => handleMouseOver('width', true)} onMouseOut={() => handleMouseOver('width', false)}>
                             <BsQuestionCircle size='1rem' color='#CCC' />
-                            {widthMouseOver && (
+                            {mouseOver.width && (
                                 <span className="tooltip">
                                     <span className="text">
                                         Set the default width when creating a new form
@@ -131,9 +141,9 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                 <div className='options-input-wrap'>
                     <div className='label-wrap'>
                         <p className='count-input-label'>Default Height (px)</p>
-                        <button className='explanation-button' onMouseOver={() => setHeightMouseOver(true)} onMouseOut={() => setHeightMouseOver(false)}>
+                        <button className='explanation-button' onMouseOver={() => handleMouseOver('height', true)} onMouseOut={() => handleMouseOver('height', false)}>
                             <BsQuestionCircle size='1rem' color='#CCC' />
-                            {heightMouseOver && (
+                            {mouseOver.height && (
                                 <span className="tooltip">
                                     <span className="text">
                                         Set the default height when creating a new form
@@ -154,9 +164,9 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                     <div className='container' id='perspective'>
                         <div className='label-wrap tabs-input'>
                             <p className='count-input-label'>Perspective</p>
-                            <button className='explanation-button' onMouseOver={() => setPrespectiveMouseOver(true)} onMouseOut={() => setPrespectiveMouseOver(false)}>
+                            <button className='explanation-button' onMouseOver={() => handleMouseOver('prepective', true)} onMouseOut={() => handleMouseOver('prepective', false)}>
                                 <BsQuestionCircle size='1rem' color='#CCC' />
-                                {perspectiveMouseOver && (
+                                {mouseOver.prepective && (
                                     <span className="tooltip">
                                         <span className="text">
                                             Set a decision point when selecting a component with the mouse
@@ -166,19 +176,19 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                             </button>
                         </div>
                         <div className='tabs'>
-                            <input type="radio" id="radio-1" name="tabs-perspective" value={1} checked={formDesign.selectType === 1} onChange={handleInputChange('selectType')} />
+                            <input type="radio" id="radio-1" name="tabs-perspective" value={SELECT_TYPE.all} checked={formDesign.selectType === SELECT_TYPE.all} onChange={handleInputChange('selectType')} />
                             <label className="tab" htmlFor="radio-1">All</label>
-                            <input type="radio" id="radio-2" name="tabs-perspective" value={0} checked={formDesign.selectType === 0} onChange={handleInputChange('selectType')} />
+                            <input type="radio" id="radio-2" name="tabs-perspective" value={SELECT_TYPE.part} checked={formDesign.selectType === SELECT_TYPE.part} onChange={handleInputChange('selectType')} />
                             <label className="tab" htmlFor="radio-2">Part</label>
                             <span className="glider1"></span>
                         </div>
-                        {formDesign.selectType === 1 ?
+                        {formDesign.selectType === SELECT_TYPE.all ?
                             <p className='select-type-content'>Options that are selected only when the selection includes the entire component.</p> :
                             <p className='select-type-content'>Options that are selected even if the selection includes some of the components.</p>
                         }
                     </div>
                 </div>
-                <div className={`ex-image select-type-imgae ${formDesign.selectType === 1 ? 'select-all' : 'select-part'}`} />
+                <div className={`ex-image select-type-imgae ${formDesign.selectType === SELECT_TYPE.all ? 'select-all' : 'select-part'}`} />
             </div>
             <div className='layout-wrap options-wrap'>
                 <p className='title'>Layout</p>

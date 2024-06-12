@@ -14,20 +14,43 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { RpcServer } from '@theia/core/lib/common/messaging/proxy-factory';
-import { OptionsData } from '../../browser/nexa-options/nexa-options-definitions';
-
-export const NexaOptionsPath = '/services/nexaOptions';
-export const NexaOptions = Symbol('NexaOptions');
-
-export interface NexaOptions extends RpcServer<NexaOptionsClient> {
-    setClient(client: NexaOptionsClient | undefined): void;
-    getClient(): NexaOptionsClient | undefined;
-    readOptionsFile(): Promise<OptionsData>;
-    saveOptionsFile(data: OptionsData): Promise<boolean>;
-    resetOptionsFile(data: OptionsData, type: string): Promise<boolean>;
+export interface OptionsData {
+    Configure: {
+        Environment: {
+            General: {
+                workFolder: string;
+                recentFileCount: number;
+                recentPrjCount: number;
+                commandType: number;
+                toolTheme: number;
+            }
+        },
+        FormDesign: {
+            General: {
+                undoMax: number;
+                defaultWidth: number;
+                defaultHeight: number;
+                selectType: number;
+            },
+            LayoutManager: {
+                displayEditStep: number;
+            }
+        }
+        setEnvironment: string;
+    }
 }
 
-export const NexaOptionsClient = Symbol('NexaOptions');
-export interface NexaOptionsClient {
+export enum COMMAND_TYPE {
+    default,
+    ribbon
+}
+
+export enum TOOL_THEME {
+    default,
+    black
+}
+
+export enum SELECT_TYPE {
+    part,
+    all
 }

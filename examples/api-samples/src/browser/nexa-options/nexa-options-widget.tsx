@@ -21,7 +21,8 @@ import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/br
 import { WorkspaceCommands, WorkspaceService } from '@theia/workspace/lib/browser';
 import NexaOptionsEnvironmentWidget from './nexa-options-environment-widget';
 import NexaOptionsFormDesignWidget from './nexa-options-form-design-widget';
-import { NexaOptions, OptionsData } from '../../common/nexa-options/nexa-options-sevice';
+import { NexaOptions } from '../../common/nexa-options/nexa-options-sevice';
+import { OptionsData } from './nexa-options-definitions';
 
 @injectable()
 export class NexaOptionsWidget extends ReactWidget {
