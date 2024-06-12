@@ -24,6 +24,8 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
     const [environment, setEnvironment] = React.useState(initialEnvironmentState);
     const [environmentType, setEnvironmentType] = React.useState(data.setEnvironment);
     const [exImageType, setExImageType] = React.useState('developer-default');
+    const [prjError, setPrjError] = React.useState(false);
+    const [fileError, setFileError] = React.useState(false);
     const [fileMouseOver, setFileMouseOver] = React.useState(false);
     const [prjMouseOver, setPrjMouseOver] = React.useState(false);
     const [perspectiveMouseOver, setPerspectiveMouseOver] = React.useState(false);
@@ -73,6 +75,20 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
             }
         }
     }, [environment.commandType, environment.toolTheme, environmentType]);
+
+    React.useEffect(() => {
+        const isMaxFile = environment.recentFileCount > 16;
+
+        isMaxFile ? setFileError(true) : setFileError(false);
+
+    }, [environment.recentFileCount]);
+
+    React.useEffect(() => {
+        const isMaxPrj = environment.recentPrjCount > 16;
+
+        isMaxPrj ? setPrjError(true) : setPrjError(false);
+
+    }, [environment.recentPrjCount]);
 
     const handleInputChange = (type: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -145,9 +161,10 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
                         )}
                     </button>
                 </div>
-                <div className="textInputWrapper">
+                <div className={`textInputWrapper ${fileError && 'error-line'}`}>
                     <input placeholder="File Count" value={environment.recentFileCount} className="textInput" onChange={handleInputChange('fileCount')} />
                 </div>
+                {fileError && <span className='error-message'>Only up to 16 can be entered</span>}
             </div>
             <div className='options-input-wrap'>
                 <div className='label-wrap'>
@@ -163,9 +180,10 @@ export default function NexaOptionsEnvironmentWidget(props: NexaOptionsEnvironme
                         )}
                     </button>
                 </div>
-                <div className="textInputWrapper">
+                <div className={`textInputWrapper ${prjError && 'error-line'}`}>
                     <input placeholder="Project Count" value={environment.recentPrjCount} className="textInput" onChange={handleInputChange('prjCount')} />
                 </div>
+                {prjError && <span className='error-message'>Only up to 16 can be entered</span>}
             </div>
         </div>
         <div className='development-tools options-wrap'>

@@ -51,6 +51,19 @@ SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
     background-color: #353535;
 }
 
+.default {
+    background-color: #353535;
+}
+
+.default:hover {
+    background-color: #68217a;
+}
+
+.error-message {
+    color: red;
+    margin-bottom: 1.5rem;
+}
+
 .ex-image {
     object-fit: cover;
     background-repeat: no-repeat;

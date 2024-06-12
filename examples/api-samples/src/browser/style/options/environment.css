@@ -114,6 +114,15 @@ SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
     border-bottom: 1px solid rgba(0, 0, 0, 0.42);
 }
 
+.error-line {
+    --accent-color: red;
+}
+
+
+.textInputWrapper.error-line:before {
+    border-bottom: 2px solid red;
+}
+
 .textInputWrapper:before,
 .textInputWrapper:after {
     content: "";
@@ -206,7 +215,7 @@ SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 }
 
 .tabs {
-    width: 30%;
+    width: 50%;
     height: 2.5rem;
     display: flex;
     position: relative;

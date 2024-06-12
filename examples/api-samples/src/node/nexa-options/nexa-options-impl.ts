@@ -60,8 +60,8 @@ export class NexaOptionsImpl implements NexaOptions {
         return true;
     }
 
-    async resetOptionsFile(): Promise<boolean> {
-        const defaultOptionsData: OptionsData = {
+    async resetOptionsFile(data: OptionsData, type: string): Promise<boolean> {
+        const initialData: OptionsData = {
             Configure: {
                 Environment: {
                     General: {
@@ -87,7 +87,30 @@ export class NexaOptionsImpl implements NexaOptions {
             }
         };
 
-        const result = await this.saveOptionsFile(defaultOptionsData);
+        let defaultData = data;
+
+        switch (type) {
+            case 'all':
+                defaultData = initialData;
+                break;
+            case 'environment':
+                defaultData.Configure.Environment.General.workFolder = 'C://Users//tobesoft//Documents//tobesoft//nexacro N//settings'
+                defaultData.Configure.Environment.General.recentFileCount = 4;
+                defaultData.Configure.Environment.General.recentPrjCount = 4;
+                defaultData.Configure.Environment.General.commandType = 0;
+                defaultData.Configure.Environment.General.toolTheme = 0;
+                defaultData.Configure.setEnvironment = 'developer';
+                break;
+            case 'formDesign':
+                defaultData.Configure.FormDesign.General.undoMax = 1024;
+                defaultData.Configure.FormDesign.General.defaultWidth = 1280;
+                defaultData.Configure.FormDesign.General.defaultHeight = 720;
+                defaultData.Configure.FormDesign.General.selectType = 0;
+                defaultData.Configure.FormDesign.LayoutManager.displayEditStep = 1;
+                break;
+        }
+
+        const result = await this.saveOptionsFile(defaultData);
 
         return result ? true : false;
     }

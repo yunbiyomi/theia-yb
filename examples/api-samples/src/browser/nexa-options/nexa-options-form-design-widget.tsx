@@ -35,6 +35,8 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
     }
     const [formDesign, setformDesign] = React.useState(initialFormDesignState);
     const [displayEditStep, setDisplayEditStep] = React.useState(data.LayoutManager.displayEditStep);
+    const [widthError, setWidthError] = React.useState(false);
+    const [heightError, setHeightError] = React.useState(false);
     const [undoMouseOver, setUndoMouseOver] = React.useState(false);
     const [widthMouseOver, setWidthMouseOver] = React.useState(false);
     const [heightMouseOver, setHeightMouseOver] = React.useState(false);
@@ -48,33 +50,46 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
         props.updateDisplayEditOptions(displayEditStep);
     }, [displayEditStep]);
 
+    React.useEffect(() => {
+        const isMaxWidth = formDesign.defaultWidth > 12000;
+
+        isMaxWidth ? setWidthError(true) : setWidthError(false);
+
+    }, [formDesign.defaultWidth]);
+
+    React.useEffect(() => {
+        const isMaxHeight = formDesign.defaultHeight > 12000;
+
+        isMaxHeight ? setHeightError(true) : setHeightError(false);
+
+    }, [formDesign.defaultHeight]);
 
     const handleInputChange = (type: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = parseInt(e.target.value);
+        const value = e.target.value;
 
         switch (type) {
             case 'maxUndo':
                 setformDesign(prevData => ({
                     ...prevData,
-                    undoMax: value
+                    undoMax: value === '' ? 0 : parseInt(value)
                 }));
                 break;
             case 'defaultWidth':
                 setformDesign(prevData => ({
                     ...prevData,
-                    defaultWidth: value
+                    defaultWidth: value === '' ? 0 : parseInt(value)
                 }));
                 break;
             case 'defaultHeight':
                 setformDesign(prevData => ({
                     ...prevData,
-                    defaultHeight: value
+                    defaultHeight: value === '' ? 0 : parseInt(value)
                 }));
                 break;
             case 'selectType':
                 setformDesign(prevData => ({
                     ...prevData,
-                    selectType: value
+                    selectType: parseInt(value)
                 }));
                 break;
         }
@@ -122,9 +137,10 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                             )}
                         </button>
                     </div>
-                    <div className="textInputWrapper">
+                    <div className={`textInputWrapper ${widthError && 'error-line'}`}>
                         <input placeholder="Width" value={formDesign.defaultWidth} className="textInput" onChange={handleInputChange('defaultWidth')} />
                     </div>
+                    {widthError && <span className='error-message'>Only up to 12000 can be entered</span>}
                 </div>
                 <div className='options-input-wrap'>
                     <div className='label-wrap'>
@@ -140,9 +156,10 @@ export default function NexaOptionsFormDesignWidget(props: NexaOptionsFormDesign
                             )}
                         </button>
                     </div>
-                    <div className="textInputWrapper">
+                    <div className={`textInputWrapper ${heightError && 'error-line'}`}>
                         <input placeholder="Height" value={formDesign.defaultHeight} className="textInput" onChange={handleInputChange('defaultHeight')} />
                     </div>
+                    {heightError && <span className='error-message'>Only up to 12000 can be entered</span>}
                 </div>
             </div>
             <div className='select-type options-wrap'>

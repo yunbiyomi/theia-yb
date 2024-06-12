@@ -50,7 +50,7 @@ export interface NexaOptions extends RpcServer<NexaOptionsClient> {
     getClient(): NexaOptionsClient | undefined;
     readOptionsFile(): Promise<OptionsData>;
     saveOptionsFile(data: OptionsData): Promise<boolean>;
-    resetOptionsFile(): Promise<boolean>;
+    resetOptionsFile(data: OptionsData, type: string): Promise<boolean>;
 }
 
 export const NexaOptionsClient = Symbol('NexaOptions');
