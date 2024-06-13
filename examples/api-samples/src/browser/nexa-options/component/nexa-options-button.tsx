@@ -26,8 +26,10 @@ interface NexaOptionsButtonProps {
 export default function NexaOptionsButton(props: NexaOptionsButtonProps): React.JSX.Element {
     return (
         <div className='main-button-wrap'>
-            <button className='options-button default' onClick={() => props.resetOptionsFile('all')}>Set default</button>
-            <button className='options-button default' onClick={() => props.resetOptionsFile(props.optionsType)}>Set default current</button>
+            <div className='default-wrap'>
+                <button className='options-button default' onClick={() => props.resetOptionsFile('all')}>Set default</button>
+                <button className='options-button default' onClick={() => props.resetOptionsFile(props.optionsType)}>Set default current</button>
+            </div>
             <button className='options-button' onClick={props.saveOptionsData} disabled={props.result}>Save</button>
         </div>
     )

@@ -16,9 +16,10 @@
 
 import React from '@theia/core/shared/react';
 import { FaFolder } from 'react-icons/fa';
-import { BsQuestionCircle } from 'react-icons/bs';
 import { COMMAND_TYPE, OptionsData, TOOL_THEME } from '../nexa-options-definitions';
-import NexaOptionsButton from './nexa-options-button';
+import NexaOptionsButton from '../component/nexa-options-button';
+import NexaOptionsInput from '../component/nexa-options-input';
+import NexaOptionsTooltip from '../component/nexa-options-tooltip';
 
 interface NexaOptionsEnvironmentProps {
     optionsData: OptionsData;
@@ -63,7 +64,6 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
 
     // 프로젝트 저장할 폴더 저장
     const handleFindClick = async () => {
-        console.log('click!');
         const originalPath = await props.onFindClick();
         if (originalPath) {
             const modifiedPath = originalPath.startsWith('/') ? originalPath.slice(1) : originalPath;
@@ -163,62 +163,42 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
             </div>
             <div className='recent-files options-wrap'>
                 <p className='title'>Recent Files Count</p>
-                <div className='options-input-wrap'>
-                    <div className='label-wrap'>
-                        <p className='count-input-label'>File</p>
-                        <button className='explanation-button' onMouseOver={() => handleMouseOver('file', true)} onMouseOut={() => handleMouseOver('file', false)} >
-                            <BsQuestionCircle size='1rem' color='#CCC' />
-                            {mouseOver.file && (
-                                <span className='tooltip'>
-                                    <span className='text'>
-                                        Set the number of file lists that appear in the most recent list
-                                    </span>
-                                </span>
-                            )}
-                        </button>
-                    </div>
-                    <div className={`textInputWrapper ${error.file && 'error-line'}`}>
-                        <input placeholder='File Count' value={environment.recentFileCount} className='textInput' onChange={handleInputChange('recentFileCount')} />
-                    </div>
-                    {error.file && <span className='error-message'>Only up to 16 can be entered</span>}
-                </div>
-                <div className='options-input-wrap'>
-                    <div className='label-wrap'>
-                        <p className='count-input-label'>Project</p>
-                        <button className='explanation-button' onMouseOver={() => handleMouseOver('project', true)} onMouseOut={() => handleMouseOver('project', false)} >
-                            <BsQuestionCircle size='1rem' color='#CCC' />
-                            {mouseOver.project && (
-                                <span className='tooltip'>
-                                    <span className='text'>
-                                        Set the number of project lists that appear in the most recent list
-                                    </span>
-                                </span>
-                            )}
-                        </button>
-                    </div>
-                    <div className={`textInputWrapper ${error.project && 'error-line'}`}>
-                        <input placeholder='Project Count' value={environment.recentPrjCount} className='textInput' onChange={handleInputChange('recentPrjCount')} />
-                    </div>
-                    {error.project && <span className='error-message'>Only up to 16 can be entered</span>}
-                </div>
+                <NexaOptionsInput
+                    title={'File'}
+                    value={environment.recentFileCount}
+                    formDesignName={'recentFileCount'}
+                    mouseOverName={'file'}
+                    mouseOverResult={mouseOver.file}
+                    tooltipMsg={'Set the number of file lists that appear in the most recent list'}
+                    errorResult={error.file}
+                    errorMsg={'Only up to 16 can be entered'}
+                    handleMouseOver={handleMouseOver}
+                    handleInputChange={handleInputChange}
+                />
+                <NexaOptionsInput
+                    title={'Project'}
+                    value={environment.recentPrjCount}
+                    formDesignName={'recentPrjCount'}
+                    mouseOverName={'project'}
+                    mouseOverResult={mouseOver.project}
+                    tooltipMsg={'Set the number of project lists that appear in the most recent list'}
+                    errorResult={error.project}
+                    errorMsg={'Only up to 16 can be entered'}
+                    handleMouseOver={handleMouseOver}
+                    handleInputChange={handleInputChange}
+                />
             </div>
             <div className='development-tools options-wrap'>
                 <div className='development'>
                     <p className='title'>Development Tools</p>
                     <div className='container' id='perspective'>
-                        <div className='label-wrap tabs-input'>
-                            <p className='count-input-label'>Perspective</p>
-                            <button className='explanation-button' onMouseOver={() => handleMouseOver('perspective', true)} onMouseOut={() => handleMouseOver('perspective', false)} >
-                                <BsQuestionCircle size='1rem' color='#CCC' />
-                                {mouseOver.perspective && (
-                                    <span className='tooltip'>
-                                        <span className='text'>
-                                            Set the screen placement mode to use
-                                        </span>
-                                    </span>
-                                )}
-                            </button>
-                        </div>
+                        <NexaOptionsTooltip
+                            title='Perspective'
+                            content='perspective'
+                            handleMouseOver={handleMouseOver}
+                            mouseOverResult={mouseOver.perspective}
+                            tooltipMsg='Set the screen placement mode to use'
+                        />
                         <div className='tabs'>
                             <input type='radio' id='radio-1' name='tabs-perspective' value='developer' checked={environmentType === 'developer'} onChange={() => setEnvironmentType('developer')} />
                             <label className='tab' htmlFor='radio-1'>Developer</label>
@@ -228,19 +208,13 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
                         </div>
                     </div>
                     <div className='container' id='command'>
-                        <div className='label-wrap tabs-input'>
-                            <p className='count-input-label'>Command Type</p>
-                            <button className='explanation-button' onMouseOver={() => handleMouseOver('command', true)} onMouseOut={() => handleMouseOver('command', false)} >
-                                <BsQuestionCircle size='1rem' color='#CCC' />
-                                {mouseOver.command && (
-                                    <span className='tooltip'>
-                                        <span className='text'>
-                                            Set the menu type to use
-                                        </span>
-                                    </span>
-                                )}
-                            </button>
-                        </div>
+                        <NexaOptionsTooltip
+                            title='Command Type'
+                            content='command'
+                            handleMouseOver={handleMouseOver}
+                            mouseOverResult={mouseOver.command}
+                            tooltipMsg='Set the menu type to use'
+                        />
                         <div className='tabs'>
                             <input type='radio' id='radio-3' name='tabs-command' value={COMMAND_TYPE.default} checked={environment.commandType === COMMAND_TYPE.default} onChange={handleRadioChange('commandType')} />
                             <label className='tab' htmlFor='radio-3'>Default</label>
@@ -250,19 +224,13 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
                         </div>
                     </div>
                     <div className='container' id='theme'>
-                        <div className='label-wrap tabs-input'>
-                            <p className='count-input-label'>Nexacro Studio Theme</p>
-                            <button className='explanation-button' onMouseOver={() => handleMouseOver('theme', true)} onMouseOut={() => handleMouseOver('theme', true)} >
-                                <BsQuestionCircle size='1rem' color='#CCC' />
-                                {mouseOver.theme && (
-                                    <span className='tooltip'>
-                                        <span className='text'>
-                                            Set theme with Nexacro Studio to use
-                                        </span>
-                                    </span>
-                                )}
-                            </button>
-                        </div>
+                        <NexaOptionsTooltip
+                            title='Nexacro Studio Theme'
+                            content='theme'
+                            handleMouseOver={handleMouseOver}
+                            mouseOverResult={mouseOver.theme}
+                            tooltipMsg='Set theme with Nexacro Studio to use'
+                        />
                         <div className='tabs'>
                             <input type='radio' id='radio-5' name='tabs-theme' value={TOOL_THEME.default} checked={environment.toolTheme === TOOL_THEME.default} onChange={handleRadioChange('toolTheme')} />
                             <label className='tab' htmlFor='radio-5'>Default</label>

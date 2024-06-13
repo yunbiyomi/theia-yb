@@ -18,7 +18,8 @@
 import React from '@theia/core/shared/react';
 import { BsQuestionCircle } from 'react-icons/bs';
 import { OptionsData, SELECT_TYPE } from '../nexa-options-definitions';
-import NexaOptionsButton from './nexa-options-button';
+import NexaOptionsButton from '../component/nexa-options-button';
+import NexaOptionsInput from '../component/nexa-options-input';
 
 interface NexaOptionsFormDesignProps {
     optionsData: OptionsData;
@@ -104,63 +105,42 @@ export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps)
         <section className='options-container'>
             <div className='design-basic-wrap options-wrap'>
                 <p className='title'>Design Basic</p>
-                <div className='options-input-wrap'>
-                    <div className='label-wrap'>
-                        <p className='count-input-label'>Max Undo</p>
-                        <button className='explanation-button' onMouseOver={() => handleMouseOver('undo', true)} onMouseOut={() => handleMouseOver('undo', false)}>
-                            <BsQuestionCircle size='1rem' color='#CCC' />
-                            {mouseOver.undo && (
-                                <span className='tooltip'>
-                                    <span className='text'>
-                                        Maximum number of times you can recover to Undo
-                                    </span>
-                                </span>
-                            )}
-                        </button>
-
-                    </div>
-                    <div className='textInputWrapper'>
-                        <input placeholder='Max Undo' value={formDesign.undoMax} className='textInput' onChange={handleInputChange('undoMax')} />
-                    </div>
-                </div>
-                <div className='options-input-wrap'>
-                    <div className='label-wrap'>
-                        <p className='count-input-label'>Default Width (px)</p>
-                        <button className='explanation-button' onMouseOver={() => handleMouseOver('width', true)} onMouseOut={() => handleMouseOver('width', false)}>
-                            <BsQuestionCircle size='1rem' color='#CCC' />
-                            {mouseOver.width && (
-                                <span className='tooltip'>
-                                    <span className='text'>
-                                        Set the default width when creating a new form
-                                    </span>
-                                </span>
-                            )}
-                        </button>
-                    </div>
-                    <div className={`textInputWrapper ${error.width && 'error-line'}`}>
-                        <input placeholder='Width' value={formDesign.defaultWidth} className='textInput' onChange={handleInputChange('defaultWidth')} />
-                    </div>
-                    {error.width && <span className='error-message'>Only up to 12000 can be entered</span>}
-                </div>
-                <div className='options-input-wrap'>
-                    <div className='label-wrap'>
-                        <p className='count-input-label'>Default Height (px)</p>
-                        <button className='explanation-button' onMouseOver={() => handleMouseOver('height', true)} onMouseOut={() => handleMouseOver('height', false)}>
-                            <BsQuestionCircle size='1rem' color='#CCC' />
-                            {mouseOver.height && (
-                                <span className='tooltip'>
-                                    <span className='text'>
-                                        Set the default height when creating a new form
-                                    </span>
-                                </span>
-                            )}
-                        </button>
-                    </div>
-                    <div className={`textInputWrapper ${error.height && 'error-line'}`}>
-                        <input placeholder='Height' value={formDesign.defaultHeight} className='textInput' onChange={handleInputChange('defaultHeight')} />
-                    </div>
-                    {error.height && <span className='error-message'>Only up to 12000 can be entered</span>}
-                </div>
+                <NexaOptionsInput
+                    title={'Max Undo'}
+                    value={formDesign.undoMax}
+                    formDesignName={'undoMax'}
+                    mouseOverName={'undo'}
+                    mouseOverResult={mouseOver.undo}
+                    tooltipMsg={'Maximum number of times you can recover to Undo'}
+                    errorResult={undefined}
+                    errorMsg={undefined}
+                    handleMouseOver={handleMouseOver}
+                    handleInputChange={handleInputChange}
+                />
+                <NexaOptionsInput
+                    title={'Default Width (px)'}
+                    value={formDesign.defaultWidth}
+                    formDesignName={'defaultWidth'}
+                    mouseOverName={'width'}
+                    mouseOverResult={mouseOver.width}
+                    tooltipMsg={'Set the default width when creating a new form'}
+                    errorResult={error.width}
+                    errorMsg={'Only up to 12000 can be entered'}
+                    handleMouseOver={handleMouseOver}
+                    handleInputChange={handleInputChange}
+                />
+                <NexaOptionsInput
+                    title={'Default Height (px)'}
+                    value={formDesign.defaultHeight}
+                    formDesignName={'defaultHeight'}
+                    mouseOverName={'height'}
+                    mouseOverResult={mouseOver.height}
+                    tooltipMsg={'Set the default height when creating a new form'}
+                    errorResult={error.height}
+                    errorMsg={'Only up to 12000 can be entered'}
+                    handleMouseOver={handleMouseOver}
+                    handleInputChange={handleInputChange}
+                />
             </div>
             <div className='development-tools options-wrap'>
                 <div className='select-type'>

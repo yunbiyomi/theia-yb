@@ -81,7 +81,7 @@ export class NexaOptionsImpl implements NexaOptions {
                         undoMax: 1024,
                         defaultWidth: 1280,
                         defaultHeight: 720,
-                        selectType: 0
+                        selectType: 1
                     },
                     LayoutManager: {
                         displayEditStep: 1

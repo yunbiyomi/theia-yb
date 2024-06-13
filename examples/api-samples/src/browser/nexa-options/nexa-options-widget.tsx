@@ -21,8 +21,8 @@ import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/br
 import { WorkspaceCommands, WorkspaceService } from '@theia/workspace/lib/browser';
 import { NexaOptions } from '../../common/nexa-options/nexa-options-sevice';
 import { OptionsData } from './nexa-options-definitions';
-import NexaOptionsEnvironment from './component/nexa-options-environment';
-import NexaOptionsFormDesign from './component/nexa-options-form-design';
+import NexaOptionsEnvironment from './page/nexa-options-environment';
+import NexaOptionsFormDesign from './page/nexa-options-form-design';
 import NexaOptionsLoading from './component/nexa-options-loading';
 
 @injectable()
