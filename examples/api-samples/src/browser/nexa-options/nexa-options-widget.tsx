@@ -93,6 +93,7 @@ export class NexaOptionsWidget extends ReactWidget {
                 throw new Error('Options not saved');
             }
 
+            this.setOptionsData();
             alert('Options has been modified.');
         })
     }
@@ -103,8 +104,9 @@ export class NexaOptionsWidget extends ReactWidget {
             if (!result) {
                 throw new Error('Options not reset');
             }
+
+            this.setOptionsData();
             alert('Changed to default set');
-            this.update();
         })
     }
 

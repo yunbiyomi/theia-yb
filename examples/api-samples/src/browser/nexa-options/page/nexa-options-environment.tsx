@@ -62,7 +62,7 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
     const [error, setError] = React.useState(initialErrorState);
     const [mouseOver, setMouseOver] = React.useState(initialMouseOver);
 
-    // 프로젝트 저장할 폴더 저장
+    // 프로젝트 저장 할 폴더 저장
     const handleFindClick = async () => {
         const originalPath = await props.onFindClick();
         if (originalPath) {
@@ -82,8 +82,8 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
 
     // file, project 유효성 검사
     React.useEffect(() => {
-        const isMaxFile: boolean = environment.recentFileCount > 16;
-        const isMaxPrj: boolean = environment.recentPrjCount > 16;
+        const isMaxFile: boolean = environment.recentFileCount > 16 || environment.recentFileCount < 1;
+        const isMaxPrj: boolean = environment.recentPrjCount > 16 || environment.recentPrjCount < 1;
 
         setError(prev => ({
             ...prev,
@@ -171,7 +171,7 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
                     mouseOverResult={mouseOver.file}
                     tooltipMsg={'Set the number of file lists that appear in the most recent list'}
                     errorResult={error.file}
-                    errorMsg={'Only up to 16 can be entered'}
+                    errorMsg={'You can enter a maximum of 1~16'}
                     handleMouseOver={handleMouseOver}
                     handleInputChange={handleInputChange}
                 />
@@ -183,7 +183,7 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
                     mouseOverResult={mouseOver.project}
                     tooltipMsg={'Set the number of project lists that appear in the most recent list'}
                     errorResult={error.project}
-                    errorMsg={'Only up to 16 can be entered'}
+                    errorMsg={'You can enter a maximum of 1~16'}
                     handleMouseOver={handleMouseOver}
                     handleInputChange={handleInputChange}
                 />

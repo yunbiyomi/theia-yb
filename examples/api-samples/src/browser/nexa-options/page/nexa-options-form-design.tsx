@@ -16,7 +16,6 @@
 // *****************************************************************************
 
 import React from '@theia/core/shared/react';
-import { BsQuestionCircle } from 'react-icons/bs';
 import { OptionsData, SELECT_TYPE } from '../nexa-options-definitions';
 import NexaOptionsButton from '../component/nexa-options-button';
 import NexaOptionsInput from '../component/nexa-options-input';
@@ -48,8 +47,7 @@ export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps)
     const initialMouseOver = {
         undo: false,
         width: false,
-        height: false,
-        prepective: false
+        height: false
     }
 
     const [formDesign, setFormDesign] = React.useState(initialFormDesignState);
@@ -66,8 +64,8 @@ export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps)
 
     // width, height 유효성 검사
     React.useEffect(() => {
-        const isMaxWidth: boolean = formDesign.defaultWidth > 12000;
-        const isMaxHeight: boolean = formDesign.defaultHeight > 12000;
+        const isMaxWidth: boolean = formDesign.defaultWidth > 12000 || formDesign.defaultWidth < 1;
+        const isMaxHeight: boolean = formDesign.defaultHeight > 12000 || formDesign.defaultHeight < 1;
 
         setError(prev => ({
             ...prev,
@@ -125,7 +123,7 @@ export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps)
                     mouseOverResult={mouseOver.width}
                     tooltipMsg={'Set the default width when creating a new form'}
                     errorResult={error.width}
-                    errorMsg={'Only up to 12000 can be entered'}
+                    errorMsg={'Only up to 1~12000 can be entered'}
                     handleMouseOver={handleMouseOver}
                     handleInputChange={handleInputChange}
                 />
@@ -137,7 +135,7 @@ export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps)
                     mouseOverResult={mouseOver.height}
                     tooltipMsg={'Set the default height when creating a new form'}
                     errorResult={error.height}
-                    errorMsg={'Only up to 12000 can be entered'}
+                    errorMsg={'Only up to 1~12000 can be entered'}
                     handleMouseOver={handleMouseOver}
                     handleInputChange={handleInputChange}
                 />
@@ -146,19 +144,6 @@ export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps)
                 <div className='select-type'>
                     <p className='title'>Select Type</p>
                     <div className='container' id='perspective'>
-                        <div className='label-wrap tabs-input'>
-                            <p className='count-input-label'>Perspective</p>
-                            <button className='explanation-button' onMouseOver={() => handleMouseOver('prepective', true)} onMouseOut={() => handleMouseOver('prepective', false)}>
-                                <BsQuestionCircle size='1rem' color='#CCC' />
-                                {mouseOver.prepective && (
-                                    <span className='tooltip'>
-                                        <span className='text'>
-                                            Set a decision point when selecting a component with the mouse
-                                        </span>
-                                    </span>
-                                )}
-                            </button>
-                        </div>
                         <div className='tabs'>
                             <input type='radio' id='radio-1' name='tabs-perspective' value={SELECT_TYPE.all} checked={formDesign.selectType === SELECT_TYPE.all} onChange={handleInputChange('selectType')} />
                             <label className='tab' htmlFor='radio-1'>All</label>

@@ -40,20 +40,6 @@ export default function NexaOptionsInput(props: NexaOptionsInputProps): React.JS
                 mouseOverResult={props.mouseOverResult}
                 tooltipMsg={props.tooltipMsg}
             />
-            {/* <div className='label-wrap'>
-                <p className='count-input-label'>{props.title}</p>
-                <button className='explanation-button'
-                    onMouseOver={() => props.handleMouseOver(props.mouseOverName, true)}
-                    onMouseOut={() => props.handleMouseOver(props.mouseOverName, false)}
-                >
-                    <BsQuestionCircle size='1rem' color='#CCC' />
-                    {props.mouseOverResult && (
-                        <span className='tooltip'>
-                            <span className='text'>{props.tooltipMsg}</span>
-                        </span>
-                    )}
-                </button>
-            </div> */}
             <div className={`textInputWrapper ${props.errorResult && 'error-line'}`}>
                 <input
                     placeholder={props.mouseOverName}
