@@ -56,6 +56,13 @@ export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps)
     const [error, setError] = React.useState(initialErrorState);
     const [mouseOver, setMouseOver] = React.useState(initialMouseOver);
 
+    // Options Data 변경될 때
+    React.useEffect(() => {
+        const displayEditStep = props.optionsData.Configure.FormDesign.LayoutManager.displayEditStep;
+        setFormDesign(initialFormDesignState);
+        setDisplayEditStep(displayEditStep);
+    }, [props.optionsData])
+
     // 변경된 Options Data 저장
     React.useEffect(() => {
         props.updateFormDesignOptions(formDesign);

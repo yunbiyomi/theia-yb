@@ -74,15 +74,18 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
         }
     };
 
+    // Options Data 변경될 때
+    React.useEffect(() => {
+        const environment = props.optionsData.Configure.setEnvironment;
+        setEnvironment(initialEnvironmentState);
+        setEnvironmentType(environment);
+    }, [props.optionsData])
+
     // 변경된 Options Data 저장
     React.useEffect(() => {
         props.updateEnvironmentOptions(environment);
         props.updateEnvironmentTypeOptions(environmentType);
     }, [environment, environmentType]);
-
-    React.useEffect(() => {
-        setEnvironment(initialEnvironmentState);
-    }, [props.optionsData])
 
     // file, project 유효성 검사
     React.useEffect(() => {
