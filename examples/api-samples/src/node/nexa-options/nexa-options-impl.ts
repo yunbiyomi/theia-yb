@@ -59,14 +59,15 @@ export class NexaOptionsImpl implements NexaOptions {
         }
     }
 
-    run(data: any): object {
+    async clickSaveButton(data: any): Promise<boolean> {
         const originData = this.parseOptionsFile();
-        const result = this.saveOptionsData(originData, data);
+        this.saveOptionsData(originData, data);
 
-        this.saveOptionsFile(originData);
-        return result
+        const result = await this.saveOptionsFile(originData);
+        return result ? true : false
     }
 
+    // 저장된 값으로 JSON 수정
     saveOptionsData(originData: any, data: any): object {
         if (Array.isArray(originData) && originData.length > 1) {
             originData[1] = data;

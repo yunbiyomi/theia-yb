@@ -49,10 +49,6 @@ export class NexaOptionsWidget extends ReactWidget {
         this.title.caption = NexaOptionsWidget.LABEL;
         this.node.tabIndex = 0;
 
-        this.saveOptionsData = this.saveOptionsData.bind(this);
-        this.resetOptionsFile = this.resetOptionsFile.bind(this);
-        this.doOpenFolder = this.doOpenFolder.bind(this);
-
         this.update();
     }
 
@@ -67,7 +63,6 @@ export class NexaOptionsWidget extends ReactWidget {
 
             if (data) {
                 this.optionsData = { ...data };
-                console.log(JSON.stringify(data));
                 this.update();
             }
 
@@ -97,24 +92,26 @@ export class NexaOptionsWidget extends ReactWidget {
     }
 
     // options 저장
-    protected async saveOptionsData(): Promise<void> {
-        // this.nexaOptions.saveOptionsFile(this.optionsData).then((result: boolean) => {
-        //     if (!result) {
-        //         throw new Error('Options not saved');
-        //     }
+    protected saveOptionsData = () => {
+        this.nexaOptions.clickSaveButton(this.optionsData).then((result: boolean) => {
+            if (!result) {
+                throw new Error('Options data not save');
+            }
 
-        //     this.setOptionsData();
-        //     alert('Options has been modified.');
-        // })
-        this.nexaOptions.run(this.optionsData);
+            this.setOptionsData();
+            this.update();
+            alert('Options has been modified.');
+
+        });
     }
 
     // options 초기화
-    protected async resetOptionsFile(type: string): Promise<void> {
-        this.nexaOptions.resetOptionsFile(type).then((result: boolean) => {
+    protected resetOptionsFile = (type: string) => {
+        this.nexaOptions.resetOptionsFile(type).then(async (result: boolean) => {
             if (!result) {
                 throw new Error('Options not reset');
             }
+            this.setOptionsData();
             alert('Changed to default set');
         })
     }

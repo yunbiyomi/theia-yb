@@ -27,8 +27,8 @@ interface NexaOptionsEnvironmentProps {
     updateEnvironmentOptions: (newData: any) => void;
     updateEnvironmentTypeOptions: (newData: any) => void;
     optionsType: string;
-    resetOptionsFile: (type: string) => Promise<void>;
-    saveOptionsData: () => Promise<void>;
+    resetOptionsFile: (type: string) => void;
+    saveOptionsData: () => void;
 }
 
 export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProps): React.JSX.Element {
@@ -79,6 +79,10 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
         props.updateEnvironmentOptions(environment);
         props.updateEnvironmentTypeOptions(environmentType);
     }, [environment, environmentType]);
+
+    React.useEffect(() => {
+        setEnvironment(initialEnvironmentState);
+    }, [props.optionsData])
 
     // file, project 유효성 검사
     React.useEffect(() => {

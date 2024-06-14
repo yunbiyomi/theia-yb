@@ -19,8 +19,8 @@ import React from '@theia/core/shared/react';
 interface NexaOptionsButtonProps {
     optionsType: string;
     result: boolean;
-    resetOptionsFile: (type: string) => Promise<void>;
-    saveOptionsData: () => Promise<void>;
+    resetOptionsFile: (type: string) => void;
+    saveOptionsData: () => void;
 }
 
 export default function NexaOptionsButton(props: NexaOptionsButtonProps): React.JSX.Element {

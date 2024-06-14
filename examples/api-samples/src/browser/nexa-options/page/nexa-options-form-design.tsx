@@ -25,8 +25,8 @@ interface NexaOptionsFormDesignProps {
     updateFormDesignOptions: (newData: any) => void;
     updateDisplayEditOptions: (newData: any) => void;
     optionsType: string;
-    resetOptionsFile: (type: string) => Promise<void>;
-    saveOptionsData: () => Promise<void>;
+    resetOptionsFile: (type: string) => void;
+    saveOptionsData: () => void;
 }
 
 export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps): React.JSX.Element {
