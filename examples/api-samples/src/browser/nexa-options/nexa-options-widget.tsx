@@ -93,7 +93,7 @@ export class NexaOptionsWidget extends ReactWidget {
 
     // options 저장
     protected saveOptionsData = () => {
-        this.nexaOptions.clickSaveButton(this.optionsData).then((result: boolean) => {
+        this.nexaOptions.saveOptionsFile(this.optionsData).then((result: boolean) => {
             if (!result) {
                 throw new Error('Options data not save');
             }

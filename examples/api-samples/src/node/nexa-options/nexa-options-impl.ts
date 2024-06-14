@@ -23,6 +23,7 @@ import path = require('path');
 
 @injectable()
 export class NexaOptionsImpl implements NexaOptions {
+
     protected client: NexaOptionsClient | undefined;
 
     getClient(): NexaOptionsClient | undefined {
@@ -37,61 +38,38 @@ export class NexaOptionsImpl implements NexaOptions {
         throw new Error('Method not implemented.');
     }
 
+    setOriginConfigFile(): OptionsData {
+        const originConfigPath = '../../../../nexa-options-config.json';
+        const joinPath = path.join(__dirname, originConfigPath)
+        const originJsonData = fs.readFileSync(joinPath, 'utf-8');
+        const originParseData = JSON.parse(originJsonData);
+        return originParseData
+    };
+
     // options JSON 파일 읽고 데이터에 저장
-    parseOptionsFile(): OptionsData {
-        const directoryPath = '../../../../nexa-options-data.json';
+    async parseOptionsFile(): Promise<OptionsData> {
+        const directoryPath = '../../../../nexa-options-user-config.json';
         const filePath = path.join(__dirname, directoryPath);
 
-        const jsonData = fs.readFileSync(filePath, 'utf8');
-        const parseData = JSON.parse(jsonData);
+        try {
+            fs.statSync(filePath);
+        } catch (error) {
+            const originParseData = this.setOriginConfigFile();
+            await this.saveOptionsFile(originParseData);
+        } finally {
+            const jsonData = fs.readFileSync(filePath, 'utf-8');
+            const parseData = JSON.parse(jsonData);
+            return parseData
+        }
 
-        return parseData;
     }
 
     async readOptionsFile(): Promise<{ result?: boolean; data?: OptionsData }> {
-        const originData = this.parseOptionsFile();
-        const optionsData = this.extractOptionsData(originData, 1);
-
-        if (optionsData) {
-            return { result: true, data: optionsData };
-        } else {
-            return { result: false };
-        }
-    }
-
-    async clickSaveButton(data: any): Promise<boolean> {
-        const originData = this.parseOptionsFile();
-        this.saveOptionsData(originData, data);
-
-        const result = await this.saveOptionsFile(originData);
-        return result ? true : false
-    }
-
-    // 저장된 값으로 JSON 수정
-    saveOptionsData(originData: any, data: any): object {
-        if (Array.isArray(originData) && originData.length > 1) {
-            originData[1] = data;
-        } else if (typeof originData === 'object' && originData !== null) {
-            for (const key in originData) {
-                this.saveOptionsData(originData[key], data[key]);
-            }
-        }
-        return originData;
-    }
-
-    // 원하는 배열 번호의 객체 가져오기
-    extractOptionsData(originData: any, num: number): OptionsData {
-        if (Array.isArray(originData) && originData.length > num) {
-            return originData[num];
-        } else if (typeof originData === 'object' && originData !== null) {
-            const newObj: any = {};
-            for (const key in originData) {
-                newObj[key] = this.extractOptionsData(originData[key], num);
-            }
-            return newObj;
-        }
-
-        return originData;
+        let originData;
+        await this.parseOptionsFile().then((data: OptionsData) => {
+            originData = data;
+        });
+        return { result: true, data: originData };
     }
 
     // 변경된 data options에 저장
@@ -100,7 +78,7 @@ export class NexaOptionsImpl implements NexaOptions {
             return false;
         }
 
-        const directoryPath = '../../../../nexa-options-data.json';
+        const directoryPath = '../../../../nexa-options-user-config.json';
         const filePath = path.join(__dirname, directoryPath);
 
         const saveData = JSON.stringify(data);
@@ -115,18 +93,18 @@ export class NexaOptionsImpl implements NexaOptions {
 
         switch (type) {
             case 'all':
-                originData = this.allDefaultData(originData);
+                originData = this.setOriginConfigFile();
                 break;
-            case 'environment':
-                const environmentData = this.allDefaultData(originData.Configure.Environment);
-                originData.Configure.Environment = environmentData;
-                const defaultSetEnvironment = this.allDefaultData(originData.Configure.setEnvironment);
-                originData.Configure.setEnvironment = defaultSetEnvironment;
-                break;
-            case 'formDesign':
-                const formData = this.allDefaultData(originData.Configure.FormDesign);
-                originData.Configure.FormDesign = formData;
-                break;
+            // case 'environment':
+            //     const environmentData = this.allDefaultData(originData.Configure.Environment);
+            //     originData.Configure.Environment = environmentData;
+            //     const defaultSetEnvironment = this.allDefaultData(originData.Configure.setEnvironment);
+            //     originData.Configure.setEnvironment = defaultSetEnvironment;
+            //     break;
+            // case 'formDesign':
+            //     const formData = this.allDefaultData(originData.Configure.FormDesign);
+            //     originData.Configure.FormDesign = formData;
+            //     break;
         }
 
         if (originData) {
@@ -137,19 +115,6 @@ export class NexaOptionsImpl implements NexaOptions {
             return false
         }
     }
-
-    // default 초기화
-    allDefaultData(originData: any): object {
-        if (Array.isArray(originData) && originData.length > 1) {
-            originData[1] = originData[0];
-        } else if (typeof originData === 'object' && originData !== null) {
-            for (const key in originData) {
-                this.allDefaultData(originData[key]);
-            }
-        }
-        return originData;
-    }
-
 }
 
 export const bindNexaOptionsBackend = (bind: interfaces.Bind) => {

@@ -40,3 +40,4 @@ dependency-check-summary.txt*
 *.vsix
 /scripts/native-dependencies-*
 Mars_Sample
+nexa-options-user-config.json
