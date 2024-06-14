@@ -38,14 +38,59 @@ export class NexaOptionsImpl implements NexaOptions {
     }
 
     // options JSON 파일 읽고 데이터에 저장
-    readOptionsFile(): Promise<OptionsData> {
+    parseOptionsFile(): OptionsData {
         const directoryPath = '../../../../nexa-options-data.json';
         const filePath = path.join(__dirname, directoryPath);
 
         const jsonData = fs.readFileSync(filePath, 'utf8');
-        const optionsData = JSON.parse(jsonData);
+        const parseData = JSON.parse(jsonData);
 
-        return optionsData;
+        return parseData;
+    }
+
+    async readOptionsFile(): Promise<{ result?: boolean; data?: OptionsData }> {
+        const originData = this.parseOptionsFile();
+        const optionsData = this.extractOptionsData(originData, 1);
+
+        if (optionsData) {
+            return { result: true, data: optionsData };
+        } else {
+            return { result: false };
+        }
+    }
+
+    run(data: any): object {
+        const originData = this.parseOptionsFile();
+        const result = this.saveOptionsData(originData, data);
+
+        this.saveOptionsFile(originData);
+        return result
+    }
+
+    saveOptionsData(originData: any, data: any): object {
+        if (Array.isArray(originData) && originData.length > 1) {
+            originData[1] = data;
+        } else if (typeof originData === 'object' && originData !== null) {
+            for (const key in originData) {
+                this.saveOptionsData(originData[key], data[key]);
+            }
+        }
+        return originData;
+    }
+
+    // 원하는 배열 번호의 객체 가져오기
+    extractOptionsData(originData: any, num: number): OptionsData {
+        if (Array.isArray(originData) && originData.length > num) {
+            return originData[num];
+        } else if (typeof originData === 'object' && originData !== null) {
+            const newObj: any = {};
+            for (const key in originData) {
+                newObj[key] = this.extractOptionsData(originData[key], num);
+            }
+            return newObj;
+        }
+
+        return originData;
     }
 
     // 변경된 data options에 저장
@@ -64,60 +109,46 @@ export class NexaOptionsImpl implements NexaOptions {
     }
 
     // options 초기화
-    async resetOptionsFile(data: OptionsData, type: string): Promise<boolean> {
-        const initialData: OptionsData = {
-            Configure: {
-                Environment: {
-                    General: {
-                        workFolder: 'C://Users//tobesoft//Documents//tobesoft//nexacro N//settings',
-                        recentFileCount: 4,
-                        recentPrjCount: 4,
-                        commandType: 0,
-                        toolTheme: 0
-                    }
-                },
-                FormDesign: {
-                    General: {
-                        undoMax: 1024,
-                        defaultWidth: 1280,
-                        defaultHeight: 720,
-                        selectType: 1
-                    },
-                    LayoutManager: {
-                        displayEditStep: 1
-                    }
-                },
-                setEnvironment: 'developer'
-            }
-        };
-
-        let defaultData = data;
+    async resetOptionsFile(type: string): Promise<boolean> {
+        let originData: any = this.parseOptionsFile();
 
         switch (type) {
             case 'all':
-                defaultData = initialData;
+                originData = this.allDefaultData(originData);
                 break;
             case 'environment':
-                defaultData.Configure.Environment.General.workFolder = 'C://Users//tobesoft//Documents//tobesoft//nexacro N//settings'
-                defaultData.Configure.Environment.General.recentFileCount = 4;
-                defaultData.Configure.Environment.General.recentPrjCount = 4;
-                defaultData.Configure.Environment.General.commandType = 0;
-                defaultData.Configure.Environment.General.toolTheme = 0;
-                defaultData.Configure.setEnvironment = 'developer';
+                const environmentData = this.allDefaultData(originData.Configure.Environment);
+                originData.Configure.Environment = environmentData;
+                const defaultSetEnvironment = this.allDefaultData(originData.Configure.setEnvironment);
+                originData.Configure.setEnvironment = defaultSetEnvironment;
                 break;
             case 'formDesign':
-                defaultData.Configure.FormDesign.General.undoMax = 1024;
-                defaultData.Configure.FormDesign.General.defaultWidth = 1280;
-                defaultData.Configure.FormDesign.General.defaultHeight = 720;
-                defaultData.Configure.FormDesign.General.selectType = 1;
-                defaultData.Configure.FormDesign.LayoutManager.displayEditStep = 1;
+                const formData = this.allDefaultData(originData.Configure.FormDesign);
+                originData.Configure.FormDesign = formData;
                 break;
         }
 
-        const result = await this.saveOptionsFile(defaultData);
+        if (originData) {
+            const result = await this.saveOptionsFile(originData);
+            return result ? true : false;
 
-        return result ? true : false;
+        } else {
+            return false
+        }
     }
+
+    // default 초기화
+    allDefaultData(originData: any): object {
+        if (Array.isArray(originData) && originData.length > 1) {
+            originData[1] = originData[0];
+        } else if (typeof originData === 'object' && originData !== null) {
+            for (const key in originData) {
+                this.allDefaultData(originData[key]);
+            }
+        }
+        return originData;
+    }
+
 }
 
 export const bindNexaOptionsBackend = (bind: interfaces.Bind) => {

@@ -58,10 +58,20 @@ export class NexaOptionsWidget extends ReactWidget {
 
     // Options JSON 파일 저장
     public setOptionsData() {
-        this.nexaOptions.readOptionsFile().then((data: OptionsData) => {
-            this.optionsData = { ...data };
-            this.update();
-        })
+        this.nexaOptions.readOptionsFile().then((readResult) => {
+            const { result, data } = readResult;
+
+            if (!result) {
+                throw new Error('Options not save');
+            }
+
+            if (data) {
+                this.optionsData = { ...data };
+                console.log(JSON.stringify(data));
+                this.update();
+            }
+
+        });
     }
 
     // 현재 Options 창 모드 선택
@@ -88,24 +98,23 @@ export class NexaOptionsWidget extends ReactWidget {
 
     // options 저장
     protected async saveOptionsData(): Promise<void> {
-        this.nexaOptions.saveOptionsFile(this.optionsData).then((result: boolean) => {
-            if (!result) {
-                throw new Error('Options not saved');
-            }
+        // this.nexaOptions.saveOptionsFile(this.optionsData).then((result: boolean) => {
+        //     if (!result) {
+        //         throw new Error('Options not saved');
+        //     }
 
-            this.setOptionsData();
-            alert('Options has been modified.');
-        })
+        //     this.setOptionsData();
+        //     alert('Options has been modified.');
+        // })
+        this.nexaOptions.run(this.optionsData);
     }
 
     // options 초기화
     protected async resetOptionsFile(type: string): Promise<void> {
-        this.nexaOptions.resetOptionsFile(this.optionsData, type).then((result: boolean) => {
+        this.nexaOptions.resetOptionsFile(type).then((result: boolean) => {
             if (!result) {
                 throw new Error('Options not reset');
             }
-
-            this.setOptionsData();
             alert('Changed to default set');
         })
     }
