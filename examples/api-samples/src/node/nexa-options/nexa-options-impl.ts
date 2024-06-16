@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @theia/runtime-import-check */
 // *****************************************************************************
 // Copyright (C) 2024 TOBESOFT and others.
 //
@@ -40,10 +42,10 @@ export class NexaOptionsImpl implements NexaOptions {
 
     setOriginConfigFile(): OptionsData {
         const originConfigPath = '../../../../nexa-options-config.json';
-        const joinPath = path.join(__dirname, originConfigPath)
+        const joinPath = path.join(__dirname, originConfigPath);
         const originJsonData = fs.readFileSync(joinPath, 'utf-8');
         const originParseData = JSON.parse(originJsonData);
-        return originParseData
+        return originParseData;
     };
 
     // options JSON 파일 읽고 데이터에 저장
@@ -59,7 +61,7 @@ export class NexaOptionsImpl implements NexaOptions {
         } finally {
             const jsonData = fs.readFileSync(filePath, 'utf-8');
             const parseData = JSON.parse(jsonData);
-            return parseData
+            return parseData;
         }
 
     }
@@ -89,22 +91,21 @@ export class NexaOptionsImpl implements NexaOptions {
 
     // options 초기화
     async resetOptionsFile(type: string): Promise<boolean> {
-        let originData: any = this.parseOptionsFile();
+        let originData: any = await this.parseOptionsFile();
 
         switch (type) {
             case 'all':
                 originData = this.setOriginConfigFile();
                 break;
-            // case 'environment':
-            //     const environmentData = this.allDefaultData(originData.Configure.Environment);
-            //     originData.Configure.Environment = environmentData;
-            //     const defaultSetEnvironment = this.allDefaultData(originData.Configure.setEnvironment);
-            //     originData.Configure.setEnvironment = defaultSetEnvironment;
-            //     break;
-            // case 'formDesign':
-            //     const formData = this.allDefaultData(originData.Configure.FormDesign);
-            //     originData.Configure.FormDesign = formData;
-            //     break;
+            case 'environment':
+                const environmentConfig = this.setOriginConfigFile();
+                originData.Configure.Environment = environmentConfig.Configure.Environment;
+                originData.Configure.setEnvironment = environmentConfig.Configure.setEnvironment;
+                break;
+            case 'formDesign':
+                const formDataConfig = this.setOriginConfigFile();
+                originData.Configure.FormDesign = formDataConfig.Configure.FormDesign;
+                break;
         }
 
         if (originData) {
@@ -112,7 +113,7 @@ export class NexaOptionsImpl implements NexaOptions {
             return result ? true : false;
 
         } else {
-            return false
+            return false;
         }
     }
 }
