@@ -50,5 +50,5 @@ export default function NexaOptionsInput(props: NexaOptionsInputProps): React.JS
             </div>
             {props.errorResult && <span className='error-message'>{props.errorMsg}</span>}
         </div>
-    )
+    );
 }

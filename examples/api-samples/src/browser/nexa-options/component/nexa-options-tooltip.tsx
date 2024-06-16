@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 // *****************************************************************************
 // Copyright (C) 2024 TOBESOFT and others.
 //
@@ -41,5 +42,5 @@ export default function NexaOptionsTooltip(props: NexaOptionsTooltipProps): Reac
                 )}
             </button>
         </div>
-    )
+    );
 }

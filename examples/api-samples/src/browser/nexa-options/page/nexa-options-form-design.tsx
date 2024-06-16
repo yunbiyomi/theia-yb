@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-unused-expressions */
 // *****************************************************************************
 // Copyright (C) 2024 TOBESOFT and others.
@@ -37,18 +39,18 @@ export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps)
         defaultWidth: data.General.defaultWidth,
         defaultHeight: data.General.defaultHeight,
         selectType: data.General.selectType
-    }
+    };
 
     const initialErrorState = {
         width: false,
         height: false
-    }
+    };
 
     const initialMouseOver = {
         undo: false,
         width: false,
         height: false
-    }
+    };
 
     const [formDesign, setFormDesign] = React.useState(initialFormDesignState);
     const [displayEditStep, setDisplayEditStep] = React.useState(data.LayoutManager.displayEditStep);
@@ -58,10 +60,10 @@ export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps)
 
     // Options Data 변경될 때
     React.useEffect(() => {
-        const displayEditStep = props.optionsData.Configure.FormDesign.LayoutManager.displayEditStep;
+        const displayEditStepData = props.optionsData.Configure.FormDesign.LayoutManager.displayEditStep;
         setFormDesign(initialFormDesignState);
-        setDisplayEditStep(displayEditStep);
-    }, [props.optionsData])
+        setDisplayEditStep(displayEditStepData);
+    }, [props.optionsData]);
 
     // 변경된 Options Data 저장
     React.useEffect(() => {
@@ -83,10 +85,10 @@ export default function NexaOptionsFormDesign(props: NexaOptionsFormDesignProps)
     }, [formDesign.defaultWidth, formDesign.defaultHeight]);
 
     // tooltip 표시 유무
-    const handleMouseOver = (type: string, data: boolean) => {
+    const handleMouseOver = (type: string, mouseData: boolean) => {
         setMouseOver(prevData => ({
             ...prevData,
-            [type]: data
+            [type]: mouseData
         }));
     };
 

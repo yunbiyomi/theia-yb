@@ -44,7 +44,7 @@ export class NexaOptionsContribution extends AbstractViewContribution<NexaOption
             defaultWidgetOptions: {
                 area: 'main',
             }
-        })
+        });
     }
 
     override registerCommands(registry: CommandRegistry): void {

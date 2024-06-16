@@ -50,5 +50,5 @@ export default function NexaOptionsRadio(props: NexaOptionsRadioProps): React.JS
             <label className='tab' htmlFor={`radio-${props.orderNumber + 1}`}>{props.secContent}</label>
             <span id={`glider${props.orderNumber}`}></span>
         </div>
-    )
+    );
 }

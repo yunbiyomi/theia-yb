@@ -24,5 +24,5 @@ export default function NexaOptionsLoading(): React.JSX.Element {
             <div className='box'></div>
             <div className='box'></div>
         </div>
-    )
+    );
 }

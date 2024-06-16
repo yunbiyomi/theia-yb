@@ -1,3 +1,7 @@
+/* eslint-disable max-len */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable import/no-extraneous-dependencies */
 // *****************************************************************************
 // Copyright (C) 2024 TOBESOFT and others.
 //
@@ -40,12 +44,12 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
         recentPrjCount: data.Environment.General.recentPrjCount,
         commandType: data.Environment.General.commandType,
         toolTheme: data.Environment.General.toolTheme
-    }
+    };
 
     const initialErrorState = {
         file: false,
         project: false
-    }
+    };
 
     const initialMouseOver = {
         file: false,
@@ -53,7 +57,7 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
         perspective: false,
         command: false,
         theme: false
-    }
+    };
 
     const [environment, setEnvironment] = React.useState(initialEnvironmentState);
     const [environmentType, setEnvironmentType] = React.useState(data.setEnvironment);
@@ -76,10 +80,10 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
 
     // Options Data 변경될 때
     React.useEffect(() => {
-        const environment = props.optionsData.Configure.setEnvironment;
+        const environmentData = props.optionsData.Configure.setEnvironment;
         setEnvironment(initialEnvironmentState);
-        setEnvironmentType(environment);
-    }, [props.optionsData])
+        setEnvironmentType(environmentData);
+    }, [props.optionsData]);
 
     // 변경된 Options Data 저장
     React.useEffect(() => {
@@ -101,10 +105,10 @@ export default function NexaOptionsEnvironment(props: NexaOptionsEnvironmentProp
     }, [environment.recentFileCount, environment.recentPrjCount]);
 
     // tooltip 표시 유무
-    const handleMouseOver = (type: string, data: boolean) => {
+    const handleMouseOver = (type: string, mouseData: boolean) => {
         setMouseOver(prevData => ({
             ...prevData,
-            [type]: data
+            [type]: mouseData
         }));
     };
 

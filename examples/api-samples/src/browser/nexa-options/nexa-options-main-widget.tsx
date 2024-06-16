@@ -14,7 +14,6 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-
 import { BaseWidget, Message, MessageLoop, Panel, PanelLayout, WidgetManager } from '@theia/core/lib/browser';
 import { inject, injectable, interfaces, postConstruct } from '@theia/core/shared/inversify';
 import { NexaOptionsTreeWidget } from './tree/nexa-options-tree-widget';

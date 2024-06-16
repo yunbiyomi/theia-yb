@@ -1,3 +1,7 @@
+/* eslint-disable deprecation/deprecation */
+/* eslint-disable @theia/shared-dependencies */
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable max-len */
 // *****************************************************************************
 // Copyright (C) 2024 TOBESOFT and others.
 //
@@ -61,7 +65,6 @@ export class NexaOptionsTreeWidget extends TreeWidget {
 
         const root = this.createRootNode();
 
-
         const environmentRoot = this.createNodes('environment', 'Environment', codicon('globe'), root, true, 'environment-general', 'General');
         CompositeTreeNode.addChild(root, environmentRoot);
         const formDesignRoot = this.createNodes('form-design', 'FormDesign', codicon('symbol-color'), root, false, 'form-design-general', 'General');
@@ -114,9 +117,9 @@ export class NexaOptionsTreeWidget extends TreeWidget {
             children: newChildren,
             expanded: expanded,
             selected: false
-        }
+        };
 
-        return node
+        return node;
     }
 
     protected createTreeNode(id: string, name: string, parent: CompositeTreeNode): OptionsNode {
@@ -129,9 +132,9 @@ export class NexaOptionsTreeWidget extends TreeWidget {
             parent: parent,
             children: newChildren,
             selected: false
-        }
+        };
 
-        return node
+        return node;
     }
 
     protected createNodes(id: string, name: string, icon: string, parent: CompositeTreeNode, exapnd: boolean, childId: string, childName: string): ExpandOptionsNode {
@@ -145,7 +148,7 @@ export class NexaOptionsTreeWidget extends TreeWidget {
 
         parentNode.children = nodeChilds;
 
-        return parentNode
+        return parentNode;
     }
 
     protected override renderIcon(node: TreeNode, props: NodeProps): React.ReactNode {

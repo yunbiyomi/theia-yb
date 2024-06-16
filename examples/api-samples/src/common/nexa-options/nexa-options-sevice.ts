@@ -1,3 +1,4 @@
+/* eslint-disable @theia/runtime-import-check */
 // *****************************************************************************
 // Copyright (C) 2024 TOBESOFT and others.
 //

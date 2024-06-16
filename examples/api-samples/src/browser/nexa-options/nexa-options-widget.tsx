@@ -1,3 +1,7 @@
+/* eslint-disable arrow-parens */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @theia/shared-dependencies */
+/* eslint-disable import/no-extraneous-dependencies */
 // *****************************************************************************
 // Copyright (C) 2024 TOBESOFT and others.
 //
@@ -53,7 +57,7 @@ export class NexaOptionsWidget extends ReactWidget {
     }
 
     // Options JSON 파일 저장
-    public setOptionsData() {
+    public async setOptionsData(): Promise<void> {
         this.nexaOptions.readOptionsFile().then((readResult) => {
             const { result, data } = readResult;
 
@@ -70,7 +74,7 @@ export class NexaOptionsWidget extends ReactWidget {
     }
 
     // 현재 Options 창 모드 선택
-    public setOptionsType(type: string) {
+    public async setOptionsType(type: string): Promise<void> {
         this.optionsType = type;
         this.update();
     }
@@ -103,7 +107,7 @@ export class NexaOptionsWidget extends ReactWidget {
             alert('Options has been modified.');
 
         });
-    }
+    };
 
     // options 초기화
     protected resetOptionsFile = (type: string) => {
@@ -113,8 +117,8 @@ export class NexaOptionsWidget extends ReactWidget {
             }
             this.setOptionsData();
             alert('Changed to default set');
-        })
-    }
+        });
+    };
 
     // component에서 수정한 데이터 저장
     protected updateEnvironmentOptions = (newData: any) => {
@@ -123,12 +127,12 @@ export class NexaOptionsWidget extends ReactWidget {
             ...newData
         };
         this.update();
-    }
+    };
 
     protected updateEnvironmentTypeOptions = (newData: any) => {
         this.optionsData.Configure.setEnvironment = newData;
         this.update();
-    }
+    };
 
     protected updateFormDesignOptions = (newData: any) => {
         this.optionsData.Configure.FormDesign.General = {
@@ -136,12 +140,12 @@ export class NexaOptionsWidget extends ReactWidget {
             ...newData
         };
         this.update();
-    }
+    };
 
     protected updateDisplayEditOptions = (newData: any) => {
         this.optionsData.Configure.FormDesign.LayoutManager.displayEditStep = newData;
         this.update();
-    }
+    };
 
     protected render(): React.ReactNode {
         return (

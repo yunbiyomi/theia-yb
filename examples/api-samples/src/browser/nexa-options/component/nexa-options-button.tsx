@@ -32,5 +32,5 @@ export default function NexaOptionsButton(props: NexaOptionsButtonProps): React.
             </div>
             <button className='options-button' onClick={props.saveOptionsData} disabled={props.result}>Save</button>
         </div>
-    )
+    );
 }
