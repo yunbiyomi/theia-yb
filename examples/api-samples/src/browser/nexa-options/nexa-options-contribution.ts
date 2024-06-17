@@ -20,7 +20,6 @@ import { NexaOptions, NexaOptionsClient, NexaOptionsPath } from '../../common/ne
 import { AbstractViewContribution, bindViewContribution, FrontendApplicationContribution, WidgetFactory } from '@theia/core/lib/browser';
 import { NexaOptionsMainWidget } from './nexa-options-main-widget';
 import { LocalConnectionProvider, ServiceConnectionProvider } from '@theia/core/lib/browser/messaging/service-connection-provider';
-// import { OptionsData } from './nexa-options-definitions';
 
 const OptionsCommand: Command = {
     id: 'nexa-options',

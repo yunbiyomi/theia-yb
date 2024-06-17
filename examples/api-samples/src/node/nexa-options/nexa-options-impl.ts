@@ -40,6 +40,7 @@ export class NexaOptionsImpl implements NexaOptions {
         throw new Error('Method not implemented.');
     }
 
+    // origin config File 데이터 파싱
     setOriginConfigFile(): OptionsData {
         const originConfigPath = '../../../../nexa-options-config.json';
         const joinPath = path.join(__dirname, originConfigPath);
@@ -48,7 +49,7 @@ export class NexaOptionsImpl implements NexaOptions {
         return originParseData;
     };
 
-    // options JSON 파일 읽고 데이터에 저장
+    // user config File 생성/수정
     async parseOptionsFile(): Promise<OptionsData> {
         const directoryPath = '../../../../nexa-options-user-config.json';
         const filePath = path.join(__dirname, directoryPath);
@@ -66,6 +67,7 @@ export class NexaOptionsImpl implements NexaOptions {
 
     }
 
+    // user confing File 데이터 파싱
     async readOptionsFile(): Promise<{ result?: boolean; data?: OptionsData }> {
         let originData;
         await this.parseOptionsFile().then((data: OptionsData) => {
@@ -74,7 +76,7 @@ export class NexaOptionsImpl implements NexaOptions {
         return { result: true, data: originData };
     }
 
-    // 변경된 data options에 저장
+    // user cofing File의 변경 내용 저장
     async saveOptionsFile(data: OptionsData): Promise<boolean> {
         if (!data) {
             return false;
