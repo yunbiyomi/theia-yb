@@ -19,7 +19,7 @@
 import { ConnectionHandler, RpcConnectionHandler } from '@theia/core';
 import { injectable, interfaces } from '@theia/core/shared/inversify';
 import { NexaOptions, NexaOptionsClient, NexaOptionsPath } from '../../common/nexa-options/nexa-options-sevice';
-import { OptionsData } from '../../browser/nexa-options/nexa-options-definitions';
+import { OptionsData, OriginConfig } from '../../browser/nexa-options/nexa-options-definitions';
 import fs = require('fs');
 import path = require('path');
 
@@ -40,15 +40,6 @@ export class NexaOptionsImpl implements NexaOptions {
         throw new Error('Method not implemented.');
     }
 
-    // origin config File 데이터 파싱
-    setOriginConfigFile(): OptionsData {
-        const originConfigPath = '../../../../nexa-options-config.json';
-        const joinPath = path.join(__dirname, originConfigPath);
-        const originJsonData = fs.readFileSync(joinPath, 'utf-8');
-        const originParseData = JSON.parse(originJsonData);
-        return originParseData;
-    };
-
     // user config File 생성/수정
     async parseOptionsFile(): Promise<OptionsData> {
         const directoryPath = '../../../../nexa-options-user-config.json';
@@ -57,7 +48,7 @@ export class NexaOptionsImpl implements NexaOptions {
         try {
             fs.statSync(filePath);
         } catch (error) {
-            const originParseData = this.setOriginConfigFile();
+            const originParseData = OriginConfig;
             await this.saveOptionsFile(originParseData);
         } finally {
             const jsonData = fs.readFileSync(filePath, 'utf-8');
@@ -97,15 +88,15 @@ export class NexaOptionsImpl implements NexaOptions {
 
         switch (type) {
             case 'all':
-                originData = this.setOriginConfigFile();
+                originData = OriginConfig;
                 break;
             case 'environment':
-                const environmentConfig = this.setOriginConfigFile();
+                const environmentConfig = OriginConfig;
                 originData.Configure.Environment = environmentConfig.Configure.Environment;
                 originData.Configure.setEnvironment = environmentConfig.Configure.setEnvironment;
                 break;
             case 'formDesign':
-                const formDataConfig = this.setOriginConfigFile();
+                const formDataConfig = OriginConfig;
                 originData.Configure.FormDesign = formDataConfig.Configure.FormDesign;
                 break;
         }
