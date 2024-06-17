@@ -52,6 +52,7 @@ export class NexaOptionsWidget extends ReactWidget {
         this.title.label = NexaOptionsWidget.LABEL;
         this.title.caption = NexaOptionsWidget.LABEL;
         this.node.tabIndex = 0;
+        this.doOpenFolder = this.doOpenFolder.bind(this);
 
         this.update();
     }
