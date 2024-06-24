@@ -44,7 +44,7 @@ export const OriginConfig: OptionsData = {
     Configure: {
         Environment: {
             General: {
-                workFolder: "C:/Users/tobesoft/Documents/tobesoft/nexacro N/settings",
+                workFolder: 'C:/Users/tobesoft/Documents/tobesoft/nexacro N/settings',
                 recentFileCount: 4,
                 recentPrjCount: 4,
                 commandType: 0,
@@ -62,9 +62,9 @@ export const OriginConfig: OptionsData = {
                 displayEditStep: 1
             }
         },
-        setEnvironment: "developer"
+        setEnvironment: 'developer'
     }
-}
+};
 
 export enum COMMAND_TYPE {
     default,
